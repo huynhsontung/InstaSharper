@@ -16,6 +16,7 @@ namespace InstaSharper.Classes
         {
             _delay = delay;
             Client = httpClient;
+            Client.Timeout = TimeSpan.FromSeconds(20);
             HttpHandler = httpHandler;
             RequestMessage = requestMessage;
             _logger = logger;
