@@ -35,7 +35,7 @@ namespace InstaSharper.Converters
                 {
                     HasOlder = SourceObject.Inbox.HasOlder,
                     UnseenCount = SourceObject.Inbox.UnseenCount,
-                    UnseenCountTs = SourceObject.Inbox.UnseenCountTs.FromUnixTimeMiliSeconds(),
+                    UnseenCountTs = DateTimeHelper.UnixTimestampToDateTime(SourceObject.Inbox.UnseenCountTs),
                     OldestCursor = SourceObject.Inbox.OldestCursor
                 };
 

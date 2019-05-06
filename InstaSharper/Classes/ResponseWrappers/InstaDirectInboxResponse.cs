@@ -7,7 +7,7 @@ namespace InstaSharper.Classes.ResponseWrappers
     {
         [JsonProperty("has_older")] public bool HasOlder { get; set; }
 
-        [JsonProperty("unseen_count_ts")] public long UnseenCountTs { get; set; }
+        [JsonProperty("unseen_count_ts")] public string UnseenCountTs { get; set; }
 
         [JsonProperty("unseen_count")] public long UnseenCount { get; set; }
 
