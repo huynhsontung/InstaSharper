@@ -6,6 +6,8 @@ namespace InstaSharper.Classes.ResponseWrappers
 {
     public class InstaDirectInboxContainerResponse : BaseStatusResponse
     {
+        [JsonProperty("viewer")] public InstaUserShortResponse Viewer { get; set; }
+
         [JsonProperty("pending_requests_total")]
         public int PendingRequestsCount { get; set; }
 

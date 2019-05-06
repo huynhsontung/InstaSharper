@@ -15,11 +15,19 @@ namespace InstaSharper.Classes.ResponseWrappers
 
         [JsonProperty("oldest_cursor")] public string OldestCursor { get; set; }
 
+        [JsonProperty("newest_cursor")] public string NewestCursor { get; set; }
+
+        [JsonProperty("next_cursor")] public string NextCursor { get; set; }
+        
+        [JsonProperty("prev_cursor")] public string PrevCursor { get; set; }
+
         [JsonProperty("last_activity_at")] public string LastActivity { get; set; }
 
         [JsonProperty("viewer_id")] public string VieweId { get; set; }
 
         [JsonProperty("thread_id")] public string ThreadId { get; set; }
+
+        [JsonProperty("thread_v2_id")] public string ThreadV2Id { get; set; }
 
         [JsonProperty("has_older")] public bool HasOlder { get; set; }
 
@@ -38,5 +46,7 @@ namespace InstaSharper.Classes.ResponseWrappers
         [JsonProperty("thread_type")] public InstaDirectThreadType ThreadType { get; set; }
 
         [JsonProperty("items")] public List<InstaDirectInboxItemResponse> Items { get; set; }
+
+        [JsonProperty("last_permanent_item")] public InstaDirectInboxItemResponse LastPermanentItem { get; set; }
     }
 }

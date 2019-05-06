@@ -15,12 +15,14 @@ namespace InstaSharper.Classes.Models
         public string ItemId { get; set; }
 
 
-        public InstaDirectThreadItemType ItemType { get; set; } = InstaDirectThreadItemType.Text;
+        public InstaDirectThreadItemType ItemType { get; set; } = InstaDirectThreadItemType.Unsupported;
 
         public InstaInboxMedia Media { get; set; }
 
         public InstaMedia MediaShare { get; set; }
 
         public Guid ClientContext { get; set; }
+
+        public string UnsupportedType { get; set; }
     }
 }

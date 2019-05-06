@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace InstaSharper.Classes.Models
 {
@@ -6,9 +7,11 @@ namespace InstaSharper.Classes.Models
     {
         public bool HasOlder { get; set; }
 
-        public long UnseenCountTs { get; set; }
+        public DateTime UnseenCountTs { get; set; } // Timestamp
 
         public long UnseenCount { get; set; }
+
+        public string OldestCursor { get; set; }
 
         public List<InstaDirectInboxThread> Threads { get; set; }
     }

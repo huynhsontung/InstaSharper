@@ -24,6 +24,9 @@ namespace InstaSharper.Converters
                 LastActivity = DateTimeHelper.UnixTimestampMilisecondsToDateTime(SourceObject.LastActivity),
                 ThreadId = SourceObject.ThreadId,
                 OldestCursor = SourceObject.OldestCursor,
+                NewestCursor = SourceObject.NewestCursor,
+                NextCursor = SourceObject.NextCursor,
+                PrevCursor = SourceObject.PrevCursor,
                 ThreadType = SourceObject.ThreadType,
                 Title = SourceObject.Title
             };
@@ -41,6 +44,12 @@ namespace InstaSharper.Converters
                     var converter = ConvertersFabric.Instance.GetDirectThreadItemConverter(item);
                     thread.Items.Add(converter.Convert());
                 }
+            }
+
+            if(SourceObject.LastPermanentItem != null)
+            {
+                var converter = ConvertersFabric.Instance.GetDirectThreadItemConverter(SourceObject.LastPermanentItem);
+                thread.LastPermanentItem = converter.Convert();
             }
 
             if (SourceObject.Users != null && SourceObject.Users.Count > 0)

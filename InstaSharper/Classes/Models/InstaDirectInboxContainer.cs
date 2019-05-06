@@ -8,6 +8,8 @@ namespace InstaSharper.Classes.Models
 
         public int SeqId { get; set; }
 
+        public InstaUserShort Viewer { get; set; } = new InstaUserShort();
+
         public InstaDirectInboxSubscription Subscription { get; set; } = new InstaDirectInboxSubscription();
 
         public InstaDirectInbox Inbox { get; set; } = new InstaDirectInbox();

@@ -2,10 +2,11 @@
 {
     public enum InstaDirectThreadItemType
     {
-        Text = 0,
+        Unsupported = 0,
         MediaShare = 1,
         Like = 2,
         Link = 3,
-        Media = 4
+        Media = 4,
+        Text = 5
     }
 }

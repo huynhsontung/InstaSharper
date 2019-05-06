@@ -24,29 +24,34 @@ namespace InstaSharper.Converters
             if (Enum.TryParse(truncatedItemType, true, out InstaDirectThreadItemType type))
                 threadItem.ItemType = type;
 
-            if (threadItem.ItemType == InstaDirectThreadItemType.Link)
+            switch (threadItem.ItemType)
             {
-                threadItem.Text = SourceObject.Link?.LinkContext?.LinkUrl;
-            }
-            else if (threadItem.ItemType == InstaDirectThreadItemType.Like)
-            {
-                threadItem.Text = SourceObject.Like;
-            }
-            else if (threadItem.ItemType == InstaDirectThreadItemType.Media
-                     && SourceObject.Media != null)
-            {
-                var converter = ConvertersFabric.Instance.GetInboxMediaConverter(SourceObject.Media);
-                threadItem.Media = converter.Convert();
-            }
-            else if (threadItem.ItemType == InstaDirectThreadItemType.MediaShare
-                     && SourceObject.MediaShare != null)
-            {
-                var converter = ConvertersFabric.Instance.GetSingleMediaConverter(SourceObject.MediaShare);
-                threadItem.MediaShare = converter.Convert();
-            }
-            else
-            {
-                threadItem.Text = SourceObject.Text;
+                case InstaDirectThreadItemType.Link:
+                    threadItem.Text = SourceObject.Link?.LinkContext?.LinkUrl;
+                    break;
+                case InstaDirectThreadItemType.Like:
+                    threadItem.Text = SourceObject.Like;
+                    break;
+                case InstaDirectThreadItemType.Media:
+                    if(SourceObject.Media != null)
+                    {
+                        var converter = ConvertersFabric.Instance.GetInboxMediaConverter(SourceObject.Media);
+                        threadItem.Media = converter.Convert();
+                    }
+                    break;
+                case InstaDirectThreadItemType.MediaShare:
+                    if (SourceObject.MediaShare != null)
+                    {
+                        var converter = ConvertersFabric.Instance.GetSingleMediaConverter(SourceObject.MediaShare);
+                        threadItem.MediaShare = converter.Convert();
+                    }
+                    break;
+                case InstaDirectThreadItemType.Text:
+                    threadItem.Text = SourceObject.Text;
+                    break;
+                default:
+                    threadItem.UnsupportedType = SourceObject.ItemType;
+                    break;
             }
 
             return threadItem;

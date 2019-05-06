@@ -12,11 +12,15 @@ namespace InstaSharper.Classes.Models
         public string Title { get; set; }
 
         public string OldestCursor { get; set; }
+        public string NewestCursor { get; set; }
+        public string NextCursor { get; set; }
+        public string PrevCursor { get; set; }
 
         public DateTime LastActivity { get; set; }
 
         public string VieweId { get; set; }
         public string ThreadId { get; set; }
+        public string ThreadV2Id { get; set; }
         public bool HasOlder { get; set; }
 
         public InstaUserShort Inviter { get; set; }
@@ -35,5 +39,7 @@ namespace InstaSharper.Classes.Models
 
 
         public List<InstaDirectInboxItem> Items { get; set; }
+
+        public InstaDirectInboxItem LastPermanentItem { get; set; }
     }
 }
