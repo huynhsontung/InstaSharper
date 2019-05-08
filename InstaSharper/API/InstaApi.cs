@@ -923,7 +923,7 @@ namespace InstaSharper.API
         /// <summary>
         ///     Indicates whether user authenticated or not
         /// </summary>
-        public bool IsUserAuthenticated { get; private set; }
+        public bool IsUserAuthenticated { get; internal set; }
 
         /// <summary>
         ///     Create a new instagram account
@@ -1320,7 +1320,7 @@ namespace InstaSharper.API
 
         #region private part
 
-        private void InvalidateProcessors()
+        internal void InvalidateProcessors()
         {
             _hashtagProcessor = new HashtagProcessor(_deviceInfo, _user, _httpRequestProcessor, _logger);
             _locationProcessor = new LocationProcessor(_deviceInfo, _user, _httpRequestProcessor, _logger);

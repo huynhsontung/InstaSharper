@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net.Http;
 using InstaSharper.Classes;
 using InstaSharper.Classes.Android.DeviceInfo;
@@ -56,5 +57,7 @@ namespace InstaSharper.API.Builder
         /// <param name="delay">Timespan delay</param>
         /// <returns>API Builder</returns>
         IInstaApiBuilder SetRequestDelay(IRequestDelay delay);
+
+        IInstaApiBuilder LoadStateFromStream(Stream stream);
     }
 }

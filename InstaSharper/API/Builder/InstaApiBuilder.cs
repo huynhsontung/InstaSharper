@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using InstaSharper.Classes;
 using InstaSharper.Classes.Android.DeviceInfo;
+using InstaSharper.Helpers;
 using InstaSharper.Logger;
 
 namespace InstaSharper.API.Builder
@@ -16,6 +18,7 @@ namespace InstaSharper.API.Builder
         private IInstaLogger _logger;
         private ApiRequestMessage _requestMessage;
         private UserSessionData _user;
+        private bool _isUserAuthenticated { get; set; } = false;
 
         private InstaApiBuilder()
         { }
@@ -59,6 +62,11 @@ namespace InstaSharper.API.Builder
                     new HttpRequestProcessor(_delay, _httpClient, _httpHandler, _requestMessage, _logger);
 
             var instaApi = new InstaApi(_user, _logger, _device, _httpRequestProcessor);
+            if (_isUserAuthenticated)
+            {
+                instaApi.IsUserAuthenticated = _isUserAuthenticated;
+                instaApi.InvalidateProcessors();
+            }
             return instaApi;
         }
 
@@ -140,6 +148,16 @@ namespace InstaSharper.API.Builder
         public IInstaApiBuilder SetRequestDelay(IRequestDelay delay)
         {
             _delay = delay;
+            return this;
+        }
+
+        public IInstaApiBuilder LoadStateFromStream(Stream stream)
+        {
+            var data = SerializationHelper.DeserializeFromStream<StateData>(stream);
+            _device = data.DeviceInfo;
+            _user = data.UserSession;
+            _httpHandler.CookieContainer = data.Cookies;
+            _isUserAuthenticated = data.IsAuthenticated;
             return this;
         }
 
