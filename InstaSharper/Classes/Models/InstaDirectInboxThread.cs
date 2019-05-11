@@ -18,7 +18,7 @@ namespace InstaSharper.Classes.Models
 
         public DateTime LastActivity { get; set; }
 
-        public string VieweId { get; set; }
+        public long ViewerId { get; set; }
         public string ThreadId { get; set; }
         public string ThreadV2Id { get; set; }
         public bool HasOlder { get; set; }

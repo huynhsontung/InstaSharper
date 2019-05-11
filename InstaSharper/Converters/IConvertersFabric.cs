@@ -43,7 +43,7 @@ namespace InstaSharper.Converters
             InstaDirectInboxThreadResponse thread);
 
         IObjectConverter<InstaDirectInboxItem, InstaDirectInboxItemResponse> GetDirectThreadItemConverter(
-            InstaDirectInboxItemResponse threadItem);
+            InstaDirectInboxItemResponse threadItem, long viewerId);
 
         IObjectConverter<InstaDirectInboxSubscription, InstaDirectInboxSubscriptionResponse>
             GetDirectSubscriptionConverter(InstaDirectInboxSubscriptionResponse subscription);

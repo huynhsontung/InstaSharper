@@ -9,6 +9,8 @@ namespace InstaSharper.Converters
     {
         public InstaDirectInboxItemResponse SourceObject { get; set; }
 
+        public long ViewerId { get; set; }
+
         public InstaDirectInboxItem Convert()
         {
             var threadItem = new InstaDirectInboxItem
@@ -19,6 +21,7 @@ namespace InstaSharper.Converters
 
             threadItem.TimeStamp = DateTimeHelper.UnixTimestampMilisecondsToDateTime(SourceObject.TimeStamp);
             threadItem.UserId = SourceObject.UserId;
+            threadItem.FromMe = threadItem.UserId == ViewerId ? true : false;
 
             var truncatedItemType = SourceObject.ItemType.Trim().Replace("_", "");
             if (Enum.TryParse(truncatedItemType, true, out InstaDirectThreadItemType type))

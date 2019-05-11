@@ -20,7 +20,7 @@ namespace InstaSharper.Converters
                 Muted = SourceObject.Muted,
                 Named = SourceObject.Named,
                 Pending = SourceObject.Pending,
-                VieweId = SourceObject.VieweId,
+                ViewerId = SourceObject.ViewerId,
                 LastActivity = DateTimeHelper.UnixTimestampMilisecondsToDateTime(SourceObject.LastActivity),
                 ThreadId = SourceObject.ThreadId,
                 OldestCursor = SourceObject.OldestCursor,
@@ -41,14 +41,14 @@ namespace InstaSharper.Converters
                 thread.Items = new List<InstaDirectInboxItem>();
                 foreach (var item in SourceObject.Items)
                 {
-                    var converter = ConvertersFabric.Instance.GetDirectThreadItemConverter(item);
+                    var converter = ConvertersFabric.Instance.GetDirectThreadItemConverter(item, thread.ViewerId);
                     thread.Items.Add(converter.Convert());
                 }
             }
 
             if(SourceObject.LastPermanentItem != null)
             {
-                var converter = ConvertersFabric.Instance.GetDirectThreadItemConverter(SourceObject.LastPermanentItem);
+                var converter = ConvertersFabric.Instance.GetDirectThreadItemConverter(SourceObject.LastPermanentItem, thread.ViewerId);
                 thread.LastPermanentItem = converter.Convert();
             }
 

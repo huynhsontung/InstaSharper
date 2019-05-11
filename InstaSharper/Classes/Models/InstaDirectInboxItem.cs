@@ -24,5 +24,7 @@ namespace InstaSharper.Classes.Models
         public Guid ClientContext { get; set; }
 
         public string UnsupportedType { get; set; }
+
+        public bool FromMe { get; set; } = false;
     }
 }

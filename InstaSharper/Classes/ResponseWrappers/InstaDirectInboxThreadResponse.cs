@@ -23,7 +23,7 @@ namespace InstaSharper.Classes.ResponseWrappers
 
         [JsonProperty("last_activity_at")] public string LastActivity { get; set; }
 
-        [JsonProperty("viewer_id")] public string VieweId { get; set; }
+        [JsonProperty("viewer_id")] public long ViewerId { get; set; }
 
         [JsonProperty("thread_id")] public string ThreadId { get; set; }
 
