@@ -2,7 +2,7 @@
 
 namespace InstaSharper.Classes.Models
 {
-    public class InstaDirectInboxItem
+    public class InstaDirectInboxItem : IEquatable<InstaDirectInboxItem>
     {
         public string Text { get; set; }
 
@@ -26,5 +26,10 @@ namespace InstaSharper.Classes.Models
         public string UnsupportedType { get; set; }
 
         public bool FromMe { get; set; } = false;
+
+        public bool Equals(InstaDirectInboxItem other)
+        {
+            return ItemId == other.ItemId;
+        }
     }
 }
