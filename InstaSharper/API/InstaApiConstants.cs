@@ -38,8 +38,8 @@ namespace InstaSharper.API
         public const string HEADER_IG_CONNECTION_TYPE = "X-IG-Connection-Type";
         public const string ACCEPT_LANGUAGE = "en-US";
         public const string HEADER_ACCEPT_LANGUAGE = "Accept-Language";
-        public const string ACCEPT_ENCODING = "gzip, deflate, sdch";
-        public const string HEADER_ACCEPT_ENCODING = "gzip, deflate, sdch";
+        public const string ACCEPT_ENCODING = "gzip, deflate";
+        public const string HEADER_ACCEPT_ENCODING = "Accept-Encoding";
         public const string TIMEZONE = "Pacific/Auckland";
         public const string HEADER_PHONE_ID = "phone_id";
         public const string HEADER_TIMEZONE = "timezone_offset";

@@ -87,7 +87,7 @@ namespace InstaSharper.API.Processors
 
                 var data = new JObject
                 {
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk},
                     {"_csrftoken", _user.CsrfToken},
                     {"name", collectionName},
@@ -121,7 +121,7 @@ namespace InstaSharper.API.Processors
 
                 var data = new JObject
                 {
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk},
                     {"_csrftoken", _user.CsrfToken},
                     {"module_name", "collection_editor"}
@@ -158,7 +158,7 @@ namespace InstaSharper.API.Processors
                     {"module_name", InstaApiConstants.FEED_SAVED_ADD_TO_COLLECTION_MODULE},
                     {"added_media_ids", JsonConvert.SerializeObject(mediaIds)},
                     {"radio_type", "wifi-none"},
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk},
                     {"_csrftoken", _user.CsrfToken}
                 };

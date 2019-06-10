@@ -81,7 +81,7 @@ namespace InstaSharper.API.Processors
                 var requestContent = new MultipartFormDataContent(uploadId)
                 {
                     {new StringContent(uploadId), "\"upload_id\""},
-                    {new StringContent(_deviceInfo.DeviceGuid.ToString()), "\"_uuid\""},
+                    {new StringContent(_deviceInfo.Uuid.ToString()), "\"_uuid\""},
                     {new StringContent(_user.CsrfToken), "\"_csrftoken\""},
                     {
                         new StringContent("{\"lib_name\":\"jt\",\"lib_version\":\"1.3.0\",\"quality\":\"87\"}"),
@@ -115,7 +115,7 @@ namespace InstaSharper.API.Processors
                 var instaUri = UriCreator.GetStoryConfigureUri();
                 var data = new JObject
                 {
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk},
                     {"_csrftoken", _user.CsrfToken},
                     {"source_type", "1"},

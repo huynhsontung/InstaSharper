@@ -66,13 +66,31 @@ namespace InstaSharper.Classes.Android.DeviceInfo
             {
                 Codename = "Nougat",
                 VersionNumber = "7.0",
-                APILevel = "23"
+                APILevel = "24"
             },
             new AndroidVersion
             {
                 Codename = "Nougat",
                 VersionNumber = "7.1",
                 APILevel = "25"
+            },
+            new AndroidVersion
+            {
+                Codename = "Oreo",
+                VersionNumber = "8.0.0",
+                APILevel = "26"
+            },
+            new AndroidVersion
+            {
+                Codename = "Oreo",
+                VersionNumber = "8.1.0",
+                APILevel = "27"
+            },
+            new AndroidVersion
+            {
+                Codename = "Pie",
+                VersionNumber = "9",
+                APILevel = "28"
             }
         };
 

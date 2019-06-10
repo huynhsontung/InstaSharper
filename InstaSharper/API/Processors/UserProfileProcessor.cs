@@ -39,7 +39,7 @@ namespace InstaSharper.API.Processors
                 var instaUri = UriCreator.GetUriSetAccountPrivate();
                 var fields = new Dictionary<string, string>
                 {
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk.ToString()},
                     {"_csrftoken", _user.CsrfToken}
                 };
@@ -77,7 +77,7 @@ namespace InstaSharper.API.Processors
                 var instaUri = UriCreator.GetUriSetAccountPublic();
                 var fields = new Dictionary<string, string>
                 {
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk.ToString()},
                     {"_csrftoken", _user.CsrfToken}
                 };
@@ -122,7 +122,7 @@ namespace InstaSharper.API.Processors
 
                 var data = new JObject
                 {
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk},
                     {"_csrftoken", _user.CsrfToken},
                     {"old_password", oldPassword},

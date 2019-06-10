@@ -42,7 +42,7 @@ namespace InstaSharper.API.Processors
 
                 var fields = new Dictionary<string, string>
                 {
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk.ToString()},
                     {"_csrftoken", _user.CsrfToken},
                     {"latitude", latitude.ToString(CultureInfo.InvariantCulture)},

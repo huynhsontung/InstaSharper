@@ -47,17 +47,6 @@ namespace InstaSharper.Classes.Android.DeviceInfo
             return uploadId.ToString();
         }
 
-        public static ApiRequestMessage FromDevice(AndroidDevice device)
-        {
-            var requestMessage = new ApiRequestMessage
-            {
-                phone_id = device.PhoneGuid.ToString(),
-                guid = device.DeviceGuid,
-                device_id = device.DeviceId
-            };
-            return requestMessage;
-        }
-
         public static string GenerateDeviceIdFromGuid(Guid guid)
         {
             var hashedGuid = CryptoHelper.CalculateMd5(guid.ToString());

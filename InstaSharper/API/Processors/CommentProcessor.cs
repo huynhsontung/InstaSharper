@@ -83,7 +83,7 @@ namespace InstaSharper.API.Processors
                 {
                     {"user_breadcrumb", breadcrumb},
                     {"idempotence_token", Guid.NewGuid().ToString()},
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk.ToString()},
                     {"_csrftoken", _user.CsrfToken},
                     {"comment_text", text},
@@ -115,7 +115,7 @@ namespace InstaSharper.API.Processors
                 var instaUri = UriCreator.GetDeleteCommetUri(mediaId, commentId);
                 var fields = new Dictionary<string, string>
                 {
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk.ToString()},
                     {"_csrftoken", _user.CsrfToken}
                 };

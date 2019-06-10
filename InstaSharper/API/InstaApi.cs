@@ -944,7 +944,7 @@ namespace InstaSharper.API
                     {"username", username},
                     {"password", password},
                     {"device_id", ApiRequestMessage.GenerateDeviceId()},
-                    {"guid", _deviceInfo.DeviceGuid.ToString()},
+                    {"guid", _deviceInfo.Uuid.ToString()},
                     {"first_name", firstName}
                 };
 

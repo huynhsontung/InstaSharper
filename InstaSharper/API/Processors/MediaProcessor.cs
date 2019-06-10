@@ -65,7 +65,7 @@ namespace InstaSharper.API.Processors
 
                 var data = new JObject
                 {
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk},
                     {"_csrftoken", _user.CsrfToken},
                     {"media_id", mediaId}
@@ -97,7 +97,7 @@ namespace InstaSharper.API.Processors
 
                 var data = new JObject
                 {
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk},
                     {"_csrftoken", _user.CsrfToken},
                     {"caption_text", caption}
@@ -129,7 +129,7 @@ namespace InstaSharper.API.Processors
                 {
                     {new StringContent("2"), "\"media_type\""},
                     {new StringContent(uploadId), "\"upload_id\""},
-                    {new StringContent(_deviceInfo.DeviceGuid.ToString()), "\"_uuid\""},
+                    {new StringContent(_deviceInfo.Uuid.ToString()), "\"_uuid\""},
                     {new StringContent(_user.CsrfToken), "\"_csrftoken\""},
                     {
                         new StringContent("{\"lib_name\":\"jt\",\"lib_version\":\"1.3.0\",\"quality\":\"87\"}"),
@@ -195,7 +195,7 @@ namespace InstaSharper.API.Processors
                 var requestContent = new MultipartFormDataContent(uploadId)
                 {
                     {new StringContent(uploadId), "\"upload_id\""},
-                    {new StringContent(_deviceInfo.DeviceGuid.ToString()), "\"_uuid\""},
+                    {new StringContent(_deviceInfo.Uuid.ToString()), "\"_uuid\""},
                     {new StringContent(_user.CsrfToken), "\"_csrftoken\""},
                     {
                         new StringContent("{\"lib_name\":\"jt\",\"lib_version\":\"1.3.0\",\"quality\":\"87\"}"),
@@ -262,7 +262,7 @@ namespace InstaSharper.API.Processors
                     {"filter_type", "0"},
                     {"video_result", "deprecated"},
                     {"_csrftoken", _user.CsrfToken},
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.UserName}
                 };
 
@@ -292,7 +292,7 @@ namespace InstaSharper.API.Processors
                 var instaUri = UriCreator.GetMediaConfigureUri();
                 var data = new JObject
                 {
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk},
                     {"_csrftoken", _user.CsrfToken},
                     {"experiment", "ig_android_profile_contextual_feed"},
@@ -332,7 +332,7 @@ namespace InstaSharper.API.Processors
                 var requestContent = new MultipartFormDataContent(uploadId)
                 {
                     {new StringContent(uploadId), "\"upload_id\""},
-                    {new StringContent(_deviceInfo.DeviceGuid.ToString()), "\"_uuid\""},
+                    {new StringContent(_deviceInfo.Uuid.ToString()), "\"_uuid\""},
                     {new StringContent(_user.CsrfToken), "\"_csrftoken\""},
                     {
                         new StringContent("{\"lib_name\":\"jt\",\"lib_version\":\"1.3.0\",\"quality\":\"87\"}"),
@@ -372,7 +372,7 @@ namespace InstaSharper.API.Processors
                     var requestContent = new MultipartFormDataContent(uploadId)
                     {
                         {new StringContent(uploadId), "\"upload_id\""},
-                        {new StringContent(_deviceInfo.DeviceGuid.ToString()), "\"_uuid\""},
+                        {new StringContent(_deviceInfo.Uuid.ToString()), "\"_uuid\""},
                         {new StringContent(_user.CsrfToken), "\"_csrftoken\""},
                         {
                             new StringContent("{\"lib_name\":\"jt\",\"lib_version\":\"1.3.0\",\"quality\":\"87\"}"),
@@ -415,7 +415,7 @@ namespace InstaSharper.API.Processors
                     return Result.Fail("Unsupported android version", (InstaMedia) null);
                 var data = new JObject
                 {
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk},
                     {"_csrftoken", _user.CsrfToken},
                     {"media_folder", "Camera"},
@@ -488,7 +488,7 @@ namespace InstaSharper.API.Processors
 
                 var data = new JObject
                 {
-                    {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                    {"_uuid", _deviceInfo.Uuid.ToString()},
                     {"_uid", _user.LoggedInUder.Pk},
                     {"_csrftoken", _user.CsrfToken},
                     {"caption", caption},
@@ -621,7 +621,7 @@ namespace InstaSharper.API.Processors
         {
             var fields = new Dictionary<string, string>
             {
-                {"_uuid", _deviceInfo.DeviceGuid.ToString()},
+                {"_uuid", _deviceInfo.Uuid.ToString()},
                 {"_uid", _user.LoggedInUder.Pk.ToString()},
                 {"_csrftoken", _user.CsrfToken},
                 {"media_id", mediaId}
