@@ -42,7 +42,7 @@ namespace InstaSharper.API.Builder
                 _device = AndroidDeviceGenerator.GetRandomAndroidDevice();
                 _requestMessage = new ApiRequestMessage
                 {
-                    phone_id = _device.PhoneGuid.ToString(),
+                    phone_id = _device.PhoneId.ToString(),
                     guid = _device.Uuid,
                     password = _user?.Password,
                     username = _user?.UserName,

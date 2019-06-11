@@ -10,6 +10,8 @@ namespace InstaSharper.Helpers
 {
     internal static class HttpHelper
     {
+        // todo: need to implement v2 api request
+        // todo: replace constant user agent with dynamic one
         public static HttpRequestMessage GetDefaultRequest(HttpMethod method, Uri uri, AndroidDevice deviceInfo)
         {
             var request = new HttpRequestMessage(method, uri);

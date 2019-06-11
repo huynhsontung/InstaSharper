@@ -228,8 +228,7 @@ namespace InstaSharper.API.Processors
             try
             {
                 var instaUri = UriCreator.GetMediaConfigureUri();
-                var androidVersion =
-                    AndroidVersion.FromString(_deviceInfo.FirmwareFingerprint.Split('/')[2].Split(':')[1]);
+                var androidVersion = _deviceInfo.AndroidVersion;
                 if (androidVersion == null)
                     return Result.Fail("Unsupported android version", (InstaMedia) null);
                 var data = new JObject
@@ -409,8 +408,7 @@ namespace InstaSharper.API.Processors
             try
             {
                 var instaUri = UriCreator.GetMediaConfigureUri();
-                var androidVersion =
-                    AndroidVersion.FromString(_deviceInfo.FirmwareFingerprint.Split('/')[2].Split(':')[1]);
+                var androidVersion = _deviceInfo.AndroidVersion;
                 if (androidVersion == null)
                     return Result.Fail("Unsupported android version", (InstaMedia) null);
                 var data = new JObject

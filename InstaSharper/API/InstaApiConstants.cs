@@ -17,6 +17,15 @@ namespace InstaSharper.API
 
         public const string USER_AGENT =
             "Instagram 44.0.0.9.93 Android (21/5.0.2; 480dpi; 1080x1776; Sony; C6603; C6603; qcom; ru_RU; 95414346)";
+        // todo: build dynamic user agent
+        public const string IG_VERSION = "85.0.0.21.100";
+        public const string VERSION_CODE = "146536611";
+        public const string
+            IG_SIGNATURE_KEY =
+                "98ff843b4c4d924311f452a965f073c7566ff680ee11d8fb7ba57264ab9fbabb";
+        // todo: update signature key
+
+        public const string USER_AGENT_LOCALE = "en_US";
 
         public const string HEADER_USER_AGENT = "User-Agent";
 
@@ -24,12 +33,8 @@ namespace InstaSharper.API
         public const string HEADER_RANK_TOKEN = "rank_token";
         public const string HEADER_COUNT = "count";
         public const string HEADER_EXCLUDE_LIST = "exclude_list";
-
-        public const string
-            IG_SIGNATURE_KEY =
-                "98ff843b4c4d924311f452a965f073c7566ff680ee11d8fb7ba57264ab9fbabb";
-
         public const string HEADER_IG_SIGNATURE = "signed_body";
+
         public const string IG_SIGNATURE_KEY_VERSION = "4";
         public const string HEADER_IG_SIGNATURE_KEY_VERSION = "ig_sig_key_version";
         public const string IG_CAPABILITIES = "3brTBw==";
