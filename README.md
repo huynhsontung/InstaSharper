@@ -1,7 +1,7 @@
-# InstagramApi [InstaSharper]
+# InstagramApi [InstaSharper] [Forked]
 Tokenless, butthurtless private API for Instagram. Get account information, media, explore tags and user feed without any applications and other crap.
 
-## Development of this project postponed
+*Unlike the original repo, this repo is under active development with new features coming soon*
 
 ### Before posting new issues: [Demo samples](https://github.com/a-legotin/InstaSharper/tree/develop/InstaSharper.Examples), [Tests project](https://github.com/a-legotin/InstaSharper/tree/develop/InstaSharper.Tests/Endpoints) and [Wiki page](https://github.com/a-legotin/InstaSharper/wiki/How-to-use-library-features)
 
@@ -27,7 +27,6 @@ Build with dotnet core. Can be used on Mac, Linux, Windows.
 
 ## Easy to install
 Use library as dll, reference from [nuget](https://www.nuget.org/packages/InstaSharper/) or clone source code.
-Pre-release version available at [myget feed](https://www.myget.org/feed/Details/instasharper-develop) together with [symbols](https://www.myget.org/F/instasharper-develop/symbols/)
 
 ## Features
 

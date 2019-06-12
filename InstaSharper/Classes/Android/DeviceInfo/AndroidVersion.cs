@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace InstaSharper.Classes.Android.DeviceInfo
 {
+    [Serializable]
     public class AndroidVersion
     {
         public static readonly List<AndroidVersion> AndroidVersions = new List<AndroidVersion>

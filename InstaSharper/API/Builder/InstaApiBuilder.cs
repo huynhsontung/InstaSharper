@@ -37,25 +37,22 @@ namespace InstaSharper.API.Builder
             if (_httpClient == null)
                 _httpClient = new HttpClient(_httpHandler) {BaseAddress = new Uri(InstaApiConstants.INSTAGRAM_URL)};
 
+            if (_device == null) _device = AndroidDeviceGenerator.GetRandomAndroidDevice();
+
             if (_requestMessage == null)
             {
-                _device = AndroidDeviceGenerator.GetRandomAndroidDevice();
                 _requestMessage = new ApiRequestMessage
                 {
                     phone_id = _device.PhoneId.ToString(),
                     guid = _device.Uuid,
                     password = _user?.Password,
                     username = _user?.UserName,
-                    device_id = ApiRequestMessage.GenerateDeviceId()
+                    device_id = _device.DeviceId
                 };
             }
 
             if (string.IsNullOrEmpty(_requestMessage.password)) _requestMessage.password = _user?.Password;
             if (string.IsNullOrEmpty(_requestMessage.username)) _requestMessage.username = _user?.UserName;
-
-            if (_device == null && !string.IsNullOrEmpty(_requestMessage.device_id))
-                _device = AndroidDeviceGenerator.GetById(_requestMessage.device_id);
-            if (_device == null) AndroidDeviceGenerator.GetRandomAndroidDevice();
 
             if (_httpRequestProcessor == null)
                 _httpRequestProcessor =
@@ -151,6 +148,11 @@ namespace InstaSharper.API.Builder
             return this;
         }
 
+        /// <summary>
+        /// Load state data from <see cref="IInstaApi.GetStateDataAsStream()"/>
+        /// </summary>
+        /// <param name="stream">Serialized state stream</param>
+        /// <returns>API Builder</returns>
         public IInstaApiBuilder LoadStateFromStream(Stream stream)
         {
             var data = SerializationHelper.DeserializeFromStream<StateData>(stream);

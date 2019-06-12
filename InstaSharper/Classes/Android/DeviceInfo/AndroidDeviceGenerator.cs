@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using InstaSharper.API;
 
 namespace InstaSharper.Classes.Android.DeviceInfo
 {
@@ -20,7 +21,8 @@ namespace InstaSharper.Classes.Android.DeviceInfo
             var device = new AndroidDevice();
             var components = str.Split(';');
             if (components.Length != 7) throw new ArgumentException("User agent string provided is not valid");
-            device.UserAgentString = str;
+            for (var i = 0; i < components.Length; i++) components[i] = components[i].Trim();
+            device.UserAgent = GetCompleteUserAgent(str);
             device.AndroidVersion = AndroidVersion.FromString(components[0].Split('/')[1]);
             device.Dpi = int.Parse(components[1].Remove(components[1].Length - 3));
             var resolutionValues = components[2].Split('x');
@@ -34,18 +36,20 @@ namespace InstaSharper.Classes.Android.DeviceInfo
             return device;
         }
 
+        private static string GetCompleteUserAgent(string deviceString)
+        {
+            // Example complete user agent:
+            // Instagram 85.0.0.21.100 Android (24/7.0; 380dpi; 1080x1920; OnePlus; ONEPLUS A3010; OnePlus3T; qcom; en_US; 146536611)
+            string format = "Instagram {0} Android ({1}; {2}; {3})";
+            return string.Format(format, InstaApiConstants.IG_VERSION, deviceString,
+                InstaApiConstants.USER_AGENT_LOCALE, InstaApiConstants.VERSION_CODE);
+        }
+
         public static AndroidDevice GetRandomAndroidDevice()
         {
             var random = new Random(DateTime.Now.Millisecond);
             var randomDeviceIndex = random.Next(0, DEVICES.Length);
             return BuildDeviceFromString(DEVICES[randomDeviceIndex]);
-        }
-
-        public static AndroidDevice GetById(string deviceId)
-        {
-            var device = GetRandomAndroidDevice();
-            device.DeviceId = deviceId;
-            return device;
         }
     }
 }

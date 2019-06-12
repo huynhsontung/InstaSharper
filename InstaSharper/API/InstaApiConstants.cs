@@ -15,19 +15,14 @@ namespace InstaSharper.API
         public const string HEADER_X_REQUESTED_WITH = "X-Requested-With";
         public const string HEADER_XML_HTTP_REQUEST = "XMLHttpRequest";
 
-        public const string USER_AGENT =
-            "Instagram 44.0.0.9.93 Android (21/5.0.2; 480dpi; 1080x1776; Sony; C6603; C6603; qcom; ru_RU; 95414346)";
-        // todo: build dynamic user agent
+
         public const string IG_VERSION = "85.0.0.21.100";
         public const string VERSION_CODE = "146536611";
         public const string
             IG_SIGNATURE_KEY =
-                "98ff843b4c4d924311f452a965f073c7566ff680ee11d8fb7ba57264ab9fbabb";
-        // todo: update signature key
+                "937463b5272b5d60e9d20f0f8d7d192193dd95095a3ad43725d494300a5ea5fc";
 
         public const string USER_AGENT_LOCALE = "en_US";
-
-        public const string HEADER_USER_AGENT = "User-Agent";
 
         public const string HEADER_QUERY = "q";
         public const string HEADER_RANK_TOKEN = "rank_token";
@@ -35,20 +30,17 @@ namespace InstaSharper.API
         public const string HEADER_EXCLUDE_LIST = "exclude_list";
         public const string HEADER_IG_SIGNATURE = "signed_body";
 
+        public const string FACEBOOK_ANALYTICS_APPLICATION_ID = "567067343352427";
         public const string IG_SIGNATURE_KEY_VERSION = "4";
         public const string HEADER_IG_SIGNATURE_KEY_VERSION = "ig_sig_key_version";
         public const string IG_CAPABILITIES = "3brTBw==";
-        public const string HEADER_IG_CAPABILITIES = "X-IG-Capabilities";
         public const string IG_CONNECTION_TYPE = "WIFI";
-        public const string HEADER_IG_CONNECTION_TYPE = "X-IG-Connection-Type";
         public const string ACCEPT_LANGUAGE = "en-US";
-        public const string HEADER_ACCEPT_LANGUAGE = "Accept-Language";
         public const string ACCEPT_ENCODING = "gzip, deflate";
         public const string HEADER_ACCEPT_ENCODING = "Accept-Encoding";
         public const string TIMEZONE = "Pacific/Auckland";
         public const string HEADER_PHONE_ID = "phone_id";
         public const string HEADER_TIMEZONE = "timezone_offset";
-        public const string HEADER_XGOOGLE_AD_IDE = "X-Google-AD-ID";
         public const string COMMENT_BREADCRUMB_KEY = "iN4$aGr0m";
         public const int TIMEZONE_OFFSET = 43200;
         public const string VEFITY_CHOICE = "choice";
