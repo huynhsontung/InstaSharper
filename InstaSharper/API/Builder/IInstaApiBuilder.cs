@@ -58,6 +58,11 @@ namespace InstaSharper.API.Builder
         /// <returns>API Builder</returns>
         IInstaApiBuilder SetRequestDelay(IRequestDelay delay);
 
+        /// <summary>
+        /// Load state data from <see cref="IInstaApi.GetStateDataAsStream()"/>
+        /// </summary>
+        /// <param name="stream">Serialized state stream</param>
+        /// <returns>API Builder</returns>
         IInstaApiBuilder LoadStateFromStream(Stream stream);
     }
 }

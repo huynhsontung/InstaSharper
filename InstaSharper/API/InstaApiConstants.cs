@@ -18,6 +18,7 @@ namespace InstaSharper.API
 
         public const string IG_VERSION = "85.0.0.21.100";
         public const string VERSION_CODE = "146536611";
+        public const string PACKAGE_NAME = "com.instagram.android";
         public const string
             IG_SIGNATURE_KEY =
                 "937463b5272b5d60e9d20f0f8d7d192193dd95095a3ad43725d494300a5ea5fc";
@@ -37,7 +38,7 @@ namespace InstaSharper.API
         public const string IG_CONNECTION_TYPE = "WIFI";
         public const string ACCEPT_LANGUAGE = "en-US";
         public const string ACCEPT_ENCODING = "gzip, deflate";
-        public const string HEADER_ACCEPT_ENCODING = "Accept-Encoding";
+        public const string X_FB_HTTP_ENGINE = "Liger";
         public const string TIMEZONE = "Pacific/Auckland";
         public const string HEADER_PHONE_ID = "phone_id";
         public const string HEADER_TIMEZONE = "timezone_offset";

@@ -21,7 +21,7 @@ namespace InstaSharper.Classes.Android.DeviceInfo
         public string two_factor_identifier { get; set; }
 
 
-        internal string GenerateSignature(string signatureKey)
+        internal string GenerateSignature(string signatureKey = null)
         {
             if (string.IsNullOrEmpty(signatureKey))
                 signatureKey = InstaApiConstants.IG_SIGNATURE_KEY;

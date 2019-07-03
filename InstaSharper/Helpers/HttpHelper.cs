@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using InstaSharper.API;
 using InstaSharper.Classes.Android.DeviceInfo;
 using Newtonsoft.Json;
@@ -14,12 +15,16 @@ namespace InstaSharper.Helpers
         public static HttpRequestMessage GetDefaultRequest(HttpMethod method, Uri uri, AndroidDevice deviceInfo)
         {
             var request = new HttpRequestMessage(method, uri);
-            request.Headers.Add("Connection", "Keep-Alive");
-            request.Headers.Add("Accept-Language", InstaApiConstants.ACCEPT_LANGUAGE);
+            // todo: deal with gzip, deflate de compression
+//            request.Headers.AcceptEncoding.ParseAdd(InstaApiConstants.ACCEPT_ENCODING);
+            request.Headers.Connection.ParseAdd("Keep-Alive");
+            request.Headers.UserAgent.ParseAdd(deviceInfo.UserAgent);
+            request.Headers.Accept.ParseAdd("*/*");
+            request.Headers.AcceptLanguage.ParseAdd(InstaApiConstants.ACCEPT_LANGUAGE);
             request.Headers.Add("X-IG-App-ID", InstaApiConstants.FACEBOOK_ANALYTICS_APPLICATION_ID);
             request.Headers.Add("X-IG-Capabilities", InstaApiConstants.IG_CAPABILITIES);
             request.Headers.Add("X-IG-Connection-Type", InstaApiConstants.IG_CONNECTION_TYPE);
-            request.Headers.Add("User-Agent", deviceInfo.UserAgent);
+            request.Headers.Add("X-FB-HTTP-Engine", InstaApiConstants.X_FB_HTTP_ENGINE);
             return request;
         }
 

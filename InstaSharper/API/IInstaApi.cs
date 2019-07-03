@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 using InstaSharper.Classes;
+using InstaSharper.Classes.Android.DeviceInfo;
 using InstaSharper.Classes.Models;
 using InstaSharper.Classes.ResponseWrappers;
 using InstaSharper.Classes.ResponseWrappers.BaseResponse;
@@ -18,6 +20,12 @@ namespace InstaSharper.API
         /// </summary>
         bool IsUserAuthenticated { get; }
 
+        /// <summary>
+        ///     Device data for building user agent
+        /// </summary>
+        AndroidDevice Device { get; }
+
+        HttpClient HttpClient { get; }
         #endregion
 
         /// <summary>

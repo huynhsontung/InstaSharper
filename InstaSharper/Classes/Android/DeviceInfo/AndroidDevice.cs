@@ -17,6 +17,8 @@ namespace InstaSharper.Classes.Android.DeviceInfo
         public string Cpu { get; set; }
         public string HardwareManufacturer { get; set; }
         public string HardwareModel { get; set; }
+
+        public const string CPU_ABI = "armeabi-v7a:armeabi";
     }
 
     [Serializable]

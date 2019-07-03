@@ -19,7 +19,7 @@ namespace InstaSharper.Classes.Android.DeviceInfo
             return JsonConvert.SerializeObject(this);
         }
 
-        internal string GenerateSignature(string signatureKey)
+        internal string GenerateSignature(string signatureKey = null)
         {
             if (string.IsNullOrEmpty(signatureKey))
                 signatureKey = InstaApiConstants.IG_SIGNATURE_KEY;
