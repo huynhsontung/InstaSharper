@@ -1,19 +1,15 @@
 # InstagramApi [InstaSharper] [Forked]
 Tokenless, butthurtless private API for Instagram. Get account information, media, explore tags and user feed without any applications and other crap.
 
-*Unlike the original repo, this repo is under active development with new features coming soon*
+### This fork is under active development with new features coming soon
 
 ### Before posting new issues: [Demo samples](https://github.com/a-legotin/InstaSharper/tree/develop/InstaSharper.Examples), [Tests project](https://github.com/a-legotin/InstaSharper/tree/develop/InstaSharper.Tests/Endpoints) and [Wiki page](https://github.com/a-legotin/InstaSharper/wiki/How-to-use-library-features)
 
 Note that: there is a simple [Instagram API](https://github.com/a-legotin/InstagramAPI-Web) based on web-version of Instagram. This repository based on Instagram API for mobile devices.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/6os0fhi1awbplbka?svg=true)](https://ci.appveyor.com/project/a-legotin/instasharper)
-[![Build status](https://travis-ci.org/a-legotin/InstaSharper.svg?branch=master)](https://travis-ci.org/a-legotin/InstaSharper)
-[![NuGet](https://img.shields.io/nuget/v/InstaSharper.svg)](https://www.nuget.org/packages/InstaSharper/)
-[![MyGet](https://img.shields.io/myget/a-legotin/v/instasharper-develop.svg)](https://www.myget.org/feed/Details/instasharper-develop)
-[![GitHub stars](https://img.shields.io/github/stars/a-legotin/InstaSharper.svg)](https://github.com/a-legotin/InstaSharper/stargazers)
+[![MyGet](https://img.shields.io/myget/instashaper-develop/v/InstaSharper.svg)](https://www.myget.org/feed/instashaper-develop/package/nuget/InstaSharper)
 
-#### Current version: 1.4.0 [Stable], 1.5.0 [Under development]
+#### Current version: 1.4.0 [Stable], 2.0.0 [Under development]
 
 ## Overview
 This project intends to provide all the features available in the Instagram API up to 12.0.0.7.91. It is being developed in C# for .NET Framework 4.5.2 and .NET Standard 2.0
@@ -26,7 +22,7 @@ This project intends to provide all the features available in the Instagram API 
 Build with dotnet core. Can be used on Mac, Linux, Windows.
 
 ## Easy to install
-Use library as dll, reference from [nuget](https://www.nuget.org/packages/InstaSharper/) or clone source code.
+Use library as dll, reference from [myget](https://www.myget.org/feed/instashaper-develop/package/nuget/InstaSharper) or clone source code.
 
 ## Features
 
@@ -73,7 +69,7 @@ Currently the library supports following coverage of the following Instagram API
 - [x] Search location
 - [x] Get location feed
 - [x] Collection create/get by id/get all/add items
-
+- [ ] Push notification (coming soon)
 
 ## Easy to use
 #### Use builder to get Insta API instance:
