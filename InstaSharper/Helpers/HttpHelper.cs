@@ -15,8 +15,7 @@ namespace InstaSharper.Helpers
         public static HttpRequestMessage GetDefaultRequest(HttpMethod method, Uri uri, AndroidDevice deviceInfo)
         {
             var request = new HttpRequestMessage(method, uri);
-            // todo: deal with gzip, deflate de compression
-//            request.Headers.AcceptEncoding.ParseAdd(InstaApiConstants.ACCEPT_ENCODING);
+            request.Headers.AcceptEncoding.ParseAdd(InstaApiConstants.ACCEPT_ENCODING);
             request.Headers.Connection.ParseAdd("Keep-Alive");
             request.Headers.UserAgent.ParseAdd(deviceInfo.UserAgent);
             request.Headers.Accept.ParseAdd("*/*");

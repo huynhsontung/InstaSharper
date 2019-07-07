@@ -14,6 +14,6 @@ namespace InstaSharper.Classes
         Task<HttpResponseMessage> GetAsync(Uri requestUri);
         Task<HttpResponseMessage> SendAsync(HttpRequestMessage requestMessage, HttpCompletionOption completionOption);
         Task<string> SendAndGetJsonAsync(HttpRequestMessage requestMessage, HttpCompletionOption completionOption);
-        Task<string> GeJsonAsync(Uri requestUri);
+        Task<string> GetJsonAsync(Uri requestUri);
     }
 }

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.ComponentModel.Design;
+using System.IO;
+using System.IO.Compression;
 using System.Net.Http;
 using System.Threading.Tasks;
 using InstaSharper.Classes.Android.DeviceInfo;
@@ -32,6 +35,7 @@ namespace InstaSharper.Classes
             if (_delay.Exist)
                 await Task.Delay(_delay.Value);
             var response = await Client.SendAsync(requestMessage);
+            response.Content = await DecompressHttpContent(response.Content);
             LogHttpResponse(response);
             return response;
         }
@@ -42,6 +46,7 @@ namespace InstaSharper.Classes
             if (_delay.Exist)
                 await Task.Delay(_delay.Value);
             var response = await Client.GetAsync(requestUri);
+            response.Content = await DecompressHttpContent(response.Content);
             LogHttpResponse(response);
             return response;
         }
@@ -53,6 +58,7 @@ namespace InstaSharper.Classes
             if (_delay.Exist)
                 await Task.Delay(_delay.Value);
             var response = await Client.SendAsync(requestMessage, completionOption);
+            response.Content = await DecompressHttpContent(response.Content);
             LogHttpResponse(response);
             return response;
         }
@@ -64,16 +70,18 @@ namespace InstaSharper.Classes
             if (_delay.Exist)
                 await Task.Delay(_delay.Value);
             var response = await Client.SendAsync(requestMessage, completionOption);
+            response.Content = await DecompressHttpContent(response.Content);
             LogHttpResponse(response);
             return await response.Content.ReadAsStringAsync();
         }
 
-        public async Task<string> GeJsonAsync(Uri requestUri)
+        public async Task<string> GetJsonAsync(Uri requestUri)
         {
             _logger?.LogRequest(requestUri);
             if (_delay.Exist)
                 await Task.Delay(_delay.Value);
             var response = await Client.GetAsync(requestUri);
+            response.Content = await DecompressHttpContent(response.Content);
             LogHttpResponse(response);
             return await response.Content.ReadAsStringAsync();
         }
@@ -86,6 +94,46 @@ namespace InstaSharper.Classes
         private void LogHttpResponse(HttpResponseMessage request)
         {
             _logger?.LogResponse(request);
+        }
+
+        private static async Task<HttpContent> DecompressHttpContent(HttpContent content)
+        {
+            var encoding = content.Headers.ContentEncoding;
+            var isGzip = encoding.Contains("gzip");
+            var isDeflate = encoding.Contains("deflate");
+            if (!isGzip && !isDeflate && encoding.Count != 0)
+            {
+                throw new ArgumentException("Compression type not supported.");
+            }
+
+            if (encoding.Count == 0)
+            {
+                return content;
+            }
+
+            var decompressed = new MemoryStream(16384);
+            var data = await content.ReadAsStreamAsync();
+            if (isDeflate)
+            {
+                using (var deflateStream = new DeflateStream(data, CompressionMode.Decompress))
+                {
+                    await deflateStream.CopyToAsync(decompressed);
+                }
+            }
+            else if(isGzip)
+            {
+                using (var gzipStream = new GZipStream(data, CompressionMode.Decompress))
+                {
+                    await gzipStream.CopyToAsync(decompressed);
+                }
+            }
+
+            decompressed.Position = 0;
+            var newContent = new StreamContent(decompressed);
+            newContent.Headers.ContentType = content.Headers.ContentType;
+            newContent.Headers.ContentLanguage.Add(content.Headers.ContentLanguage.ToString());
+            newContent.Headers.ContentLength = decompressed.Length;
+            return newContent;
         }
     }
 }
