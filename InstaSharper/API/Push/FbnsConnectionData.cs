@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using Newtonsoft.Json;
 
 namespace InstaSharper.API.Push
 {
     [Serializable]
-    public class FbnsConnectionData    // todo: connection data needs to be saved on disk
+    internal class FbnsConnectionData
     {
         private const int MESSAGE_TOPIC_ID = 76;
         private const int REG_RESP_TOPIC_ID = 80;
@@ -22,32 +26,72 @@ namespace InstaSharper.API.Push
         private static readonly int[] FBNS_SUBSCRIBE_TOPICS = {MESSAGE_TOPIC_ID, REG_RESP_TOPIC_ID};
 
         public string ClientId { get; set; } = Guid.NewGuid().ToString().Substring(0, 20);
-
-        #region ClientInfo Struct
-        public long UserId { get; set; } = 0;
+        
         public string UserAgent { get; set; }
-        public long ClientCapabilities { get; set; } = FBNS_CLIENT_CAPABILITIES;
-        public long EndpointCapabilities { get; set; } = FBNS_ENDPOINT_CAPABILITIES;
-        public int PublishFormat { get; set; } = FBNS_PUBLISH_FORMAT;
-        public bool NoAutomaticForeground { get; set; } = FBNS_NO_AUTOMATIC_FOREGROUND;
-        public bool MakeUserAvailableInForeground { get; set; } = FBNS_MAKE_USER_AVAILABLE_IN_FOREGROUND;
-        public string DeviceId { get; set; }
-        public bool IsInitiallyForeground { get; set; } = FBNS_IS_INITIALLY_FOREGROUND;
-        public int NetworkType { get; set; } = FBNS_NETWORK_TYPE;
-        public int NetworkSubtype { get; set; } = FBNS_NETWORK_SUBTYPE;
+        public long ClientCapabilities { get; } = FBNS_CLIENT_CAPABILITIES;
+        public long EndpointCapabilities { get; } = FBNS_ENDPOINT_CAPABILITIES;
+        public int PublishFormat { get; } = FBNS_PUBLISH_FORMAT;
+        public bool NoAutomaticForeground { get; } = FBNS_NO_AUTOMATIC_FOREGROUND;
+        public bool MakeUserAvailableInForeground { get; } = FBNS_MAKE_USER_AVAILABLE_IN_FOREGROUND;
+        public bool IsInitiallyForeground { get; } = FBNS_IS_INITIALLY_FOREGROUND;
+        public int NetworkType { get; } = FBNS_NETWORK_TYPE;
+        public int NetworkSubtype { get; } = FBNS_NETWORK_SUBTYPE;
         public long ClientMqttSessionId { get; set; }
-        public int[] SubscribeTopics { get; set; } = FBNS_SUBSCRIBE_TOPICS;
-        public string ClientType { get; set; } = FBNS_CLIENT_TYPE;
-        public long AppId { get; set; } = FBNS_APP_ID;
-        public string DeviceSecret { get; set; }
-        public sbyte ClientStack { get; set; } = FBNS_CLIENT_STACK;
+        public int[] SubscribeTopics { get; } = FBNS_SUBSCRIBE_TOPICS;
+        public string ClientType { get; } = FBNS_CLIENT_TYPE;
+        public long AppId { get; } = FBNS_APP_ID;
+        public sbyte ClientStack { get; } = FBNS_CLIENT_STACK;
+
+        #region DeviceAuth
+
+        public long UserId { get; private set; }
+        public string Password { get; private set; }
+        public string DeviceId { get; private set; }
+        public string DeviceSecret { get; private set; }
+
         #endregion
 
-        public string Password { get; set; }
+        private string _fbnsToken;
+        public string FbnsToken
+        {
+            get => _fbnsToken;
+            set
+            {
+                _fbnsToken = value;
+                FbnsTokenLastUpdated = DateTime.Now;
+            }
+        }
+        public DateTime FbnsTokenLastUpdated { get; private set; }
+
 
         public void UpdateAuth(string json)
         {
-            // todo: implement read from json
+            if(string.IsNullOrEmpty(json))
+                throw new ArgumentNullException(nameof(json));
+
+            var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+
+            var ck = data["ck"];
+            var cs = data["cs"];
+            var di = data["di"];
+            var ds = data["ds"];
+
+            if (!string.IsNullOrEmpty(ck))
+                UserId = long.Parse(ck);
+
+            if (!string.IsNullOrEmpty(cs))
+                Password = cs;
+
+            if (!string.IsNullOrEmpty(di))
+            {
+                DeviceId = di;
+                ClientId = di.Substring(0, 20);
+            }
+
+            if (!string.IsNullOrEmpty(ds))
+                DeviceSecret = ds;
+
+            // TODO: sr, rc ?
         }
     }
 }

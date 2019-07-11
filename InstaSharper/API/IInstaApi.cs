@@ -25,7 +25,11 @@ namespace InstaSharper.API
         /// </summary>
         AndroidDevice Device { get; }
 
-        HttpClient HttpClient { get; }
+        /// <summary>
+        ///     Indicates whether Fbns client (for push and realtime notifications) is running or not
+        /// </summary>
+        bool IsPushClientRunning { get; }
+
         #endregion
 
         /// <summary>
@@ -40,6 +44,11 @@ namespace InstaSharper.API
         void LoadStateDataFromStream(Stream data);
 
         #region Async Members
+
+        /// <summary>
+        ///     Connect to the notification server and start authenticating this device
+        /// </summary>
+        Task StartFbnsClient();
 
         /// <summary>
         ///     Create a new instagram account

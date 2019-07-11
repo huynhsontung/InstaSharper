@@ -103,7 +103,7 @@ namespace InstaSharper.Classes
             var isDeflate = encoding.Contains("deflate");
             if (!isGzip && !isDeflate && encoding.Count != 0)
             {
-                throw new ArgumentException("Compression type not supported.");
+                throw new ArgumentException("DecompressHttpContent: Compression type not supported.");
             }
 
             if (encoding.Count == 0)

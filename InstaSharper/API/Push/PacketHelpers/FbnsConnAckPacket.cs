@@ -1,6 +1,6 @@
 ﻿using DotNetty.Codecs.Mqtt.Packets;
 
-namespace InstaSharper.API.Push.MqttHelpers
+namespace InstaSharper.API.Push.PacketHelpers
 {
     class FbnsConnAckPacket : DotNetty.Codecs.Mqtt.Packets.Packet
     {

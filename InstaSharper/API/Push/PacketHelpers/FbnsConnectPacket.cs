@@ -2,7 +2,7 @@
 using DotNetty.Buffers;
 using DotNetty.Codecs.Mqtt.Packets;
 
-namespace InstaSharper.API.Push.MqttHelpers
+namespace InstaSharper.API.Push.PacketHelpers
 {
     public class FbnsConnectPacket : Packet
     {

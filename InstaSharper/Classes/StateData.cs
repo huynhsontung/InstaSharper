@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using InstaSharper.API.Push;
 using InstaSharper.Classes.Android.DeviceInfo;
 
 namespace InstaSharper.Classes
@@ -11,5 +12,6 @@ namespace InstaSharper.Classes
         public UserSessionData UserSession { get; set; }
         public bool IsAuthenticated { get; set; }
         public CookieContainer Cookies { get; set; }
+        public FbnsConnectionData FbnsConnectionData { get; set; }
     }
 }

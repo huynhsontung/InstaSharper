@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Net.Http;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
@@ -14,138 +16,116 @@ using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Embedded;
 using DotNetty.Transport.Channels.Sockets;
-using InstaSharper.API.Push.MqttHelpers;
+using InstaSharper.API.Push.PacketHelpers;
+using InstaSharper.Classes;
 using InstaSharper.Classes.Android.DeviceInfo;
+using InstaSharper.Helpers;
 
 namespace InstaSharper.API.Push
 {
-    public class FbnsClient
+    public sealed class FbnsClient
     {
+//        public event EventHandler<string> MessageReceived;
+
+        private readonly UserSessionData _user;
+        private readonly IHttpRequestProcessor _httpRequestProcessor;
+        private readonly AndroidDevice _device;
         private const string DEFAULT_HOST = "mqtt-mini.facebook.com";
         private const string DEFAULT_SERVICE = "https";
-        private AndroidDevice _device;
-        private FbnsConnectionData _connectionData;
-        private MultithreadEventLoopGroup loopGroup = new MultithreadEventLoopGroup();
+        private readonly MultithreadEventLoopGroup _loopGroup = new MultithreadEventLoopGroup();
+        private IChannel _fbnsChannel;
 
-        public FbnsClient(AndroidDevice device, FbnsConnectionData connectionData = null)
+        internal FbnsConnectionData ConnectionData { get; }
+
+        public bool IsRunning => _fbnsChannel?.Open ?? false;
+
+        internal FbnsClient(AndroidDevice device, UserSessionData sessionData, IHttpRequestProcessor requestProcessor, FbnsConnectionData connectionData = null)
         {
+            _user = sessionData;
+            _httpRequestProcessor = requestProcessor;
             _device = device;
-            _connectionData = connectionData ?? LoadConnectionData();
-            if (string.IsNullOrEmpty(_connectionData.UserAgent))
-                _connectionData.UserAgent = FbnsUserAgent.BuildFbUserAgent(device);
 
-            // Test data
-//            _connectionData.ClientId = "6d5851bc-e2aa-4135-9";
-//            _connectionData.UserId = 506457938464799;
-//            _connectionData.Password = "BpUyH\\5G0XqpBp<QS<uh";
-//            _connectionData.DeviceId = "6d5851bc-e2aa-4135-99c3-d55a67ac8110";
-//            _connectionData.DeviceSecret = "6wST[83a9LnsJ?2M7cIo";
+            ConnectionData = connectionData ?? new FbnsConnectionData();
 
-            FbnsTest().GetAwaiter();
+            // If token is older than 24 hours then discard it
+            if ((DateTime.Now - ConnectionData.FbnsTokenLastUpdated).TotalHours > 24) ConnectionData.FbnsToken = "";
+
+            // Build user agent for first time setup
+            if (string.IsNullOrEmpty(ConnectionData.UserAgent))
+                ConnectionData.UserAgent = FbnsUserAgent.BuildFbUserAgent(device);
         }
 
-        public void SaveConnectionData()
-        {
-            // todo: implement save connection data to disk
-        }
-
-        public FbnsConnectionData LoadConnectionData()
-        {
-            // todo: implement load connection data from disk
-            return new FbnsConnectionData();
-        }
-
-        public async Task FbnsTest()
+        internal async Task Start()
         {
             var connectPacket = new FbnsConnectPacket
             {
-                Payload = await PayloadProcessor.BuildPayload(_connectionData)
+                Payload = await PayloadProcessor.BuildPayload(ConnectionData)
             };
 
-            var tcpClient = new TcpClient(DEFAULT_HOST, 443);
-            var secureStream = new SslStream(tcpClient.GetStream(), false);
+            var bootstrap = new Bootstrap();
+            bootstrap
+                .Group(_loopGroup)
+                .Channel<TcpSocketChannel>()
+                .Option(ChannelOption.ConnectTimeout, TimeSpan.FromSeconds(5))
+                .Option(ChannelOption.TcpNodelay, true)
+                .Option(ChannelOption.SoKeepalive, true)
+                .Handler(new ActionChannelInitializer<TcpSocketChannel>(channel =>
+                {
+                    var pipeline = channel.Pipeline;
+                    pipeline.AddLast(new TlsHandler(
+                        stream => new SslStream(stream, true, (sender, certificate, chain, errors) => true),
+                        new ClientTlsSettings(DEFAULT_HOST)));
+                    pipeline.AddLast(new FbnsPacketEncoder());
+                    pipeline.AddLast(new FbnsPacketDecoder());
+                    pipeline.AddLast(new PacketInboundHandler(this));
+                }));
+
+            _fbnsChannel = await bootstrap.ConnectAsync(new DnsEndPoint(DEFAULT_HOST, 443));
+
             try
             {
-                await secureStream.AuthenticateAsClientAsync(DEFAULT_HOST);
+                await _fbnsChannel.WriteAndFlushAsync(connectPacket);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 throw;
             }
-
-            var embedded = new EmbeddedChannel();
-            embedded.Pipeline.AddLast(new FbnsPacketEncoder());
-            embedded.Pipeline.AddLast(new FbnsConnAckPacketDecoder(), new MqttDecoder(false, 1024));
-            embedded.Pipeline.AddLast(new MqttHandler());
-            embedded.WriteOutbound(connectPacket);
-            var outBuffer = embedded.ReadOutbound<IByteBuffer>();
-            while (embedded.OutboundMessages.Count > 0)
-            {
-                outBuffer.WriteBytes(embedded.ReadOutbound<IByteBuffer>());
-            }
-            var buf = new byte[outBuffer.ReadableBytes];
-            outBuffer.ReadBytes(buf);
-            await secureStream.WriteAsync(buf,0,buf.Length);
-            await Task.Delay(2000);
-            var inboundBuf = new byte[256];
-            try
-            {
-                await secureStream.ReadAsync(inboundBuf, 0, inboundBuf.Length);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-
-//            var bootstrap = new Bootstrap();
-//            bootstrap
-//                .Group(loopGroup)
-//                .Channel<TcpSocketChannel>()
-//                .Option(ChannelOption.TcpNodelay, true)
-//                .Option(ChannelOption.SoKeepalive, true)
-//                .Handler(new ActionChannelInitializer<TcpSocketChannel>(channel =>
-//                {
-//                    var pipeline = channel.Pipeline;
-//                    pipeline.AddLast(new TlsHandler(
-//                        stream => new SslStream(stream, true, (sender, certificate, chain, errors) => true),
-//                        new ClientTlsSettings(DEFAULT_HOST)));
-//                    pipeline.AddLast(new FbnsPacketEncoder());
-//                    pipeline.AddLast(new FbnsConnAckPacketDecoder(), new MqttDecoder(false, 1024));
-//                    pipeline.AddLast(new MqttHandler());
-//                }));
-//
-//            var bootstrapChannel = await bootstrap.ConnectAsync(new DnsEndPoint(DEFAULT_HOST, 443));
-//
-//
-//            try
-//            {
-//                await bootstrapChannel.WriteAndFlushAsync(connectPacket);
-//            }
-//            catch (Exception e)
-//            {
-//                Console.WriteLine(e);
-//                throw;
-//            }
         }
 
-        class MqttHandler : SimpleChannelInboundHandler<Packet>
+        internal async Task RegisterClient(string token)
         {
-            protected override void ChannelRead0(IChannelHandlerContext ctx, Packet msg)
+            if (string.IsNullOrEmpty(token)) throw new ArgumentNullException(nameof(token));
+            if (ConnectionData.FbnsToken == token)
             {
-                if (msg is FbnsConnAckPacket ack)
-                {
-                    Debug.WriteLine("Authentication data:");
-                    Debug.WriteLine(ack.Authentication);
-                }
-                else
-                {
-                    Debug.WriteLine("Cannot get FbnsConnAckPacket");
-                }
-
-                ctx.Channel.CloseAsync();
+                ConnectionData.FbnsToken = token;
+                return;
             }
+            
+            var uri = UriCreator.GetRegisterPushUri();
+            var fields = new Dictionary<string, string>()
+            {
+                {"device_type", "android_mqtt"},
+                {"is_main_push_channel", "true"},
+                {"phone_id", _device.PhoneId.ToString()},
+                {"device_token", token},
+                {"_csrftoken", _user.CsrfToken },
+                {"guid", _device.Uuid.ToString() },
+                {"_uuid", _device.Uuid.ToString() },
+                {"users", _user.LoggedInUnder.Pk.ToString() }
+            };
+
+            var request = HttpHelper.GetDefaultRequest(HttpMethod.Post, uri, _device);
+            request.Content = new FormUrlEncodedContent(fields);
+
+            var response = await _httpRequestProcessor.SendAsync(request);
+
+            ConnectionData.FbnsToken = token;
+        }
+
+        internal async Task Shutdown()
+        {
+            await _loopGroup.ShutdownGracefullyAsync();
         }
     }
 }

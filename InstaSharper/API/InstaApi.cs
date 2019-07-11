@@ -4,7 +4,9 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using DotNetty.Codecs.Mqtt.Packets;
 using InstaSharper.API.Processors;
+using InstaSharper.API.Push;
 using InstaSharper.Classes;
 using InstaSharper.Classes.Android.DeviceInfo;
 using InstaSharper.Classes.Models;
@@ -20,8 +22,8 @@ namespace InstaSharper.API
     internal class InstaApi : IInstaApi
     {
         public AndroidDevice Device { get; private set; }
-
-        public HttpClient HttpClient => _httpRequestProcessor.Client;
+        public FbnsClient PushClient { get; private set; }
+        public bool IsPushClientRunning => PushClient?.IsRunning ?? false;
 
         private readonly IHttpRequestProcessor _httpRequestProcessor;
         private readonly IInstaLogger _logger;
@@ -42,12 +44,13 @@ namespace InstaSharper.API
         private IUserProcessor _userProcessor;
 
         public InstaApi(UserSessionData user, IInstaLogger logger, AndroidDevice deviceInfo,
-            IHttpRequestProcessor httpRequestProcessor)
+            IHttpRequestProcessor httpRequestProcessor, FbnsConnectionData fbnsData)
         {
             _user = user;
             _logger = logger;
             _httpRequestProcessor = httpRequestProcessor;
             Device = deviceInfo;
+            PushClient = new FbnsClient(Device, _user, _httpRequestProcessor, fbnsData);
         }
 
         /// <summary>
@@ -920,7 +923,17 @@ namespace InstaSharper.API
             ValidateLoggedIn();
             return await _hashtagProcessor.GetHashtagInfo(tagname);
         }
-        
+
+        public async Task StartFbnsClient()
+        {
+            ValidateUser();
+            ValidateLoggedIn();
+            if (!IsPushClientRunning)
+            {
+                await PushClient.Start();
+            }
+        }
+
         #region Authentication/State data
 
         /// <summary>
@@ -1034,8 +1047,8 @@ namespace InstaSharper.API
                 var loginInfo = JsonConvert.DeserializeObject<InstaLoginResponse>(json);
                 IsUserAuthenticated = loginInfo.User?.UserName.ToLower() == _user.UserName.ToLower();
                 var converter = ConvertersFabric.Instance.GetUserShortConverter(loginInfo.User);
-                _user.LoggedInUder = converter.Convert();
-                _user.RankToken = $"{_user.LoggedInUder.Pk}_{_httpRequestProcessor.RequestMessage.phone_id}";
+                _user.LoggedInUnder = converter.Convert();
+                _user.RankToken = $"{_user.LoggedInUnder.Pk}_{_httpRequestProcessor.RequestMessage.phone_id}";
                 return Result.Success(InstaLoginResult.Success);
             }
             catch (Exception exception)
@@ -1167,8 +1180,8 @@ namespace InstaSharper.API
             var sendVerifyCodeResponse = JsonConvert.DeserializeObject<InstaResetChallenge>(json);
             IsUserAuthenticated = sendVerifyCodeResponse.LoggedInUser?.UserName.ToLower() == _user.UserName.ToLower();
             var converter = ConvertersFabric.Instance.GetUserShortConverter(sendVerifyCodeResponse.LoggedInUser);
-            _user.LoggedInUder = converter.Convert();
-            _user.RankToken = $"{_user.LoggedInUder.Pk}_{_httpRequestProcessor.RequestMessage.phone_id}";
+            _user.LoggedInUnder = converter.Convert();
+            _user.RankToken = $"{_user.LoggedInUnder.Pk}_{_httpRequestProcessor.RequestMessage.phone_id}";
             return Result.Success(sendVerifyCodeResponse);
         }
         
@@ -1221,8 +1234,8 @@ namespace InstaSharper.API
                     IsUserAuthenticated = IsUserAuthenticated =
                         loginInfo.User != null && loginInfo.User.UserName.ToLower() == _user.UserName.ToLower();
                     var converter = ConvertersFabric.Instance.GetUserShortConverter(loginInfo.User);
-                    _user.LoggedInUder = converter.Convert();
-                    _user.RankToken = $"{_user.LoggedInUder.Pk}_{_httpRequestProcessor.RequestMessage.phone_id}";
+                    _user.LoggedInUnder = converter.Convert();
+                    _user.RankToken = $"{_user.LoggedInUnder.Pk}_{_httpRequestProcessor.RequestMessage.phone_id}";
 
                     return Result.Success(InstaLoginTwoFactorResult.Success);
                 }
@@ -1299,7 +1312,8 @@ namespace InstaSharper.API
                 DeviceInfo = Device,
                 IsAuthenticated = IsUserAuthenticated,
                 UserSession = _user,
-                Cookies = _httpRequestProcessor.HttpHandler.CookieContainer
+                Cookies = _httpRequestProcessor.HttpHandler.CookieContainer,
+                FbnsConnectionData = PushClient.ConnectionData
             };
             return SerializationHelper.SerializeToStream(state);
         }
@@ -1314,6 +1328,8 @@ namespace InstaSharper.API
             Device = data.DeviceInfo;
             _user = data.UserSession;
             _httpRequestProcessor.HttpHandler.CookieContainer = data.Cookies;
+            var task = PushClient.Shutdown();
+            PushClient = new FbnsClient(Device, _user, _httpRequestProcessor, data.FbnsConnectionData);
             IsUserAuthenticated = data.IsAuthenticated;
             InvalidateProcessors();
         }
@@ -1321,7 +1337,7 @@ namespace InstaSharper.API
         #endregion
 
 
-        #region private part
+        #region private/internal part
 
         internal void InvalidateProcessors()
         {

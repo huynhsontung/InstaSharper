@@ -7,7 +7,7 @@ namespace InstaSharper.Classes.Models
     {
         public bool IsVerified { get; set; }
         public bool IsPrivate { get; set; }
-        public long Pk { get; set; }
+        public long Pk { get; set; }    // AccountId
         public string ProfilePicture { get; set; }
         public string ProfilePictureId { get; set; } = "unknown";
         public string UserName { get; set; }

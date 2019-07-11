@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
@@ -8,7 +9,7 @@ using DotNetty.Common.Utilities;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Embedded;
 
-namespace InstaSharper.API.Push.MqttHelpers
+namespace InstaSharper.API.Push.PacketHelpers
 {
     public sealed class FbnsPacketEncoder : MessageToMessageEncoder<Packet>
     {
@@ -27,12 +28,29 @@ namespace InstaSharper.API.Push.MqttHelpers
             if (!(packet is FbnsConnectPacket connectPacket))
             {
                 MqttEncodeChannel.WriteOutbound(packet);
-                IByteBuffer result;
-                do
+
+                for (int i = 0; i < 2; i++)
                 {
-                    result = MqttEncodeChannel.ReadOutbound<IByteBuffer>();
-                    if (result != null) output.Add(result);
-                } while (result != null);
+                    output.Add(MqttEncodeChannel.ReadOutbound<IByteBuffer>().Retain());
+                }
+
+//                List<IByteBuffer> results = new List<IByteBuffer>();
+//
+//                for (int i = 0; i < 2; i++)
+//                {
+//                    results.Add(MqttEncodeChannel.ReadOutbound<IByteBuffer>());
+//                }
+//
+//                var memory = new MemoryStream(results[0].ReadableBytes + results[1].ReadableBytes);
+//                results[0].ReadBytes(memory, results[0].ReadableBytes);
+//                results[1].ReadBytes(memory, results[1].ReadableBytes);
+//                results[0].Release();
+//                results[1].Release();
+//
+//                var full = new byte[memory.Length];
+//                memory.Position = 0;
+//                memory.Read(full, 0, full.Length);
+
                 return;
             }
             var bufferAllocator = context.Allocator;

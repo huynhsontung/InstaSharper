@@ -555,5 +555,12 @@ namespace InstaSharper.Helpers
                 throw new Exception("Can't create URI for getting share link");
             return instaUri;
         }
+
+        public static Uri GetRegisterPushUri()
+        {
+            if (!Uri.TryCreate(BaseInstagramUri, InstaApiConstants.REGISTER_PUSH, out var instaUri))
+                throw new Exception("Can't create URI for registering push client");
+            return instaUri;
+        }
     }
 }

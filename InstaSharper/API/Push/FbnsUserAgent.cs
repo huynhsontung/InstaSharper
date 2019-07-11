@@ -11,13 +11,6 @@ namespace InstaSharper.API.Push
         const string FBNS_APPLICATION_NAME = "MQTT";
         const string INSTAGRAM_APPLICATION_NAME = "Instagram";  // for Realtime features
 
-        #region InstaSharper Constants
-        /// Duplicate from <see cref="InstaSharper.API.InstaApiConstants"/>
-//        private const string IG_VERSION = "85.0.0.21.100";
-//        private const string VERSION_CODE = "146536611";
-//        private const string PACKAGE_NAME = "com.instagram.android";
-        #endregion
-
         // todo: implement Realtime status like "message seen"
         public static string BuildFbUserAgent(AndroidDevice device, string appName = FBNS_APPLICATION_NAME, string userLocale = "en_US")
         {

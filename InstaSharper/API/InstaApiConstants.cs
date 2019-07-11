@@ -78,7 +78,7 @@ namespace InstaSharper.API
         public const string RESET_CHALLENGE = API_SUFFIX + "/challenge/reset/{0}";
         public const string VERIFY_METHOD = API_SUFFIX + "/challenge/{0}";
         public const string FB_SEARCH_PLACE = API_SUFFIX + "/fbsearch/places/?count={0}&query={1}&rank_token={2}";
-        
+        public const string REGISTER_PUSH = API_SUFFIX + "/push/register/";
         public const string GET_LIST_COLLECTIONS = API_SUFFIX + "/collections/list/";
         public const string GET_COLLECTION = API_SUFFIX + "/feed/collection/{0}/";
         public const string CREATE_COLLECTION = API_SUFFIX + "/collections/create/";

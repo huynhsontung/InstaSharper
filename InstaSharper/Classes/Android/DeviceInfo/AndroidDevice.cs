@@ -5,18 +5,18 @@ namespace InstaSharper.Classes.Android.DeviceInfo
     [Serializable]
     public class AndroidDevice
     {
-        public string DeviceId { get; set; } // format: android-{md5}
-        public Guid PhoneId { get; set; } = Guid.NewGuid();
-        public Guid Uuid { get; set; } = Guid.NewGuid();
+        public string DeviceId { get; internal set; } // format: android-{md5}
+        public Guid PhoneId { get; internal set; } = Guid.NewGuid();
+        public Guid Uuid { get; internal set; } = Guid.NewGuid();
 
-        public string UserAgent { get; set; }
-        public AndroidVersion AndroidVersion { get; set; }
-        public int Dpi { get; set; }
+        public string UserAgent { get; internal set; }
+        public AndroidVersion AndroidVersion { get; internal set; }
+        public int Dpi { get; internal set; }
         public Resolution ScreenResolution = new Resolution();
-        public string DeviceName { get; set; }
-        public string Cpu { get; set; }
-        public string HardwareManufacturer { get; set; }
-        public string HardwareModel { get; set; }
+        public string DeviceName { get; internal set; }
+        public string Cpu { get; internal set; }
+        public string HardwareManufacturer { get; internal set; }
+        public string HardwareModel { get; internal set; }
 
         public const string CPU_ABI = "armeabi-v7a:armeabi";
     }
@@ -24,7 +24,7 @@ namespace InstaSharper.Classes.Android.DeviceInfo
     [Serializable]
     public struct Resolution
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int Width { get; internal set; }
+        public int Height { get; internal set; }
     }
 }
