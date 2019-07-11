@@ -12,14 +12,14 @@ Note that: there is a simple [Instagram API](https://github.com/a-legotin/Instag
 #### Current version: 1.4.0 [Stable], 2.0.0 [Under development]
 
 ## Overview
-This project intends to provide all the features available in the Instagram API up to 12.0.0.7.91. It is being developed in C# for .NET Framework 4.5.2 and .NET Standard 2.0
+This project intends to provide all the features available in the Instagram API. It is being developed in C# for .NET Standard 2.0
 
 #### This repository is provided for reference purposes only.
 
 * Please note that this project is still in design and development phase; the libraries may suffer major changes even at the interface level, so don't rely (yet) in this software for production uses. *
 
 ## Cross-platform by design
-Build with dotnet core. Can be used on Mac, Linux, Windows.
+Build with .NET Standard. Can be used on Mac, Linux, Windows.
 
 ## Easy to install
 Use library as dll, reference from [myget](https://www.myget.org/feed/instashaper-develop/package/nuget/InstaSharper) or clone source code.
@@ -78,10 +78,17 @@ var api = new InstaApiBuilder()
                 .UseLogger(new SomeLogger())
                 .UseHttpClient(new SomeHttpClient())
                 .SetUser(new UserCredentials(...You user...))
-                .UseHttpClient(httpHandlerWithSomeProxy)
                 .Build();
 ```
 ##### Note: every API method has synchronous implementation as well
+
+#### Or load previously saved data in the builder
+```c#
+var api = new InstaApiBuilder()
+                .LoadStateFromStream(stateStream)
+                .UseLogger(new SomeLogger())
+                .Build();
+```
 
 ### Quick Examples
 #### Login
