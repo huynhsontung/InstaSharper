@@ -4,10 +4,8 @@ using System.Diagnostics;
 using System.Text;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
-using DotNetty.Codecs.Mqtt;
 using DotNetty.Codecs.Mqtt.Packets;
 using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Embedded;
 
 namespace InstaSharper.API.Push.PacketHelpers
 {
@@ -15,7 +13,7 @@ namespace InstaSharper.API.Push.PacketHelpers
     ///     Customized MqttDecoder for Fbns that only handles Publish, PubAck, and ConnAck
     /// </summary>
     /// Reference: https://github.com/Azure/DotNetty/blob/dev/src/DotNetty.Codecs.Mqtt/MqttDecoder.cs
-    public sealed class FbnsPacketDecoder : ReplayingDecoder<FbnsPacketDecoder.ParseState>
+    internal sealed class FbnsPacketDecoder : ReplayingDecoder<FbnsPacketDecoder.ParseState>
     {
         private static class Signatures
         {
@@ -28,7 +26,7 @@ namespace InstaSharper.API.Push.PacketHelpers
 //            public const byte Subscribe = 130;
 //            public const byte SubAck = 144;
 //            public const byte PingReq = 192;
-//            public const byte PingResp = 208;
+            public const byte PingResp = 208;
 //            public const byte Disconnect = 224;
 //            public const byte Unsubscribe = 162;
 //            public const byte UnsubAck = 176;
@@ -58,7 +56,7 @@ namespace InstaSharper.API.Push.PacketHelpers
                     case ParseState.Ready:
                         Packet packet;
 
-                        if (!this.TryDecodePacket(input, context, out packet))
+                        if (!this.TryDecodePacket(input, out packet))
                         {
                             this.RequestReplay();
                             return;
@@ -83,7 +81,7 @@ namespace InstaSharper.API.Push.PacketHelpers
             }
         }
 
-        private bool TryDecodePacket(IByteBuffer buffer, IChannelHandlerContext context, out Packet packet)
+        private bool TryDecodePacket(IByteBuffer buffer, out Packet packet)
         {
             // Check fixed header
             if (!buffer.IsReadable(2)) // packet consists of at least 2 bytes
@@ -104,7 +102,7 @@ namespace InstaSharper.API.Push.PacketHelpers
                 return false;
             }
 
-            packet = this.DecodePacketInternal(buffer, signature, ref remainingLength, context);
+            packet = this.DecodePacketInternal(buffer, signature, ref remainingLength);
 
             if (remainingLength > 0)
             {
@@ -114,8 +112,7 @@ namespace InstaSharper.API.Push.PacketHelpers
             return true;
         }
 
-        private Packet DecodePacketInternal(IByteBuffer buffer, int packetSignature, ref int remainingLength,
-            IChannelHandlerContext context)
+        private Packet DecodePacketInternal(IByteBuffer buffer, int packetSignature, ref int remainingLength)
         {
             if (Signatures.IsPublish(packetSignature))
             {
@@ -145,6 +142,8 @@ namespace InstaSharper.API.Push.PacketHelpers
                     var connAckPacket = new FbnsConnAckPacket();
                     DecodeConnAckPacket(buffer, connAckPacket, ref remainingLength);
                     return connAckPacket;
+                case Signatures.PingResp:
+                    return PingRespPacket.Instance;
                 default:
                     throw new DecoderException($"Packet type {packetSignature} not supported");
             }

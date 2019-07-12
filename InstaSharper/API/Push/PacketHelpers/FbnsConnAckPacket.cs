@@ -2,11 +2,11 @@
 
 namespace InstaSharper.API.Push.PacketHelpers
 {
-    class FbnsConnAckPacket : DotNetty.Codecs.Mqtt.Packets.Packet
+    internal sealed class FbnsConnAckPacket : Packet
     {
         public override PacketType PacketType { get; } = PacketType.CONNACK;
 
-        public int ConnAckFlags { get; set; }   // ???
+        public int ConnAckFlags { get; set; }
 
         public ConnectReturnCode ReturnCode { get; set; }
 

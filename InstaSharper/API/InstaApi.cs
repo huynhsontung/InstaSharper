@@ -23,7 +23,6 @@ namespace InstaSharper.API
     {
         public AndroidDevice Device { get; private set; }
         public FbnsClient PushClient { get; private set; }
-        public bool IsPushClientRunning => PushClient?.IsRunning ?? false;
 
         private readonly IHttpRequestProcessor _httpRequestProcessor;
         private readonly IInstaLogger _logger;
@@ -928,10 +927,7 @@ namespace InstaSharper.API
         {
             ValidateUser();
             ValidateLoggedIn();
-            if (!IsPushClientRunning)
-            {
-                await PushClient.Start();
-            }
+            await PushClient.Start();
         }
 
         #region Authentication/State data

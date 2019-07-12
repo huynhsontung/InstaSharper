@@ -1,22 +1,16 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
-using DotNetty.Codecs.Mqtt;
 using DotNetty.Codecs.Mqtt.Packets;
 using DotNetty.Common.Utilities;
 using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Embedded;
 
 namespace InstaSharper.API.Push.PacketHelpers
 {
-    public sealed class FbnsPacketEncoder : MessageToMessageEncoder<Packet>
+    internal sealed class FbnsPacketEncoder : MessageToMessageEncoder<Packet>
     {
-        public static readonly FbnsPacketEncoder Instance = new FbnsPacketEncoder();
-
-        private static readonly EmbeddedChannel MqttEncodeChannel = new EmbeddedChannel(new MqttEncoder());
-
         const int PACKET_ID_LENGTH = 2;
         const int STRING_SIZE_LENGTH = 2;
         const int MAX_VARIABLE_LENGTH = 4;
@@ -25,42 +19,34 @@ namespace InstaSharper.API.Push.PacketHelpers
 
         protected override void Encode(IChannelHandlerContext context, Packet packet, List<object> output)
         {
-            if (!(packet is FbnsConnectPacket connectPacket))
-            {
-                MqttEncodeChannel.WriteOutbound(packet);
-
-                for (int i = 0; i < 2; i++)
-                {
-                    output.Add(MqttEncodeChannel.ReadOutbound<IByteBuffer>().Retain());
-                }
-
-//                List<IByteBuffer> results = new List<IByteBuffer>();
-//
-//                for (int i = 0; i < 2; i++)
-//                {
-//                    results.Add(MqttEncodeChannel.ReadOutbound<IByteBuffer>());
-//                }
-//
-//                var memory = new MemoryStream(results[0].ReadableBytes + results[1].ReadableBytes);
-//                results[0].ReadBytes(memory, results[0].ReadableBytes);
-//                results[1].ReadBytes(memory, results[1].ReadableBytes);
-//                results[0].Release();
-//                results[1].Release();
-//
-//                var full = new byte[memory.Length];
-//                memory.Position = 0;
-//                memory.Read(full, 0, full.Length);
-
-                return;
-            }
             var bufferAllocator = context.Allocator;
-            var payload = connectPacket.Payload;
+            switch (packet.PacketType)
+            {
+                case PacketType.CONNECT:
+                    EncodeConnectPacket(bufferAllocator, (FbnsConnectPacket)packet, output);
+                    break;
+                case PacketType.PUBLISH:
+                    EncodePublishPacket(bufferAllocator, (PublishPacket) packet, output);
+                    break;
+                case PacketType.PINGREQ:
+                case PacketType.PINGRESP:
+                case PacketType.DISCONNECT:
+                    EncodePacketWithFixedHeaderOnly(bufferAllocator, packet, output);
+                    break;
+                default:
+                    throw new ArgumentException("Unsupported packet type: " + packet.PacketType, nameof(packet));
+            }
+        }
+
+        private static void EncodeConnectPacket(IByteBufferAllocator bufferAllocator, FbnsConnectPacket packet, List<object> output)
+        {
+            var payload = packet.Payload;
             if (payload == null) throw new EncoderException("Payload required");
             int payloadSize = payload.ReadableBytes;
-            byte[] protocolNameBytes = EncodeStringInUtf8(connectPacket.ProtocolName);
+            byte[] protocolNameBytes = EncodeStringInUtf8(packet.ProtocolName);
             // variableHeaderBufferSize = 2 bytes length + ProtocolName bytes + 4 bytes
             // 4 bytes are reserved for: 1 byte ProtocolLevel, 1 byte ConnectFlags, 2 byte KeepAlive
-            int variableHeaderBufferSize = STRING_SIZE_LENGTH + protocolNameBytes.Length + 4; 
+            int variableHeaderBufferSize = STRING_SIZE_LENGTH + protocolNameBytes.Length + 4;
             int variablePartSize = variableHeaderBufferSize + payloadSize;
             int fixedHeaderBufferSize = 1 + MAX_VARIABLE_LENGTH;
             IByteBuffer buf = null;
@@ -68,15 +54,15 @@ namespace InstaSharper.API.Push.PacketHelpers
             {
                 // MQTT message format from: http://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/MQTT_V3.1_Protocol_Specific.pdf
                 buf = bufferAllocator.Buffer(fixedHeaderBufferSize + variableHeaderBufferSize);
-                buf.WriteByte((int)connectPacket.PacketType << 4); // Write packet type
+                buf.WriteByte((int)packet.PacketType << 4); // Write packet type
                 WriteVariableLengthInt(buf, variablePartSize); // Write remaining length
 
                 // Variable part
                 buf.WriteShort(protocolNameBytes.Length);
                 buf.WriteBytes(protocolNameBytes);
-                buf.WriteByte(connectPacket.ProtocolLevel);
-                buf.WriteByte(connectPacket.ConnectFlags);
-                buf.WriteShort(connectPacket.KeepAliveInSeconds);
+                buf.WriteByte(packet.ProtocolLevel);
+                buf.WriteByte(packet.ConnectFlags);
+                buf.WriteShort(packet.KeepAliveInSeconds);
 
                 output.Add(buf);
                 buf = null;
@@ -90,6 +76,80 @@ namespace InstaSharper.API.Push.PacketHelpers
             {
                 output.Add(payload.Retain());
             }
+        }
+
+        private static void EncodePublishPacket(IByteBufferAllocator bufferAllocator, PublishPacket packet, List<object> output)
+        {
+            IByteBuffer payload = packet.Payload ?? Unpooled.Empty;
+
+            string topicName = packet.TopicName;
+            byte[] topicNameBytes = EncodeStringInUtf8(topicName);
+
+            int variableHeaderBufferSize = STRING_SIZE_LENGTH + topicNameBytes.Length +
+                                           (packet.QualityOfService > QualityOfService.AtMostOnce ? PACKET_ID_LENGTH : 0);
+            int payloadBufferSize = payload.ReadableBytes;
+            int variablePartSize = variableHeaderBufferSize + payloadBufferSize;
+            int fixedHeaderBufferSize = 1 + MAX_VARIABLE_LENGTH;
+
+            IByteBuffer buf = null;
+            try
+            {
+                buf = bufferAllocator.Buffer(fixedHeaderBufferSize + variablePartSize);
+                buf.WriteByte(CalculateFirstByteOfFixedHeader(packet));
+                WriteVariableLengthInt(buf, variablePartSize);
+                buf.WriteShort(topicNameBytes.Length);
+                buf.WriteBytes(topicNameBytes);
+                if (packet.QualityOfService > QualityOfService.AtMostOnce)
+                {
+                    buf.WriteShort(packet.PacketId);
+                }
+
+                output.Add(buf);
+                buf = null;
+            }
+            finally
+            {
+                buf?.SafeRelease();
+            }
+
+            if (payload.IsReadable())
+            {
+                output.Add(payload.Retain());
+            }
+        }
+
+        static void EncodePacketWithFixedHeaderOnly(IByteBufferAllocator bufferAllocator, Packet packet, List<object> output)
+        {
+            IByteBuffer buffer = null;
+            try
+            {
+                buffer = bufferAllocator.Buffer(2);
+                buffer.WriteByte(CalculateFirstByteOfFixedHeader(packet));
+                buffer.WriteByte(0);
+
+                output.Add(buffer);
+                buffer = null;
+            }
+            finally
+            {
+                buffer?.SafeRelease();
+            }
+        }
+
+        static int CalculateFirstByteOfFixedHeader(Packet packet)
+        {
+            int ret = 0;
+            ret |= (int)packet.PacketType << 4;
+            if (packet.Duplicate)
+            {
+                ret |= 0x08;
+            }
+            ret |= (int)packet.QualityOfService << 1;
+            if (packet.RetainRequested)
+            {
+                ret |= 0x01;
+            }
+            return ret;
         }
 
         static void WriteVariableLengthInt(IByteBuffer buffer, int value)

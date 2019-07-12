@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Sockets;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Threading.Tasks;
 using DotNetty.Buffers;
 using DotNetty.Codecs.Mqtt.Packets;
 using DotNetty.Transport.Channels;
@@ -23,21 +24,20 @@ namespace InstaSharper.API.Push
         }
 
         private readonly FbnsClient _client;
-
         private int _publishId;
-
-//        private static bool _waiting = false;
+        private bool _waitingForPubAck;
         private const int TIMEOUT = 5;
-        private const int NUM_OF_RETRIES = 5;
 
         public PacketInboundHandler(FbnsClient client)
         {
             _client = client;
         }
 
-        public override void ChannelInactive(IChannelHandlerContext context)
+        public override async void ChannelInactive(IChannelHandlerContext context)
         {
-            base.ChannelInactive(context);
+            // If connection is closed, reconnect
+            await Task.Delay(TimeSpan.FromSeconds(TIMEOUT));
+            await _client.Start();
         }
 
         protected override void ChannelRead0(IChannelHandlerContext ctx, Packet msg)
@@ -46,23 +46,28 @@ namespace InstaSharper.API.Push
             {
                 case PacketType.CONNACK:
                     _client.ConnectionData.UpdateAuth(((FbnsConnAckPacket) msg).Authentication);
-
                     RegisterMqttClient(ctx);
                     break;
+
                 case PacketType.PUBLISH:
                     var publishPacket = (PublishPacket) msg;
+                    var message = DecompressPayload(publishPacket.Payload);
                     switch (Enum.Parse(typeof(TopicIds), publishPacket.TopicName))
                     {
                         case TopicIds.Message:
                             // todo: handle general message
                             break;
                         case TopicIds.RegResp:
-                            OnRegisterResponse(publishPacket.Payload);
+                            OnRegisterResponse(message);
                             break;
                         default:
                             Debug.WriteLine($"Unknown topic received: {publishPacket.TopicName}", "Warning");
                             break;
                     }
+                    break;
+
+                case PacketType.PUBACK:
+                    _waitingForPubAck = false;
                     break;
                 // Todo: Handle other packet types
             }
@@ -72,27 +77,10 @@ namespace InstaSharper.API.Push
         /// <summary>
         ///     After receiving the token, proceed to register over Instagram API
         /// </summary>
-        private void OnRegisterResponse(IByteBuffer payload)
+        private async void OnRegisterResponse(byte[] message)
         {
-            var totalLength = payload.ReadableBytes;
-
-            var decompressedStream = new MemoryStream(256);
-            using (var compressedStream = new MemoryStream(totalLength))
-            {
-                payload.GetBytes(0, compressedStream, totalLength);
-                payload.Release();
-                compressedStream.Position = 0;
-                using (var zlibStream = new ZlibStream(compressedStream, CompressionMode.Decompress, true))
-                {
-                    zlibStream.CopyTo(decompressedStream);
-                }
-            }
-
-            var data = new byte[decompressedStream.Length];
-            decompressedStream.Position = 0;
-            decompressedStream.Read(data, 0, data.Length);
-            decompressedStream.Dispose();
-            var json = Encoding.UTF8.GetString(data);
+            
+            var json = Encoding.UTF8.GetString(message);
 
             var response = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
 
@@ -104,7 +92,7 @@ namespace InstaSharper.API.Push
 
             var token = response["token"];
 
-            var task = _client.RegisterClient(token);
+            await _client.RegisterClient(token);
         }
 
 
@@ -143,7 +131,41 @@ namespace InstaSharper.API.Push
                 TopicName = ((byte)TopicIds.RegReq).ToString()
             };
 
+            // Send PUBLISH packet then wait for PUBACK
+            // Retry after TIMEOUT seconds
             ctx.WriteAndFlushAsync(publishPacket);
+            _waitingForPubAck = true;
+            Task.Delay(TimeSpan.FromSeconds(TIMEOUT)).ContinueWith(retry =>
+            {
+                if (_waitingForPubAck && ctx.Channel.Active)
+                {
+                    RegisterMqttClient(ctx);
+                }
+            });
+
+        }
+
+        private byte[] DecompressPayload(IByteBuffer payload)
+        {
+            var totalLength = payload.ReadableBytes;
+
+            var decompressedStream = new MemoryStream(256);
+            using (var compressedStream = new MemoryStream(totalLength))
+            {
+                payload.GetBytes(0, compressedStream, totalLength);
+                payload.Release();
+                compressedStream.Position = 0;
+                using (var zlibStream = new ZlibStream(compressedStream, CompressionMode.Decompress, true))
+                {
+                    zlibStream.CopyTo(decompressedStream);
+                }
+            }
+
+            var data = new byte[decompressedStream.Length];
+            decompressedStream.Position = 0;
+            decompressedStream.Read(data, 0, data.Length);
+            decompressedStream.Dispose();
+            return data;
         }
     }
 }

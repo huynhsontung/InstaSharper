@@ -25,11 +25,6 @@ namespace InstaSharper.API
         /// </summary>
         AndroidDevice Device { get; }
 
-        /// <summary>
-        ///     Indicates whether Fbns client (for push and realtime notifications) is running or not
-        /// </summary>
-        bool IsPushClientRunning { get; }
-
         #endregion
 
         /// <summary>

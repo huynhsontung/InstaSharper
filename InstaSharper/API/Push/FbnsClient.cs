@@ -32,12 +32,9 @@ namespace InstaSharper.API.Push
         private readonly AndroidDevice _device;
         private const string DEFAULT_HOST = "mqtt-mini.facebook.com";
         private const string DEFAULT_SERVICE = "https";
-        private readonly MultithreadEventLoopGroup _loopGroup = new MultithreadEventLoopGroup();
-        private IChannel _fbnsChannel;
+        private readonly SingleThreadEventLoop _loopGroup = new SingleThreadEventLoop();
 
         internal FbnsConnectionData ConnectionData { get; }
-
-        public bool IsRunning => _fbnsChannel?.Open ?? false;
 
         internal FbnsClient(AndroidDevice device, UserSessionData sessionData, IHttpRequestProcessor requestProcessor, FbnsConnectionData connectionData = null)
         {
@@ -80,16 +77,16 @@ namespace InstaSharper.API.Push
                     pipeline.AddLast(new PacketInboundHandler(this));
                 }));
 
-            _fbnsChannel = await bootstrap.ConnectAsync(new DnsEndPoint(DEFAULT_HOST, 443));
 
             try
             {
-                await _fbnsChannel.WriteAndFlushAsync(connectPacket);
+                var fbnsChannel = await bootstrap.ConnectAsync(new DnsEndPoint(DEFAULT_HOST, 443));
+                await fbnsChannel.WriteAndFlushAsync(connectPacket);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                // Todo: If fail to connect, retry in the future
             }
         }
 

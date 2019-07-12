@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 namespace InstaSharper.API.Push
 {
     [Serializable]
-    internal class FbnsConnectionData
+    internal sealed class FbnsConnectionData
     {
         private const int MESSAGE_TOPIC_ID = 76;
         private const int REG_RESP_TOPIC_ID = 80;
