@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Data;
 using DotNetty.Buffers;
 using DotNetty.Codecs.Mqtt.Packets;
 
@@ -17,14 +17,14 @@ namespace InstaSharper.API.Push.PacketHelpers
 
         public int ProtocolLevel { get; } = 3;
 
-        private int _keepAlive = 900;
+        private ushort _keepAlive = 900;
 
-        public int KeepAliveInSeconds
+        public ushort KeepAliveInSeconds
         {
             get => _keepAlive;
             set
             {
-                if (value > 65535) throw new ArgumentOutOfRangeException();
+                if (value < 60) throw new ConstraintException("Keep alive duration too short. Keep alive needs to be longer than 60 seconds");
                 _keepAlive = value;
             }
         }

@@ -4,17 +4,11 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Net.Security;
-using System.Net.Sockets;
-using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using DotNetty.Buffers;
-using DotNetty.Codecs.Mqtt;
-using DotNetty.Codecs.Mqtt.Packets;
 using DotNetty.Handlers.Tls;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Embedded;
 using DotNetty.Transport.Channels.Sockets;
 using InstaSharper.API.Push.PacketHelpers;
 using InstaSharper.Classes;
@@ -25,14 +19,17 @@ namespace InstaSharper.API.Push
 {
     public sealed class FbnsClient
     {
-//        public event EventHandler<string> MessageReceived;
+        public event EventHandler<MessageReceivedEventArgs> MessageReceived;
 
         private readonly UserSessionData _user;
         private readonly IHttpRequestProcessor _httpRequestProcessor;
         private readonly AndroidDevice _device;
+        private SingleThreadEventLoop _loopGroup;
         private const string DEFAULT_HOST = "mqtt-mini.facebook.com";
-        private const string DEFAULT_SERVICE = "https";
-        private readonly SingleThreadEventLoop _loopGroup = new SingleThreadEventLoop();
+        private int _secondsToNextRetry = 5;
+        private CancellationTokenSource _connectRetryCancellationToken;
+
+        internal bool IsShutdown => _loopGroup?.IsShutdown ?? false;
 
         internal FbnsConnectionData ConnectionData { get; }
 
@@ -54,6 +51,12 @@ namespace InstaSharper.API.Push
 
         internal async Task Start()
         {
+            _connectRetryCancellationToken?.Cancel();
+            _connectRetryCancellationToken = new CancellationTokenSource();
+            if (_loopGroup != null) await _loopGroup.ShutdownGracefullyAsync();
+            _loopGroup = new SingleThreadEventLoop();
+            var cancellationToken = _connectRetryCancellationToken.Token;
+
             var connectPacket = new FbnsConnectPacket
             {
                 Payload = await PayloadProcessor.BuildPayload(ConnectionData)
@@ -77,16 +80,19 @@ namespace InstaSharper.API.Push
                     pipeline.AddLast(new PacketInboundHandler(this));
                 }));
 
-
             try
             {
+                if (cancellationToken.IsCancellationRequested) return;
                 var fbnsChannel = await bootstrap.ConnectAsync(new DnsEndPoint(DEFAULT_HOST, 443));
                 await fbnsChannel.WriteAndFlushAsync(connectPacket);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e);
-                // Todo: If fail to connect, retry in the future
+                Debug.WriteLine($"Failed to connect to Push/MQTT server. No Internet connection? Retry in {_secondsToNextRetry} seconds.");
+                await Task.Delay(TimeSpan.FromSeconds(_secondsToNextRetry), cancellationToken);
+                if (cancellationToken.IsCancellationRequested) return;
+                _secondsToNextRetry = _secondsToNextRetry < 300 ? _secondsToNextRetry * 2 : 300;    // Maximum wait time is 5 mins
+                await Start();
             }
         }
 
@@ -100,7 +106,7 @@ namespace InstaSharper.API.Push
             }
             
             var uri = UriCreator.GetRegisterPushUri();
-            var fields = new Dictionary<string, string>()
+            var fields = new Dictionary<string, string>
             {
                 {"device_type", "android_mqtt"},
                 {"is_main_push_channel", "true"},
@@ -111,18 +117,22 @@ namespace InstaSharper.API.Push
                 {"_uuid", _device.Uuid.ToString() },
                 {"users", _user.LoggedInUnder.Pk.ToString() }
             };
-
             var request = HttpHelper.GetDefaultRequest(HttpMethod.Post, uri, _device);
             request.Content = new FormUrlEncodedContent(fields);
-
-            var response = await _httpRequestProcessor.SendAsync(request);
+            await _httpRequestProcessor.SendAsync(request);
 
             ConnectionData.FbnsToken = token;
         }
 
         internal async Task Shutdown()
         {
-            await _loopGroup.ShutdownGracefullyAsync();
+            _connectRetryCancellationToken?.Cancel();
+            if (_loopGroup != null) await _loopGroup.ShutdownGracefullyAsync();
+        }
+
+        internal void OnMessageReceived(MessageReceivedEventArgs args)
+        {
+            MessageReceived?.Invoke(this, args);
         }
     }
 }

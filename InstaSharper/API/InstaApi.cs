@@ -1279,7 +1279,16 @@ namespace InstaSharper.API
             try
             {
                 var instaUri = UriCreator.GetLogoutUri();
-                var request = HttpHelper.GetDefaultRequest(HttpMethod.Get, instaUri, Device);
+                var request = HttpHelper.GetDefaultRequest(HttpMethod.Post, instaUri, Device);
+                var fields = new Dictionary<string, string>
+                {
+                    {"phone_id", Device.PhoneId.ToString()},
+                    {"_csrftoken", _user.CsrfToken},
+                    {"guid", Device.Uuid.ToString()},
+                    {"device_id", Device.DeviceId},
+                    {"_uuid", Device.Uuid.ToString()}
+                };
+                request.Content = new FormUrlEncodedContent(fields);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK) return Result.UnExpectedResponse<bool>(response, json);

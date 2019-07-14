@@ -28,6 +28,13 @@ namespace InstaSharper.API.Push.PacketHelpers
                 case PacketType.PUBLISH:
                     EncodePublishPacket(bufferAllocator, (PublishPacket) packet, output);
                     break;
+                case PacketType.PUBACK:
+                case PacketType.PUBREC:
+                case PacketType.PUBREL:
+                case PacketType.PUBCOMP:
+                case PacketType.UNSUBACK:
+                    EncodePacketWithIdOnly(bufferAllocator, (PacketWithId)packet, output);
+                    break;
                 case PacketType.PINGREQ:
                 case PacketType.PINGRESP:
                 case PacketType.DISCONNECT:
@@ -115,6 +122,29 @@ namespace InstaSharper.API.Push.PacketHelpers
             if (payload.IsReadable())
             {
                 output.Add(payload.Retain());
+            }
+        }
+
+        static void EncodePacketWithIdOnly(IByteBufferAllocator bufferAllocator, PacketWithId packet, List<object> output)
+        {
+            int msgId = packet.PacketId;
+
+            const int VariableHeaderBufferSize = PACKET_ID_LENGTH; // variable part only has a packet id
+            int fixedHeaderBufferSize = 1 + MAX_VARIABLE_LENGTH;
+            IByteBuffer buffer = null;
+            try
+            {
+                buffer = bufferAllocator.Buffer(fixedHeaderBufferSize + VariableHeaderBufferSize);
+                buffer.WriteByte(CalculateFirstByteOfFixedHeader(packet));
+                WriteVariableLengthInt(buffer, VariableHeaderBufferSize);
+                buffer.WriteShort(msgId);
+
+                output.Add(buffer);
+                buffer = null;
+            }
+            finally
+            {
+                buffer?.SafeRelease();
             }
         }
 

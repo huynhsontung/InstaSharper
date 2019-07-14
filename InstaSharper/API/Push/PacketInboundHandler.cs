@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DotNetty.Buffers;
 using DotNetty.Codecs.Mqtt.Packets;
@@ -24,20 +24,28 @@ namespace InstaSharper.API.Push
         }
 
         private readonly FbnsClient _client;
+        private readonly int _keepAliveDuration;    // seconds
         private int _publishId;
         private bool _waitingForPubAck;
         private const int TIMEOUT = 5;
+        private CancellationTokenSource _timerResetToken;
 
-        public PacketInboundHandler(FbnsClient client)
+        public PacketInboundHandler(FbnsClient client, int keepAlive = 900)
         {
             _client = client;
+            _keepAliveDuration = keepAlive;
         }
 
-        public override async void ChannelInactive(IChannelHandlerContext context)
+        public override void ChannelInactive(IChannelHandlerContext context)
         {
             // If connection is closed, reconnect
-            await Task.Delay(TimeSpan.FromSeconds(TIMEOUT));
-            await _client.Start();
+            Task.Delay(TimeSpan.FromSeconds(TIMEOUT)).ContinueWith(async task =>
+            {
+                _timerResetToken?.Cancel();
+                if (!_client.IsShutdown)
+                    await _client.Start();
+            });
+
         }
 
         protected override void ChannelRead0(IChannelHandlerContext ctx, Packet msg)
@@ -51,14 +59,22 @@ namespace InstaSharper.API.Push
 
                 case PacketType.PUBLISH:
                     var publishPacket = (PublishPacket) msg;
-                    var message = DecompressPayload(publishPacket.Payload);
+                    if (publishPacket.QualityOfService == QualityOfService.AtLeastOnce)
+                    {
+                        ctx.WriteAndFlushAsync(PubAckPacket.InResponseTo(publishPacket));
+                    }
+                    var payload = DecompressPayload(publishPacket.Payload);
+                    var json = Encoding.UTF8.GetString(payload);
                     switch (Enum.Parse(typeof(TopicIds), publishPacket.TopicName))
                     {
                         case TopicIds.Message:
-                            // todo: handle general message
+                            var message = JsonConvert.DeserializeObject<MessageReceivedEventArgs>(json);
+                            message.Json = json;
+                            _client.OnMessageReceived(message);
                             break;
                         case TopicIds.RegResp:
-                            OnRegisterResponse(message);
+                            OnRegisterResponse(json);
+                            ResetTimer(ctx);
                             break;
                         default:
                             Debug.WriteLine($"Unknown topic received: {publishPacket.TopicName}", "Warning");
@@ -69,6 +85,10 @@ namespace InstaSharper.API.Push
                 case PacketType.PUBACK:
                     _waitingForPubAck = false;
                     break;
+
+                case PacketType.PINGRESP:
+                    ResetTimer(ctx);
+                    break;
                 // Todo: Handle other packet types
             }
         }
@@ -77,11 +97,8 @@ namespace InstaSharper.API.Push
         /// <summary>
         ///     After receiving the token, proceed to register over Instagram API
         /// </summary>
-        private async void OnRegisterResponse(byte[] message)
+        private async void OnRegisterResponse(string json)
         {
-            
-            var json = Encoding.UTF8.GetString(message);
-
             var response = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
 
             if (!string.IsNullOrEmpty(response["error"]))
@@ -142,6 +159,38 @@ namespace InstaSharper.API.Push
                     RegisterMqttClient(ctx);
                 }
             });
+        }
+
+        private void ResetTimer(IChannelHandlerContext ctx)
+        {
+            _timerResetToken?.Cancel();
+            _timerResetToken = new CancellationTokenSource();
+
+            // Create new cancellation token for timer reset
+            var cancellationToken = _timerResetToken.Token;
+
+            Task.Delay(TimeSpan.FromSeconds(_keepAliveDuration - 60),
+                    cancellationToken) // wait for _keepAliveDuration - 60 seconds
+                .ContinueWith(async task =>
+                {
+                    // Then send a PingReq packet
+                    var packet = PingReqPacket.Instance;
+                    await ctx.WriteAndFlushAsync(packet);
+                    Debug.WriteLine("PingReq sent");
+                }, cancellationToken)
+                .ContinueWith(async task =>
+                {
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(60), cancellationToken); // Wait for another 60s for PingResp
+                        if(!cancellationToken.IsCancellationRequested)
+                            ChannelInactive(ctx);   // If still no PingResp then signal channel inactive and restart the client
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        Debug.WriteLine("Keep alive timer reset.");
+                    }
+                }, cancellationToken);
 
         }
 
@@ -153,7 +202,6 @@ namespace InstaSharper.API.Push
             using (var compressedStream = new MemoryStream(totalLength))
             {
                 payload.GetBytes(0, compressedStream, totalLength);
-                payload.Release();
                 compressedStream.Position = 0;
                 using (var zlibStream = new ZlibStream(compressedStream, CompressionMode.Decompress, true))
                 {
