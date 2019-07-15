@@ -38,7 +38,7 @@ namespace InstaSharper.Tests.Endpoints
         [Fact]
         public async void UserLoginFailTest()
         {
-            var username = "alex_codegarage";
+            var username = "instashaper_burner";
             var password = "boombaby!";
 
             var apiInstance =
@@ -57,8 +57,8 @@ namespace InstaSharper.Tests.Endpoints
         [Fact]
         public async void UserLoginSuccessTest()
         {
-            var username = "alex_codegarage";
-            var password = Environment.GetEnvironmentVariable("instaapiuserpassword");
+            var username = "instashaper_burner";
+            var password = Environment.GetEnvironmentVariable("iloveinstasharper");
 
             var apiInstance = TestHelpers.GetDefaultInstaApiInstance(new UserSessionData
             {

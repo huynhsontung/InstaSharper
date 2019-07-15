@@ -33,7 +33,7 @@ namespace InstaSharper.Tests.Endpoints
         }
 
         [Theory]
-        [InlineData("alex_codegarage")]
+        [InlineData("instashaper_burner")]
         public async void GetUserFollowingTest(string username)
         {
             Assert.True(_authInfo.ApiInstance.IsUserAuthenticated);
