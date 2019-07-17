@@ -1,50 +1,415 @@
+﻿/*  
+ *  
+ *  
+ *  Base of everything! Access to any other classes via IInstaApi
+ *  
+ *  
+ *                      IRANIAN DEVELOPERS
+ *        
+ *        
+ *                            2019
+ *  
+ *  
+ */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using InstaSharper.API.Processors;
+using InstaSharper.API.Push;
 using InstaSharper.Classes;
 using InstaSharper.Classes.DeviceInfo;
-using InstaSharper.Classes.Models;
-using InstaSharper.Classes.ResponseWrappers;
-using InstaSharper.Classes.ResponseWrappers.BaseResponse;
+using InstaSharper.Classes.Models.Account;
+using InstaSharper.Classes.Models.Challenge;
+using InstaSharper.Classes.Models.Other;
+using InstaSharper.Classes.Models.User;
+using InstaSharper.Classes.ResponseWrappers.Login;
+using InstaSharper.Classes.ResponseWrappers.Other;
+using InstaSharper.Classes.SessionHandlers;
+using InstaSharper.Enums;
 
 namespace InstaSharper.API
 {
+    /// <summary>
+    ///     Base of everything that you want.
+    /// </summary>
     public interface IInstaApi
     {
         #region Properties
+        /// <summary>
+        ///     Device data for building user agent.
+        /// </summary>
+        AndroidDevice DeviceInfo { get; }
 
         /// <summary>
-        ///     Indicates whether user authenticated or not
+        ///     Push notification client. Listen to <see cref="FbnsClient.MessageReceived"/> to get push notifications.
+        /// </summary>
+        FbnsClient PushClient { get; }
+
+        /// <summary>
+        ///     Current <see cref="IHttpRequestProcessor"/>
+        /// </summary>
+        IHttpRequestProcessor RequestProcessor { get; }
+        /// <summary>
+        ///     Current HttpClient.
+        /// </summary>
+        HttpClient HttpClient { get; }
+        /// <summary>
+        ///     Indicates whether user authenticated or not.
         /// </summary>
         bool IsUserAuthenticated { get; }
 
         /// <summary>
-        ///     Device data for building user agent
+        ///     Live api functions.
         /// </summary>
-        AndroidDevice Device { get; }
+        ILiveProcessor LiveProcessor { get; }
+        /// <summary>
+        ///     Discover api functions.
+        /// </summary>
+        IDiscoverProcessor DiscoverProcessor { get; }
+        /// <summary>
+        ///     Account api functions.
+        /// </summary>
+        IAccountProcessor AccountProcessor { get; }
+        /// <summary>
+        ///     Story api functions.
+        /// </summary>
+        IStoryProcessor StoryProcessor { get; }
+        /// <summary>
+        ///     Media api functions.
+        /// </summary>
+        IMediaProcessor MediaProcessor { get; }
+        /// <summary>
+        ///     Comments api functions.
+        /// </summary>
+        ICommentProcessor CommentProcessor { get; }
+        /// <summary>
+        ///     Messaging (direct) api functions.
+        /// </summary>
+        IMessagingProcessor MessagingProcessor { get; }
+        /// <summary>
+        ///     Feed api functions.
+        /// </summary>
+        IFeedProcessor FeedProcessor { get; }
+        /// <summary>
+        ///     Collection api functions.
+        /// </summary>
+        ICollectionProcessor CollectionProcessor { get; }
+        /// <summary>
+        ///     Location api functions.
+        /// </summary>
+        ILocationProcessor LocationProcessor { get; }
+        /// <summary>
+        ///     Hashtag api functions.
+        /// </summary>
+        IHashtagProcessor HashtagProcessor { get; }
+        /// <summary>
+        ///     User api functions.
+        /// </summary>
+        IUserProcessor UserProcessor { get; }
+        /// <summary>
+        ///     Instagram TV api functions.
+        /// </summary>
+        ITVProcessor TVProcessor { get; }
+        /// <summary>
+        ///     Business api functions
+        ///     <para>Note: All functions of this interface only works with business accounts!</para>
+        /// </summary>
+        IBusinessProcessor BusinessProcessor { get; }
+        /// <summary>
+        ///     Shopping and commerce api functions
+        /// </summary>
+        IShoppingProcessor ShoppingProcessor { get; }
+        /// <summary>
+        ///     Instagram Web api functions.
+        ///     <para>It's related to https://instagram.com/accounts/ </para>
+        /// </summary>
+        IWebProcessor WebProcessor { get; }
+
+        /// <summary>
+        ///     Session handler
+        /// </summary>
+        ISessionHandler SessionHandler { get; set; }
 
         #endregion
+
+        #region State data
 
         /// <summary>
         ///     Get current state info as Memory stream
         /// </summary>
         /// <returns>State data</returns>
         Stream GetStateDataAsStream();
+        /// <summary>
+        ///     Get current state info as Json string
+        /// </summary>
+        /// <returns>State data</returns>
+        string GetStateDataAsString();
+        /// <summary>
+        ///     Get current state info as Json string asynchronously
+        /// </summary>
+        /// <returns>
+        ///     State data
+        /// </returns>
+        /// 
 
+        Task<string> GetStateDataAsStringAsync();
+        /// <summary>
+        ///     Get current state info as Memory stream asynchronously
+        /// </summary>
+        /// <returns>State data</returns>
+        Task<Stream> GetStateDataAsStreamAsync();
         /// <summary>
         ///     Set state data from provided stream
         /// </summary>
         void LoadStateDataFromStream(Stream data);
-
-        #region Async Members
+        /// <summary>
+        ///     Set state data from provided json string
+        /// </summary>
+        void LoadStateDataFromString(string data);
+        
+        /// <summary>
+        ///     Set state data from provided stream asynchronously
+        /// </summary>
+        Task LoadStateDataFromStreamAsync(Stream stream);
 
         /// <summary>
-        ///     Connect to the notification server and start authenticating this device
+        ///     Set state data from provided json string asynchronously
         /// </summary>
-        Task StartFbnsClient();
+        Task LoadStateDataFromStringAsync(string json);
 
+
+        #endregion State data
+
+        #region Other public functions
+
+        /// <summary>
+        ///     Get current API version info (signature key, api version info, app id)
+        /// </summary>
+        ApiVersion GetApiVersionInfo();
+        /// <summary>
+        ///     Get user agent of current <see cref="IInstaApi"/>
+        /// </summary>
+        string GetUserAgent();
+        /// <summary>
+        ///     Set timeout to <see cref="HttpClient"/>
+        /// </summary>
+        /// <param name="timeout">Timeout</param>
+        void SetTimeout(TimeSpan timeout);
+        /// <summary>
+        ///     Set custom HttpClientHandler to be able to use certain features, e.g Proxy and so on
+        /// </summary>
+        /// <param name="handler">HttpClientHandler</param>
+        void UseHttpClientHandler(HttpClientHandler handler);
+        /// <summary>
+        /// Sets user credentials
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        void SetUser(string username, string password);
+
+        /// <summary>
+        /// Sets user credentials
+        /// </summary>
+        /// <param name="user"></param>
+        void SetUser(UserSessionData user);
+
+        /// <summary>
+        ///     Gets current device
+        /// </summary>
+        AndroidDevice GetCurrentDevice();
+        /// <summary>
+        ///     Gets logged in user
+        /// </summary>
+        UserSessionData GetLoggedUser();
+        /// <summary>
+        ///     Get Accept Language
+        /// </summary>
+        string GetAcceptLanguage();
+        /// <summary>
+        ///     Get current time zone
+        ///     <para>Returns something like: Asia/Tehran</para>
+        /// </summary>
+        /// <returns>Returns something like: Asia/Tehran</returns>
+        string GetTimezone();
+        /// <summary>
+        ///     Get current time zone offset
+        ///     <para>Returns something like this: 16200</para>
+        /// </summary>
+        /// <returns>Returns something like this: 16200</returns>
+        int GetTimezoneOffset();
+        /// <summary>
+        ///     Set delay between requests. Useful when API supposed to be used for mass-bombing.
+        /// </summary>
+        /// <param name="delay">Timespan delay</param>
+        void SetRequestDelay(IRequestDelay delay);
+        /// <summary>
+        ///     Set instagram api version (for user agent version)
+        /// </summary>
+        /// <param name="apiVersion">Api version</param>
+        void SetApiVersion(ApiVersionNumber apiVersion);
+        /// <summary>
+        ///     Set custom android device.
+        ///     <para>Note 1: If you want to use this method, you should call it before you calling <seealso cref="IInstaApi.LoadStateDataFromStream(Stream)"/> or <seealso cref="IInstaApi.LoadStateDataFromString(string)"/></para>
+        ///     <para>Note 2: this is optional, if you didn't set this, <seealso cref="InstagramApiSharp"/> will choose random device.</para>
+        /// </summary>
+        /// <param name="device">Android device</param>
+        void SetDevice(AndroidDevice device);
+        /// <summary>
+        ///     Set Accept Language
+        /// </summary>
+        /// <param name="languageCodeAndCountryCode">Language Code and Country Code. For example:
+        /// <para>en-US for united states</para>
+        /// <para>fa-IR for IRAN</para>
+        /// </param>
+        bool SetAcceptLanguage(string languageCodeAndCountryCode);
+        /// <summary>
+        ///     Set time zone
+        ///     <para>I.e: Asia/Tehran for Iran</para>
+        /// </summary>
+        /// <param name="timezone">
+        ///     time zone
+        ///     <para>I.e: Asia/Tehran for Iran</para>
+        /// </param>
+        void SetTimezone(string timezone);
+        /// <summary>
+        ///     Set time zone offset
+        ///     <para>I.e: 16200 for Iran/Tehran</para>
+        /// </summary>
+        /// <param name="timezoneOffset">
+        ///     timezone offset
+        ///     <para>I.e: 16200 for Iran/Tehran</para>
+        /// </param>
+        void SetTimezoneOffset(int timezoneOffset);
+        /// <summary>
+        ///     Send get request
+        /// </summary>
+        /// <param name="uri">Desire uri (must include https://i.instagram.com/api/v...) </param>
+        Task<IResult<string>> SendGetRequestAsync(System.Uri uri);
+        /// <summary>
+        ///     Send signed post request (include signed signature) 
+        /// </summary>
+        /// <param name="uri">Desire uri (must include https://i.instagram.com/api/v...) </param>
+        /// <param name="data">Data to post</param>
+        Task<IResult<string>> SendSignedPostRequestAsync(System.Uri uri, Dictionary<string, string> data);
+        /// <summary>
+        ///     Send signed post request (include signed signature) 
+        /// </summary>
+        /// <param name="uri">Desire uri (must include https://i.instagram.com/api/v...) </param>
+        /// <param name="data">Data to post</param>
+        Task<IResult<string>> SendSignedPostRequestAsync(System.Uri uri, Newtonsoft.Json.Linq.JObject data);
+        /// <summary>
+        ///     Send post request
+        /// </summary>
+        /// <param name="uri">Desire uri (must include https://i.instagram.com/api/v...) </param>
+        /// <param name="data">Data to post</param>
+        Task<IResult<string>> SendPostRequestAsync(System.Uri uri, Dictionary<string, string> data);
+        #endregion Other public functions
+
+        #region Authentication, challenge functions
+
+        #region Challenge part
+
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////// Challenge for logged in user /////////////////////////////////
+        
+
+
+        /// <summary>
+        ///     Get challenge data for logged in user
+        ///     <para>This will pop-on, if some suspecious login happend</para>
+        /// </summary>
+        Task<IResult<InstaLoggedInChallengeDataInfo>> GetLoggedInChallengeDataInfoAsync();
+
+        /// <summary>
+        ///     Accept challlenge, it is THIS IS ME feature!!!!
+        ///     <para>You must call <see cref="GetLoggedInChallengeDataInfoAsync"/> first,
+        ///     if you across to <see cref="ResultInfo.ResponseType"/> equals to <see cref="ResponseType.ChallengeRequired"/> while you logged in!</para>
+        /// </summary>
+        Task<IResult<bool>> AcceptChallengeAsync();
+
+
+        /////////////////////////////////// Challenge for logged in user /////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+        /// <summary>
+        ///     Get challenge require (checkpoint required) options
+        /// </summary>
+        Task<IResult<InstaChallengeRequireVerifyMethod>> GetChallengeRequireVerifyMethodAsync();
+        /// <summary>
+        ///     Reset challenge require (checkpoint required) method
+        /// </summary>
+        Task<IResult<InstaChallengeRequireVerifyMethod>> ResetChallengeRequireVerifyMethodAsync();
+        /// <summary>
+        ///     Request verification code sms for challenge require (checkpoint required)
+        /// </summary>
+        /// <param name="replayChallenge">true if Instagram should resend verification code to you</param>
+        Task<IResult<InstaChallengeRequireSMSVerify>> RequestVerifyCodeToSMSForChallengeRequireAsync(bool replayChallenge = false);
+        /// <summary>
+        ///     Submit phone number for challenge require (checkpoint required)
+        ///     <para>Note: This only needs , when you calling <see cref="IInstaApi.GetChallengeRequireVerifyMethodAsync"/> or
+        ///     <see cref="IInstaApi.ResetChallengeRequireVerifyMethodAsync"/> and
+        ///     <see cref="InstaChallengeRequireVerifyMethod.SubmitPhoneRequired"/> property is true.</para>
+        /// </summary>
+        /// <param name="phoneNumber">Phone number</param>
+        Task<IResult<InstaChallengeRequireSMSVerify>> SubmitPhoneNumberForChallengeRequireAsync(string phoneNumber, bool replayChallenge = false);
+        /// <summary>
+        ///     Request verification code email for challenge require (checkpoint required)
+        /// </summary>
+        /// <param name="replayChallenge">true if Instagram should resend verification code to you</param>
+        Task<IResult<InstaChallengeRequireEmailVerify>> RequestVerifyCodeToEmailForChallengeRequireAsync(bool replayChallenge = false);
+        /// <summary>
+        ///     Verify verification code for challenge require (checkpoint required)
+        /// </summary>
+        /// <param name="verifyCode">Verification code</param>
+        Task<IResult<InstaLoginResult>> VerifyCodeForChallengeRequireAsync(string verifyCode);
+        #endregion Challenge part
+        
+        /// <summary>
+        ///     Check email availability
+        /// </summary>
+        /// <param name="email">Email to check</param>
+        Task<IResult<InstaCheckEmailRegistration>> CheckEmailAsync(string email);
+        /// <summary>
+        ///     Check phone number availability
+        /// </summary>
+        /// <param name="phoneNumber">Phone number to check</param>
+        Task<IResult<bool>> CheckPhoneNumberAsync(string phoneNumber);
+        /// <summary>
+        ///     Check username availablity. 
+        /// </summary>
+        /// <param name="username">Username</param>
+        Task<IResult<InstaAccountCheck>> CheckUsernameAsync(string username);
+        /// <summary>
+        ///     Send sign up sms code
+        /// </summary>
+        /// <param name="phoneNumber">Phone number</param>
+        Task<IResult<bool>> SendSignUpSmsCodeAsync(string phoneNumber);
+        /// <summary>
+        ///     Verify sign up sms code
+        /// </summary>
+        /// <param name="phoneNumber">Phone number</param>
+        /// <param name="verificationCode">Verification code</param>
+        Task<IResult<InstaPhoneNumberRegistration>> VerifySignUpSmsCodeAsync(string phoneNumber, string verificationCode);
+        /// <summary>
+        ///     Get username suggestions
+        /// </summary>
+        /// <param name="name">Name</param>
+        Task<IResult<InstaRegistrationSuggestionResponse>> GetUsernameSuggestionsAsync(string name);
+        /// <summary>
+        ///     Validate new account creation with phone number
+        /// </summary>
+        /// <param name="phoneNumber">Phone number</param>
+        /// <param name="verificationCode">Verification code</param>
+        /// <param name="username">Username to set</param>
+        /// <param name="password">Password to set</param>
+        /// <param name="firstName">First name to set</param>
+        Task<IResult<InstaAccountCreation>> ValidateNewAccountWithPhoneNumberAsync(string phoneNumber, string verificationCode, string username, string password, string firstName);
         /// <summary>
         ///     Create a new instagram account
         /// </summary>
@@ -52,48 +417,43 @@ namespace InstaSharper.API
         /// <param name="password">Password</param>
         /// <param name="email">Email</param>
         /// <param name="firstName">First name (optional)</param>
-        /// <returns></returns>
-        Task<IResult<CreationResponse>> CreateNewAccount(string username, string password, string email,
-            string firstName);
-
+        /// <param name="delay">Delay between requests. null = 2.5 seconds</param>
+        Task<IResult<InstaAccountCreation>> CreateNewAccountAsync(string username, string password, string email, string firstName = ""/*, TimeSpan? delay = null*/);
         /// <summary>
         ///     Login using given credentials asynchronously
         /// </summary>
+        /// <param name="isNewLogin"></param>
         /// <returns>
         ///     Success --> is succeed
         ///     TwoFactorRequired --> requires 2FA login.
         ///     BadPassword --> Password is wrong
         ///     InvalidUser --> User/phone number is wrong
         ///     Exception --> Something wrong happened
+        ///     ChallengeRequired --> You need to pass Instagram challenge
         /// </returns>
-        Task<IResult<InstaLoginResult>> LoginAsync();
+        Task<IResult<InstaLoginResult>> LoginAsync(bool isNewLogin = true);
+        /// <summary>
+        ///     Login using cookies
+        ///     <para>Note: You won't be able to change password, if you use <see cref="LoginWithCookiesAsync(string)"/> function for logging in!</para>
+        /// </summary>
+        /// <param name="cookies">Cookies</param>
+        Task<IResult<bool>> LoginWithCookiesAsync(string cookies);
 
         /// <summary>
-        ///     Search Place
+        ///     Login with Facebook access token
         /// </summary>
-        Task<IResult<FbSearchPlaceResponse>> SearchPlace(string searchQuery, int count = 5);
+        /// <param name="fbAccessToken">Facebook access token</param>
+        /// <param name="cookiesContainer">Cookies</param>
+        /// <returns>
+        ///     Success --> is succeed
+        ///     TwoFactorRequired --> requires 2FA login.
+        ///     BadPassword --> Password is wrong
+        ///     InvalidUser --> User/phone number is wrong
+        ///     Exception --> Something wrong happened
+        ///     ChallengeRequired --> You need to pass Instagram challenge
+        /// </returns>
+        Task<IResult<InstaLoginResult>> LoginWithFacebookAsync(string fbAccessToken, string cookiesContainer);
 
-        
-        /// <summary>
-        ///     Reset challenge asynchronously
-        /// </summary>
-        Task<IResult<InstaResetChallenge>> ResetChallenge();
-
-        /// <summary>
-        ///    Get verify method asynchronously
-        /// </summary>
-        Task<IResult<InstaResetChallenge>> GetVerifyStep();
-
-        /// <summary>
-        ///     Choose verify method asynchronously
-        /// </summary>
-        Task<IResult<InstaResetChallenge>> ChooseVerifyMethod(int choice);
-
-        /// <summary>
-        ///     Send verify code asynchronously
-        /// </summary>
-        Task<IResult<InstaResetChallenge>> SendVerifyCode(string securityCode);
-        
         /// <summary>
         ///     2-Factor Authentication Login using a verification code
         ///     Before call this method, please run LoginAsync first.
@@ -115,68 +475,36 @@ namespace InstaSharper.API
         ///     A null reference if not success; in this case, do LoginAsync first and check if Two Factor Authentication is
         ///     required, if not, don't run this method
         /// </returns>
-        Task<IResult<TwoFactorLoginInfo>> GetTwoFactorInfoAsync();
-
+        Task<IResult<InstaTwoFactorLoginInfo>> GetTwoFactorInfoAsync();
+        /// <summary>
+        ///     Get user lookup for recovery options
+        /// </summary>
+        /// <param name="usernameOrEmailOrPhoneNumber">Username or email or phone number</param>
+        Task<IResult<InstaUserLookup>> GetRecoveryOptionsAsync(string usernameOrEmailOrPhoneNumber);
+        /// <summary>
+        ///     Send recovery code by Username
+        /// </summary>
+        /// <param name="username">Username</param>
+        Task<IResult<InstaRecovery>> SendRecoveryByUsernameAsync(string username);
+        /// <summary>
+        ///     Send recovery code by Email
+        /// </summary>
+        /// <param name="email">Email Address</param>
+        Task<IResult<InstaRecovery>> SendRecoveryByEmailAsync(string email);
+        /// <summary>
+        ///     Send recovery code by Phone number
+        /// </summary>
+        /// <param name="phone">Phone Number</param>
+        Task<IResult<InstaRecovery>> SendRecoveryByPhoneAsync(string phone);
+        /// <summary>
+        ///    Send Two Factor Login SMS Again
+        /// </summary>
+        Task<IResult<TwoFactorLoginSMS>> SendTwoFactorLoginSMSAsync();
         /// <summary>
         ///     Logout from instagram asynchronously
         /// </summary>
         /// <returns>True if logged out without errors</returns>
         Task<IResult<bool>> LogoutAsync();
-
-        /// <summary>
-        ///     Get user timeline feed (feed of recent posts from users you follow) asynchronously.
-        /// </summary>
-        /// <param name="paginationParameters">Pagination parameters: next id and max amount of pages to load</param>
-        /// <returns>
-        ///     <see cref="InstaFeed" />
-        /// </returns>
-        Task<IResult<InstaFeed>> GetUserTimelineFeedAsync(PaginationParameters paginationParameters);
-
-        /// <summary>
-        ///     Get user explore feed (Explore tab info) asynchronously
-        /// </summary>
-        /// <param name="paginationParameters">Pagination parameters: next id and max amount of pages to load</param>
-        /// <returns><see cref="InstaExploreFeed" />></returns>
-        Task<IResult<InstaExploreFeed>> GetExploreFeedAsync(PaginationParameters paginationParameters);
-
-        /// <summary>
-        ///     Get all user media by username asynchronously
-        /// </summary>
-        /// <param name="username">Username</param>
-        /// <param name="paginationParameters">Pagination parameters: next id and max amount of pages to load</param>
-        /// <returns>
-        ///     <see cref="InstaMediaList" />
-        /// </returns>
-        Task<IResult<InstaMediaList>> GetUserMediaAsync(string username, PaginationParameters paginationParameters);
-
-        /// <summary>
-        ///     Get media by its id asynchronously
-        /// </summary>
-        /// <param name="mediaId">Maximum count of pages to retrieve</param>
-        /// <returns>
-        ///     <see cref="InstaMedia" />
-        /// </returns>
-        Task<IResult<InstaMedia>> GetMediaByIdAsync(string mediaId);
-
-        /// <summary>
-        ///     Get user info by its user name asynchronously
-        /// </summary>
-        /// <param name="username">Username</param>
-        /// <returns>
-        ///     <see cref="InstaUser" />
-        /// </returns>
-        Task<IResult<InstaUser>> GetUserAsync(string username);
-
-        /// <summary>
-        ///     Search users asynchronously
-        /// </summary>
-        /// <param name="searchPattern">Search pattern e.g. part of username</param>
-        /// <returns>
-        ///     List of users matches pattern
-        ///     <see cref="InstaUserShortList" />
-        /// </returns>
-        Task<IResult<InstaUserShortList>> SearchUsersAsync(string searchPattern);
-
         /// <summary>
         ///     Get currently logged in user info asynchronously
         /// </summary>
@@ -184,460 +512,7 @@ namespace InstaSharper.API
         ///     <see cref="InstaCurrentUser" />
         /// </returns>
         Task<IResult<InstaCurrentUser>> GetCurrentUserAsync();
-
-        /// <summary>
-        ///     Get tag feed by tag value asynchronously
-        /// </summary>
-        /// <param name="tag">Tag value</param>
-        /// <param name="paginationParameters">Pagination parameters: next id and max amount of pages to load</param>
-        /// <returns>
-        ///     <see cref="InstaTagFeed" />
-        /// </returns>
-        Task<IResult<InstaTagFeed>> GetTagFeedAsync(string tag, PaginationParameters paginationParameters);
-
-        /// <summary>
-        ///     Get followers list by username asynchronously
-        /// </summary>
-        /// <param name="username">Username</param>
-        /// <param name="paginationParameters">Pagination parameters: next id and max amount of pages to load</param>
-        /// <param name="searchQuery">Search string to locate specific followers</param>
-        /// <returns>
-        ///     <see cref="InstaUserShortList" />
-        /// </returns>
-        Task<IResult<InstaUserShortList>> GetUserFollowersAsync(string username,
-            PaginationParameters paginationParameters, string searchQuery = "");
-
-        /// <summary>
-        ///     Get following list by username asynchronously
-        /// </summary>
-        /// <param name="username">Username</param>
-        /// <param name="paginationParameters">Pagination parameters: next id and max amount of pages to load</param>
-        /// <param name="searchQuery">Search string to locate specific followings</param>
-        /// <returns>
-        ///     <see cref="InstaUserShortList" />
-        /// </returns>
-        Task<IResult<InstaUserShortList>> GetUserFollowingAsync(string username,
-            PaginationParameters paginationParameters, string searchQuery = "");
-
-        /// <summary>
-        ///     Get followers list for currently logged in user asynchronously
-        /// </summary>
-        /// <param name="paginationParameters">Pagination parameters: next id and max amount of pages to load</param>
-        /// <returns>
-        ///     <see cref="InstaUserShortList" />
-        /// </returns>
-        Task<IResult<InstaUserShortList>> GetCurrentUserFollowersAsync(PaginationParameters paginationParameters);
-
-        /// <summary>
-        ///     Get user tags by username asynchronously
-        ///     <remarks>Returns media list containing tags</remarks>
-        /// </summary>
-        /// <param name="username">Username</param>
-        /// <param name="paginationParameters">Pagination parameters: next id and max amount of pages to load</param>
-        /// <returns>
-        ///     <see cref="InstaMediaList" />
-        /// </returns>
-        Task<IResult<InstaMediaList>> GetUserTagsAsync(string username, PaginationParameters paginationParameters);
-
-        /// <summary>
-        ///     Get direct inbox threads for current user asynchronously
-        /// </summary>
-        /// <returns>
-        ///     <see cref="InstaDirectInboxContainer" />
-        /// </returns>
-        Task<IResult<InstaDirectInboxContainer>> GetDirectInboxAsync();
-
-        /// <summary>
-        ///     Get direct inbox thread by its id asynchronously
-        /// </summary>
-        /// <param name="threadId">Thread id</param>
-        /// <returns>
-        ///     <see cref="InstaDirectInboxThread" />
-        /// </returns>
-        Task<IResult<InstaDirectInboxThread>> GetDirectInboxThreadAsync(string threadId);
-
-        /// <summary>
-        ///     Send direct message to provided users and threads
-        /// </summary>
-        /// <param name="recipients">Comma-separated users PK</param>
-        /// <param name="threadIds">Message thread ids</param>
-        /// <param name="text">Message text</param>
-        /// <returns>List of threads</returns>
-        Task<IResult<InstaDirectInboxThreadList>> SendDirectMessage(string recipients, string threadIds, string text);
-
-        /// <summary>
-        ///     Get recent recipients (threads and users) asynchronously
-        /// </summary>
-        /// <returns>
-        ///     <see cref="InstaRecipients" />
-        /// </returns>
-        Task<IResult<InstaRecipients>> GetRecentRecipientsAsync();
-
-        /// <summary>
-        ///     Get ranked recipients (threads and users) asynchronously
-        /// </summary>
-        /// <returns>
-        ///     <see cref="InstaRecipients" />
-        /// </returns>
-        Task<IResult<InstaRecipients>> GetRankedRecipientsAsync();
-
-        /// <summary>
-        ///     Get recent activity info asynchronously
-        /// </summary>
-        /// <param name="paginationParameters">Pagination parameters: next id and max amount of pages to load</param>
-        /// <returns>
-        ///     <see cref="InstaActivityFeed" />
-        /// </returns>
-        Task<IResult<InstaActivityFeed>> GetRecentActivityAsync(PaginationParameters paginationParameters);
-
-        /// <summary>
-        ///     Get activity of following asynchronously
-        /// </summary>
-        /// <param name="paginationParameters">Pagination parameters: next id and max amount of pages to load</param>
-        /// <returns>
-        ///     <see cref="InstaActivityFeed" />
-        /// </returns>
-        Task<IResult<InstaActivityFeed>> GetFollowingRecentActivityAsync(PaginationParameters paginationParameters);
-
-        /// <summary>
-        ///     Like media (photo or video)
-        /// </summary>
-        /// <param name="mediaId">Media id</param>
-        Task<IResult<bool>> LikeMediaAsync(string mediaId);
-
-        /// <summary>
-        ///     Remove like from media (photo or video)
-        /// </summary>
-        /// <param name="mediaId">Media id</param>
-        Task<IResult<bool>> UnLikeMediaAsync(string mediaId);
-
-        /// <summary>
-        ///     Follow user
-        /// </summary>
-        /// <param name="userId">User id</param>
-        Task<IResult<InstaFriendshipStatus>> FollowUserAsync(long userId);
-
-        /// <summary>
-        ///     Stop follow user
-        /// </summary>
-        /// <param name="userId">User id</param>
-        Task<IResult<InstaFriendshipStatus>> UnFollowUserAsync(long userId);
-
-        /// <summary>
-        ///     Block user
-        /// </summary>
-        /// <param name="userId">User id</param>
-        Task<IResult<InstaFriendshipStatus>> BlockUserAsync(long userId);
-
-        /// <summary>
-        ///     Stop block user
-        /// </summary>
-        /// <param name="userId">User id</param>
-        Task<IResult<InstaFriendshipStatus>> UnBlockUserAsync(long userId);
-
-        /// <summary>
-        ///     Get media comments
-        /// </summary>
-        /// <param name="mediaId">Media id</param>
-        /// <param name="paginationParameters">Pagination parameters: next id and max amount of pages to load</param>
-        Task<IResult<InstaCommentList>>
-            GetMediaCommentsAsync(string mediaId, PaginationParameters paginationParameters);
-
-        /// <summary>
-        ///     Get users (short) who liked certain media. Normaly it return around 1000 last users.
-        /// </summary>
-        /// <param name="mediaId">Media id</param>
-        Task<IResult<InstaLikersList>> GetMediaLikersAsync(string mediaId);
-
-        /// <summary>
-        ///     Set current account private
-        /// </summary>
-        Task<IResult<InstaUserShort>> SetAccountPrivateAsync();
-
-        /// <summary>
-        ///     Set current account public
-        /// </summary>
-        Task<IResult<InstaUserShort>> SetAccountPublicAsync();
-
-        /// <summary>
-        ///     Comment media
-        /// </summary>
-        /// <param name="mediaId">Media id</param>
-        /// <param name="text">Comment text</param>
-        Task<IResult<InstaComment>> CommentMediaAsync(string mediaId, string text);
-
-        /// <summary>
-        ///     Delete comment from media
-        /// </summary>
-        /// <param name="mediaId">Media id</param>
-        /// <param name="commentId">Comment id</param>
-        Task<IResult<bool>> DeleteCommentAsync(string mediaId, string commentId);
-
-        /// <summary>
-        ///     Upload video
-        /// </summary>
-        /// <param name="video">Video to upload</param>
-        /// <param name="imageThumbnail">Image thumbnail</param>
-        /// <param name="caption">Caption</param>
-        /// <returns></returns>
-        Task<IResult<InstaMedia>> UploadVideoAsync(InstaVideo video, InstaImage imageThumbnail, string caption);
-
-        /// <summary>
-        ///     Upload photo
-        /// </summary>
-        /// <param name="image">Photo to upload</param>
-        /// <param name="caption">Caption</param>
-        Task<IResult<InstaMedia>> UploadPhotoAsync(InstaImage image, string caption);
-
-        /// <summary>
-        ///     Upload photo
-        /// </summary>
-        /// <param name="images">Array of photos to upload</param>
-        /// <param name="caption">Caption</param>
-        /// <returns></returns>
-        Task<IResult<InstaMedia>> UploadPhotosAlbumAsync(InstaImage[] images, string caption);
-
-        /// <summary>
-        ///     Configure photo
-        /// </summary>
-        /// <param name="image">Photo to configure</param>
-        /// <param name="uploadId">Upload id</param>
-        /// <param name="caption">Caption</param>
-        /// <returns></returns>
-        Task<IResult<InstaMedia>> ConfigurePhotoAsync(InstaImage image, string uploadId, string caption);
-
-        /// <summary>
-        ///     Configure photos for Album
-        /// </summary>
-        /// <param name="uploadId">Array of upload IDs to configure</param>
-        /// ///
-        /// <param name="caption">Caption</param>
-        /// <returns></returns>
-        Task<IResult<InstaMedia>> ConfigureAlbumAsync(string[] uploadId, string caption);
-
-        /// <summary>
-        ///     Get user story feed (stories from users followed by current user).
-        /// </summary>
-        Task<IResult<InstaStoryFeed>> GetStoryFeedAsync();
-
-        /// <summary>
-        ///     Get the story by userId
-        /// </summary>
-        /// <param name="userId">User Id</param>
-        Task<IResult<InstaStory>> GetUserStoryAsync(long userId);
-
-        /// <summary>
-        ///     Upload story photo
-        /// </summary>
-        /// <param name="image">Photo to upload</param>
-        /// <param name="caption">Caption</param>
-        Task<IResult<InstaStoryMedia>> UploadStoryPhotoAsync(InstaImage image, string caption);
-
-        /// <summary>
-        ///     Configure story photo
-        /// </summary>
-        /// <param name="image">Photo to configure</param>
-        /// <param name="uploadId">Upload id</param>
-        /// <param name="caption">Caption</param>
-        /// <returns></returns>
-        Task<IResult<InstaStoryMedia>> ConfigureStoryPhotoAsync(InstaImage image, string uploadId, string caption);
-
-        /// <summary>
-        ///     Change password
-        /// </summary>
-        /// <param name="oldPassword">The old password</param>
-        /// <param name="newPassword">
-        ///     The new password (shouldn't be the same old password, and should be a password you never used
-        ///     here)
-        /// </param>
-        /// <returns>Return true if the password is changed</returns>
-        Task<IResult<bool>> ChangePasswordAsync(string oldPassword, string newPassword);
-
-        /// <summary>
-        ///     Delete a media (photo or video)
-        /// </summary>
-        /// <param name="mediaId">The media ID</param>
-        /// <param name="mediaType">The type of the media</param>
-        /// <returns>Return true if the media is deleted</returns>
-        Task<IResult<bool>> DeleteMediaAsync(string mediaId, InstaMediaType mediaType);
-
-        /// <summary>
-        ///     Edit the caption of the media (photo/video)
-        /// </summary>
-        /// <param name="mediaId">The media ID</param>
-        /// <param name="caption">The new caption</param>
-        /// <returns>Return true if everything is ok</returns>
-        Task<IResult<bool>> EditMediaAsync(string mediaId, string caption);
-
-        /// <summary>
-        ///     Get feed of media your liked.
-        /// </summary>
-        /// <param name="paginationParameters">Pagination parameters: next id and max amount of pages to load</param>
-        /// <returns>
-        ///     <see cref="InstaMediaList" />
-        /// </returns>
-        Task<IResult<InstaMediaList>> GetLikeFeedAsync(PaginationParameters paginationParameters);
-
-        /// <summary>
-        ///     Get friendship status for given user id.
-        /// </summary>
-        /// <param name="userId">User identifier (PK)</param>
-        /// <returns>
-        ///     <see cref="InstaFriendshipStatus" />
-        /// </returns>
-        Task<IResult<InstaFriendshipStatus>> GetFriendshipStatusAsync(long userId);
-
-        /// <summary>
-        ///     Get user story reel feed. Contains user info last story including all story items.
-        /// </summary>
-        /// <param name="userId">User identifier (PK)</param>
-        /// <returns></returns>
-        Task<IResult<InstaReelFeed>> GetUserStoryFeedAsync(long userId);
-
-        /// <summary>
-        ///     Get your collection for given collection id
-        /// </summary>
-        /// <param name="collectionId">Collection ID</param>
-        /// <returns>
-        ///     <see cref="T:InstaSharper.Classes.Models.InstaCollectionItem" />
-        /// </returns>
-        Task<IResult<InstaCollectionItem>> GetCollectionAsync(long collectionId);
-
-        /// <summary>
-        ///     Get your collections
-        /// </summary>
-        /// <returns>
-        ///     <see cref="T:InstaSharper.Classes.Models.InstaCollections" />
-        /// </returns>
-        Task<IResult<InstaCollections>> GetCollectionsAsync();
-
-        /// <summary>
-        ///     Create a new collection
-        /// </summary>
-        /// <param name="collectionName">The name of the new collection</param>
-        /// <returns>
-        ///     <see cref="T:InstaSharper.Classes.Models.InstaCollectionItem" />
-        /// </returns>
-        Task<IResult<InstaCollectionItem>> CreateCollectionAsync(string collectionName);
-
-        /// <summary>
-        ///     Delete your collection for given collection id
-        /// </summary>
-        /// <param name="collectionId">Collection ID to delete</param>
-        /// <returns>true if succeed</returns>
-        Task<IResult<bool>> DeleteCollectionAsync(long collectionId);
-
-        /// <summary>
-        ///     Get media ID from an url (got from "share link")
-        /// </summary>
-        /// <param name="uri">Uri to get media ID</param>
-        /// <returns>Media ID</returns>
-        Task<IResult<string>> GetMediaIdFromUrlAsync(Uri uri);
-
-        /// <summary>
-        ///     Get share link from media Id
-        /// </summary>
-        /// <param name="mediaId">media ID</param>
-        /// <returns>Share link as Uri</returns>
-        Task<IResult<Uri>> GetShareLinkFromMediaIdAsync(string mediaId);
-
-        /// <summary>
-        ///     Adds items to collection asynchronous.
-        /// </summary>
-        /// <param name="collectionId">Collection identifier.</param>
-        /// <param name="mediaIds">Media id list.</param>
-        /// <returns></returns>
-        Task<IResult<InstaCollectionItem>> AddItemsToCollectionAsync(long collectionId, params string[] mediaIds);
-
-        /// <summary>
-        ///     Searches for specific location by provided geo-data or search query.
-        /// </summary>
-        /// <param name="latitude">Latitude</param>
-        /// <param name="longitude">Longitude</param>
-        /// <param name="query">Search query</param>
-        /// <returns>List of locations (short format)</returns>
-        Task<IResult<InstaLocationShortList>> SearchLocation(double latitude, double longitude, string query);
-
-        /// <summary>
-        ///     Gets the feed of particular location.
-        /// </summary>
-        /// <param name="locationId">Location identifier</param>
-        /// <param name="paginationParameters">Pagination parameters: next id and max amount of pages to load</param>
-        /// <returns>Location feed</returns>
-        Task<IResult<InstaLocationFeed>> GetLocationFeed(long locationId, PaginationParameters paginationParameters);
-
-        /// <summary>
-        ///     Searches for specific hashtag by search query.
-        /// </summary>
-        /// <param name="query">Search query</param>
-        /// <param name="excludeList">
-        ///     Array of numerical hashtag IDs (ie "17841562498105353") to exclude from the response,
-        ///     allowing you to skip tags from a previous call to get more results
-        /// </param>
-        /// <param name="rankToken">The rank token from the previous page's response</param>
-        /// <returns>List of hashtags</returns>
-        Task<IResult<InstaHashtagSearch>> SearchHashtag(string query, IEnumerable<long> excludeList = null,
-            string rankToken = null);
-
-        /// <summary>
-        ///     Gets the hashtag information by user tagname.
-        /// </summary>
-        /// <param name="tagname">Tagname</param>
-        /// <returns>Hashtag information</returns>
-        Task<IResult<InstaHashtag>> GetHashtagInfo(string tagname);
-
-        /// <summary>
-        ///     Gets the user extended information (followers count, following count, bio, etc) by user identifier.
-        /// </summary>
-        /// <param name="pk">User Id, like "123123123"</param>
-        /// <returns></returns>
-        Task<IResult<InstaUserInfo>> GetUserInfoByIdAsync(long pk);
-
-        /// <summary>
-        ///     Gets the user extended information (followers count, following count, bio, etc) by username.
-        /// </summary>
-        /// <param name="username">Username, like "instagram"</param>
-        /// <returns></returns>
-        Task<IResult<InstaUserInfo>> GetUserInfoByUsernameAsync(string username);
-
-        /// <summary>
-        /// Send link as a message
-        /// </summary>
-        /// <param name="message">Direct message (link + description)</param>
-        /// <param name="recipients">Array of recipients, user pk like "123123123"</param>
-        /// <returns>Affected threads</returns>
-        Task<IResult<InstaDirectInboxThreadList>> SendLinkMessage(InstaMessageLink message, params long[] recipients);
         
-        /// <summary>
-        /// Send link as a message
-        /// </summary>
-        /// <param name="message">Direct message (link + description)</param>
-        /// <param name="threads">Array of threads, thread id like "111182366841710300949128137443944311111"</param>
-        /// <returns>Affected threads</returns>
-        Task<IResult<InstaDirectInboxThreadList>> SendLinkMessage(InstaMessageLink message, params string[] threads);
-
-        /// <summary>
-        /// Send media as a message
-        /// </summary>
-        /// <param name="mediaId">Media id, e.g. "1166111111128767752_1111111"</param>
-        /// <param name="mediaType">Type of media (photo/video)</param>
-        /// <param name="threads">Array of threads, thread id e.g. "111182366841710300949128137443944311111"</param>
-        /// <returns>Affected threads</returns>
-        Task<IResult<InstaDirectInboxThreadList>> ShareMedia(string mediaId, InstaMediaType mediaType,
-            params string[] threads);
-
-        /// <summary>
-        /// Decline ALL pending threads
-        /// </summary>
-        /// <returns>Status response</returns>
-        Task<IResult<BaseStatusResponse>> DeclineAllPendingDirectThreads();
-
-        /// <summary>
-        /// Approve single thread by id
-        /// </summary>
-        /// <param name="threadId">Thread id, e.g. "111182366841710300949128137443944311111"</param>
-        /// <returns>Status response</returns>
-        Task<IResult<BaseStatusResponse>> ApprovePendingDirectThread(string threadId);
-        #endregion
+        #endregion Authentication, challenge functions
     }
 }

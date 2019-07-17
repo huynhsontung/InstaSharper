@@ -4,6 +4,8 @@ using System.Net.Http;
 using InstaSharper.API.Push;
 using InstaSharper.Classes;
 using InstaSharper.Classes.DeviceInfo;
+using InstaSharper.Classes.SessionHandlers;
+using InstaSharper.Enums;
 using InstaSharper.Helpers;
 using InstaSharper.Logger;
 
@@ -19,11 +21,14 @@ namespace InstaSharper.API.Builder
         private IInstaLogger _logger;
         private ApiRequestMessage _requestMessage;
         private UserSessionData _user;
+        private ApiVersionNumber? _apiVersionNumber;
+        private ISessionHandler _sessionHandler;
         private FbnsConnectionData _fbnsConnectionData;
         private bool _isUserAuthenticated;
 
         private InstaApiBuilder()
-        { }
+        {
+        }
 
         /// <summary>
         ///     Create new API instance
@@ -35,9 +40,12 @@ namespace InstaSharper.API.Builder
         public IInstaApi Build()
         {
             if (_user == null)
-                throw new ArgumentNullException($"User auth data must be specified");
+                _user = UserSessionData.Empty;
+
+            if (_httpHandler == null) _httpHandler = new HttpClientHandler();
+
             if (_httpClient == null)
-                _httpClient = new HttpClient(_httpHandler) {BaseAddress = new Uri(InstaApiConstants.INSTAGRAM_URL)};
+                _httpClient = new HttpClient(_httpHandler) { BaseAddress = new Uri(InstaApiConstants.INSTAGRAM_URL) };
 
             if (_device == null) _device = AndroidDeviceGenerator.GetRandomAndroidDevice();
 
@@ -49,24 +57,36 @@ namespace InstaSharper.API.Builder
                     Guid = _device.Uuid,
                     Password = _user?.Password,
                     Username = _user?.UserName,
-                    DeviceId = _device.DeviceId
+                    DeviceId = _device.DeviceId,
+                    AdId = _device.AdId.ToString()
                 };
             }
 
             if (string.IsNullOrEmpty(_requestMessage.Password)) _requestMessage.Password = _user?.Password;
             if (string.IsNullOrEmpty(_requestMessage.Username)) _requestMessage.Username = _user?.UserName;
 
+            InstaApiConstants.TIMEZONE_OFFSET = (int)DateTimeOffset.Now.Offset.TotalSeconds;
+            
             if (_httpRequestProcessor == null)
                 _httpRequestProcessor =
                     new HttpRequestProcessor(_delay, _httpClient, _httpHandler, _requestMessage, _logger);
 
-            var instaApi = new InstaApi(_user, _logger, _device, _httpRequestProcessor, _fbnsConnectionData);
+            if (_apiVersionNumber == null)
+                _apiVersionNumber = ApiVersionNumber.Version86;
+
+            var instaApi = new InstaApi(_user, _logger, _device, _httpRequestProcessor, _fbnsConnectionData, _apiVersionNumber.Value);
+
+            if (_sessionHandler != null)
+            {
+                _sessionHandler.InstaApi = instaApi;
+                instaApi.SessionHandler = _sessionHandler;
+            }
+
             if (_isUserAuthenticated)
             {
                 instaApi.IsUserAuthenticated = _isUserAuthenticated;
                 instaApi.InvalidateProcessors();
             }
-
             return instaApi;
         }
 
@@ -147,16 +167,65 @@ namespace InstaSharper.API.Builder
         /// </returns>
         public IInstaApiBuilder SetRequestDelay(IRequestDelay delay)
         {
+            if (delay == null)
+                delay = RequestDelay.Empty();
             _delay = delay;
             return this;
         }
 
         /// <summary>
-        /// Load state data from <see cref="IInstaApi.GetStateDataAsStream()"/>
+        ///     Set custom android device.
+        ///     <para>Note: this is optional, if you didn't set this, InstagramApiSharp will choose random device.</para>
         /// </summary>
-        /// <param name="stream">Serialized state stream</param>
-        /// <returns>API Builder</returns>
-        public IInstaApiBuilder LoadStateFromStream(Stream stream)
+        /// <param name="androidDevice">Android device</param>
+        /// <returns>
+        ///     API Builder
+        /// </returns>
+        public IInstaApiBuilder SetDevice(AndroidDevice androidDevice)
+        {
+            _device = androidDevice;
+            return this;
+        }
+        /// <summary>
+        ///     Set instagram api version (for user agent version)
+        /// </summary>
+        /// <param name="apiVersion">Api version</param>
+        /// <returns>
+        ///     API Builder
+        /// </returns>
+        public IInstaApiBuilder SetApiVersion(ApiVersionNumber apiVersion)
+        {
+            _apiVersionNumber = apiVersion;
+            return this;
+        }
+
+        /// <summary>
+        ///     Set session handler
+        /// </summary>
+        /// <param name="sessionHandler">Session handler</param>
+        /// <returns>
+        ///     API Builder
+        /// </returns>
+        public IInstaApiBuilder SetSessionHandler(ISessionHandler sessionHandler)
+        {
+            _sessionHandler = sessionHandler;
+            return this;
+        }
+
+        /// <summary>
+        ///     Set Http request processor
+        /// </summary>
+        /// <param name="httpRequestProcessor">HttpRequestProcessor</param>
+        /// <returns>
+        ///     API Builder
+        /// </returns>
+        public IInstaApiBuilder SetHttpRequestProcessor(IHttpRequestProcessor httpRequestProcessor)
+        {
+            _httpRequestProcessor = httpRequestProcessor;
+            return this;
+        }
+
+        public IInstaApiBuilder LoadStateDataFromStream(Stream stream)
         {
             var data = SerializationHelper.DeserializeFromStream<StateData>(stream);
             _device = data.DeviceInfo;
@@ -164,13 +233,32 @@ namespace InstaSharper.API.Builder
             _httpHandler.CookieContainer = data.Cookies;
             _isUserAuthenticated = data.IsAuthenticated;
             _fbnsConnectionData = data.FbnsConnectionData;
+            if (data.ApiVersion == null)
+                data.ApiVersion = ApiVersionNumber.Version86;
+            _apiVersionNumber = data.ApiVersion;
+            return this;
+        }
+
+        public IInstaApiBuilder LoadStateDataFromString(string json)
+        {
+            var data = SerializationHelper.DeserializeFromString<StateData>(json);
+            _device = data.DeviceInfo;
+            _user = data.UserSession;
+            _httpHandler.CookieContainer = data.Cookies;
+            _isUserAuthenticated = data.IsAuthenticated;
+            _fbnsConnectionData = data.FbnsConnectionData;
+            if (data.ApiVersion == null)
+                data.ApiVersion = ApiVersionNumber.Version86;
+            _apiVersionNumber = data.ApiVersion;
             return this;
         }
 
         /// <summary>
         ///     Creates the builder.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        ///     API Builder
+        /// </returns>
         public static IInstaApiBuilder CreateBuilder()
         {
             return new InstaApiBuilder();

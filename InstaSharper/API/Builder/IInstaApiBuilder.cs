@@ -1,7 +1,10 @@
+using System;
 using System.IO;
 using System.Net.Http;
 using InstaSharper.Classes;
 using InstaSharper.Classes.DeviceInfo;
+using InstaSharper.Classes.SessionHandlers;
+using InstaSharper.Enums;
 using InstaSharper.Logger;
 
 namespace InstaSharper.API.Builder
@@ -57,12 +60,43 @@ namespace InstaSharper.API.Builder
         /// <param name="delay">Timespan delay</param>
         /// <returns>API Builder</returns>
         IInstaApiBuilder SetRequestDelay(IRequestDelay delay);
+        [Obsolete("Deprecated. Please use IInstaApi.SetDevice instead.")]
+        /// <summary>
+        ///     Set custom android device.
+        ///     <para>Note: this is optional, if you didn't set this, <see cref="InstagramApiSharp"/> will choose random device.</para>
+        /// </summary>
+        /// <param name="androidDevice">Android device</param>
+        /// <returns>API Builder</returns>
+        IInstaApiBuilder SetDevice(AndroidDevice androidDevice);
+        [Obsolete("Deprecated. Please use IInstaApi.SetApiVersion instead.")]
+        /// <summary>
+        ///     Set instagram api version (for user agent version)
+        /// </summary>
+        /// <param name="apiVersion">Api version</param>
+        IInstaApiBuilder SetApiVersion(ApiVersionNumber apiVersion);
 
         /// <summary>
-        /// Load state data from <see cref="IInstaApi.GetStateDataAsStream()"/>
+        ///     Set Http request processor
         /// </summary>
-        /// <param name="stream">Serialized state stream</param>
-        /// <returns>API Builder</returns>
-        IInstaApiBuilder LoadStateFromStream(Stream stream);
+        /// <param name="httpRequestProcessor">HttpRequestProcessor</param>
+        /// <returns></returns>
+        IInstaApiBuilder SetHttpRequestProcessor(IHttpRequestProcessor httpRequestProcessor);
+
+        /// <summary>
+        ///     Set session handler
+        /// </summary>
+        /// <param name="sessionHandler">Session handler</param>
+        /// <returns></returns>
+        IInstaApiBuilder SetSessionHandler(ISessionHandler sessionHandler);
+
+        /// <summary>
+        ///     Set state data from <see cref="IInstaApi.GetStateDataAsStream()"/>
+        /// </summary>
+        IInstaApiBuilder LoadStateDataFromStream(Stream data);
+
+        /// <summary>
+        ///     Set state data from <see cref="IInstaApi.GetStateDataAsString()"/>
+        /// </summary>
+        IInstaApiBuilder LoadStateDataFromString(string data);
     }
 }

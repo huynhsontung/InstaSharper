@@ -1,6 +1,8 @@
-﻿namespace InstaSharper.Helpers
+﻿using InstaSharper.Classes;
+
+namespace InstaSharper.Helpers
 {
-    public class InstaApiHelper
+    internal class InstaApiHelper
     {
         public static string GetCodeFromId(long id)
         {
@@ -14,6 +16,14 @@
             }
 
             return code;
+        }
+
+        public static string GetCsrfToken(IHttpRequestProcessor requestProcessor)
+        {
+            var cookies =
+                requestProcessor.HttpHandler.CookieContainer.GetCookies(requestProcessor.Client
+                    .BaseAddress);
+            return cookies["csrftoken"]?.Value ?? string.Empty;
         }
     }
 }

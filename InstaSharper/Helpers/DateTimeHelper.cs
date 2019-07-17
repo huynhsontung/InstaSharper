@@ -2,9 +2,9 @@
 
 namespace InstaSharper.Helpers
 {
-    internal static class DateTimeHelper
+    public static class DateTimeHelper
     {
-        private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1);
+        private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public static double GetUnixTimestampMilliseconds(DateTime dt)
         {
@@ -14,25 +14,34 @@ namespace InstaSharper.Helpers
 
         public static DateTime UnixTimestampToDateTime(double unixTime)
         {
-            var time = (long) unixTime;
-            return time.FromUnixTimeSeconds();
+            try
+            {
+                var time = (long)unixTime;
+                return time.FromUnixTimeSeconds();
+            }
+            catch { }
+            return DateTime.Now;
         }
 
         public static DateTime UnixTimestampToDateTime(string unixTime)
         {
             if (unixTime.Length <= 10) //1521208323 ( valid until 20-11-2286 @ 5:46pm (UTC))
             {
-                var time = (long) Convert.ToDouble(unixTime);
+                var time = (long)Convert.ToDouble(unixTime);
                 return time.FromUnixTimeSeconds();
             }
-
             return UnixTimestampMilisecondsToDateTime(unixTime);
         }
 
         public static DateTime UnixTimestampMilisecondsToDateTime(string unixTime)
         {
-            var time = (long) Convert.ToDouble(unixTime) / 1000000;
-            return time.FromUnixTimeSeconds();
+            try
+            {
+                var time = (long)Convert.ToDouble(unixTime) / 1000000;
+                return time.FromUnixTimeSeconds();
+            }
+            catch { }
+            return DateTime.Now;
         }
 
         public static DateTime FromUnixTimeSeconds(this long unixTime)
@@ -64,6 +73,18 @@ namespace InstaSharper.Helpers
             try
             {
                 return Convert.ToInt64((date - UnixEpoch).TotalSeconds);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static long ToUnixTimeMiliSeconds(this DateTime date)
+        {
+            try
+            {
+                return Convert.ToInt64((date - UnixEpoch).TotalMilliseconds);
             }
             catch
             {

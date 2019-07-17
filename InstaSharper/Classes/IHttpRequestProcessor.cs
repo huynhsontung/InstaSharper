@@ -7,13 +7,15 @@ namespace InstaSharper.Classes
 {
     public interface IHttpRequestProcessor
     {
-        HttpClientHandler HttpHandler { get; }
+        HttpClientHandler HttpHandler { get; set; }
         ApiRequestMessage RequestMessage { get; }
         HttpClient Client { get; }
+        void SetHttpClientHandler(HttpClientHandler handler);
         Task<HttpResponseMessage> SendAsync(HttpRequestMessage requestMessage);
         Task<HttpResponseMessage> GetAsync(Uri requestUri);
         Task<HttpResponseMessage> SendAsync(HttpRequestMessage requestMessage, HttpCompletionOption completionOption);
         Task<string> SendAndGetJsonAsync(HttpRequestMessage requestMessage, HttpCompletionOption completionOption);
         Task<string> GetJsonAsync(Uri requestUri);
+        IRequestDelay Delay { get; set; }
     }
 }

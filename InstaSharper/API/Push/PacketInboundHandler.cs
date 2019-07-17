@@ -123,7 +123,7 @@ namespace InstaSharper.API.Push
             var message = new Dictionary<string, string>
             {
                 {"pkg_name", InstaApiConstants.PACKAGE_NAME},
-                {"appid", InstaApiConstants.FACEBOOK_ANALYTICS_APPLICATION_ID}
+                {"appid", InstaApiConstants.IG_APP_ID}
             };
 
             var json = JsonConvert.SerializeObject(message);

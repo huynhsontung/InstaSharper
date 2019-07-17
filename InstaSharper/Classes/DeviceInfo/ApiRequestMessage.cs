@@ -24,7 +24,8 @@ namespace InstaSharper.Classes.DeviceInfo
 
         internal string GetMessageString()
         {
-            return JsonConvert.SerializeObject(this);
+            var json = JsonConvert.SerializeObject(this);
+            return json;
         }
 
         internal string GetChallengeMessageString(string csrfToken)
@@ -54,18 +55,20 @@ namespace InstaSharper.Classes.DeviceInfo
             return JsonConvert.SerializeObject(new { security_code = verify, _csrftoken = "ReplaceCSRF", Guid, DeviceId });
         }
 
-        internal string GenerateSignature(string signatureKey = null)
+        internal string GenerateSignature(ApiVersion apiVersion, string signatureKey, out string deviceid)
         {
             if (string.IsNullOrEmpty(signatureKey))
-                signatureKey = InstaApiConstants.IG_SIGNATURE_KEY;
-            return CryptoHelper.CalculateHash(signatureKey,
+                signatureKey = apiVersion.SignatureKey;
+            var res = CryptoHelper.CalculateHash(signatureKey,
                 JsonConvert.SerializeObject(this));
+            deviceid = DeviceId;
+            return res;
         }
 
-        internal string GenerateChallengeSignature(string signatureKey, string csrfToken, out string deviceid)
+        internal string GenerateChallengeSignature(ApiVersion apiVersion, string signatureKey, string csrfToken, out string deviceid)
         {
             if (string.IsNullOrEmpty(signatureKey))
-                signatureKey = InstaApiConstants.IG_SIGNATURE_KEY;
+                signatureKey = apiVersion.SignatureKey;
             var api = new ApiRequestChallengeMessage
             {
                 CsrtToken = csrfToken,
@@ -99,13 +102,13 @@ namespace InstaSharper.Classes.DeviceInfo
         internal static string GenerateUploadId()
         {
             var timeSpan = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0);
-            var uploadId = (long) timeSpan.TotalSeconds;
+            var uploadId = (long)timeSpan.TotalSeconds;
             return uploadId.ToString();
         }
 
         internal static string GenerateRandomUploadId()
         {
-            return DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
+            return DateTime.UtcNow.ToUnixTimeMiliSeconds().ToString();
         }
 
         public static string GenerateDeviceIdFromGuid(Guid guid)

@@ -1,4 +1,5 @@
 ﻿using InstaSharper.Classes.ResponseWrappers;
+using InstaSharper.Classes.ResponseWrappers.Direct;
 using InstaSharper.Helpers;
 using Newtonsoft.Json;
 using Xunit;

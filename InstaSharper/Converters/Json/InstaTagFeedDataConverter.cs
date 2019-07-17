@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using InstaSharper.Classes.ResponseWrappers;
+using InstaSharper.Classes.ResponseWrappers.Feed;
+using InstaSharper.Classes.ResponseWrappers.Media;
+using InstaSharper.Classes.ResponseWrappers.Story;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -27,7 +29,7 @@ namespace InstaSharper.Converters.Json
             var story = root.SelectToken("story");
             var rankedItems = root.SelectToken("ranked_items");
             var items = root.SelectToken("items");
-            var storiesTray = root.SelectToken("items[0].stories.tray");
+            var storiesTray = root.SelectToken("story.items");
 
             List<InstaMediaItemResponse> GetMedias(JToken token)
             {

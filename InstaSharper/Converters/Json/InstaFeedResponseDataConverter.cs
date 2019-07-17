@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using InstaSharper.Classes.ResponseWrappers;
+using InstaSharper.Classes.ResponseWrappers.Feed;
+using InstaSharper.Classes.ResponseWrappers.Media;
+using InstaSharper.Classes.ResponseWrappers.User;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -25,10 +27,24 @@ namespace InstaSharper.Converters.Json
             {
                 foreach (var item in items)
                 {
-                    var mediaOrAd = item["media_or_ad"];
-                    if (mediaOrAd == null) continue;
-                    var media = mediaOrAd.ToObject<InstaMediaItemResponse>();
-                    feed.Items.Add(media);
+                    if (item["media_or_ad"] != null)
+                    {
+                        var mediaOrAd = item["media_or_ad"];
+                        if (mediaOrAd == null) continue;
+                        var media = mediaOrAd.ToObject<InstaMediaItemResponse>();
+                        feed.Items.Add(media);
+                    }
+                    if (item["suggested_users"] != null)
+                    {
+                        var users = item["suggested_users"]?["suggestions"];
+                        if (users != null)
+                            foreach (var user in users)
+                            {
+                                if (user == null) continue;
+                                var usr = user.ToObject<InstaSuggestionItemResponse>();
+                                feed.SuggestedUsers.Add(usr);
+                            }
+                    }
                 }
             }
             else
@@ -36,16 +52,6 @@ namespace InstaSharper.Converters.Json
                 items = token["items"];
                 feed.Items = items.ToObject<List<InstaMediaItemResponse>>();
             }
-
-            var users = token["suggested_users"]?["suggestions"];
-            if (users != null)
-                foreach (var user in users)
-                {
-                    if (user == null) continue;
-                    var usr = user.ToObject<InstaUserResponse>();
-                    feed.SuggestedUsers.Add(usr);
-                }
-
             return feed;
         }
 

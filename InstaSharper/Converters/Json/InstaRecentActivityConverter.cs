@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using InstaSharper.Classes.ResponseWrappers;
+using InstaSharper.Classes.ResponseWrappers.User;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -27,8 +27,16 @@ namespace InstaSharper.Converters.Json
             }
             else
             {
-                var oldStories = token.SelectToken("old_stories")?.ToObject<List<InstaRecentActivityFeedResponse>>();
-                recentActivity.Stories.AddRange(oldStories);
+                if (token.SelectToken("new_stories") != null)
+                {
+                    var newStories = token.SelectToken("new_stories")?.ToObject<List<InstaRecentActivityFeedResponse>>();
+                    recentActivity.Stories.AddRange(newStories ?? throw new InvalidOperationException());
+                }
+                if (token.SelectToken("old_stories") != null)
+                {
+                    var oldStories = token.SelectToken("old_stories")?.ToObject<List<InstaRecentActivityFeedResponse>>();
+                    recentActivity.Stories.AddRange(oldStories ?? throw new InvalidOperationException());
+                }
                 recentActivity.IsOwnActivity = true;
             }
 

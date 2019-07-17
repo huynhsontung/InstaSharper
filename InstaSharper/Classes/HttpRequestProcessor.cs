@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.Design;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
@@ -11,29 +10,38 @@ namespace InstaSharper.Classes
 {
     internal class HttpRequestProcessor : IHttpRequestProcessor
     {
-        private readonly IRequestDelay _delay;
+        /// <summary>
+        ///     <see cref="HttpRequestProcessor"/> can handle gzip and deflate compression. Modifying this requires updating <see cref="DecompressHttpContent"/> method.
+        /// </summary>
+        public const string ACCEPT_ENCODING = "gzip, deflate";
+
         private readonly IInstaLogger _logger;
+        public IRequestDelay Delay { get; set; }
 
         public HttpRequestProcessor(IRequestDelay delay, HttpClient httpClient, HttpClientHandler httpHandler,
             ApiRequestMessage requestMessage, IInstaLogger logger)
         {
-            _delay = delay;
+            Delay = delay;
             Client = httpClient;
-            Client.Timeout = TimeSpan.FromSeconds(20);
             HttpHandler = httpHandler;
             RequestMessage = requestMessage;
             _logger = logger;
         }
 
-        public HttpClientHandler HttpHandler { get; }
+        public HttpClientHandler HttpHandler { get; set; }
         public ApiRequestMessage RequestMessage { get; }
-        public HttpClient Client { get; }
+        public HttpClient Client { get; set; }
+        public void SetHttpClientHandler(HttpClientHandler handler)
+        {
+            HttpHandler = handler;
+            Client = new HttpClient(handler);
+        }
 
         public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage requestMessage)
         {
             LogHttpRequest(requestMessage);
-            if (_delay.Exist)
-                await Task.Delay(_delay.Value);
+            if (Delay.Exist)
+                await Task.Delay(Delay.Value);
             var response = await Client.SendAsync(requestMessage);
             response.Content = await DecompressHttpContent(response.Content);
             LogHttpResponse(response);
@@ -43,8 +51,8 @@ namespace InstaSharper.Classes
         public async Task<HttpResponseMessage> GetAsync(Uri requestUri)
         {
             _logger?.LogRequest(requestUri);
-            if (_delay.Exist)
-                await Task.Delay(_delay.Value);
+            if (Delay.Exist)
+                await Task.Delay(Delay.Value);
             var response = await Client.GetAsync(requestUri);
             response.Content = await DecompressHttpContent(response.Content);
             LogHttpResponse(response);
@@ -55,8 +63,8 @@ namespace InstaSharper.Classes
             HttpCompletionOption completionOption)
         {
             LogHttpRequest(requestMessage);
-            if (_delay.Exist)
-                await Task.Delay(_delay.Value);
+            if (Delay.Exist)
+                await Task.Delay(Delay.Value);
             var response = await Client.SendAsync(requestMessage, completionOption);
             response.Content = await DecompressHttpContent(response.Content);
             LogHttpResponse(response);
@@ -67,8 +75,8 @@ namespace InstaSharper.Classes
             HttpCompletionOption completionOption)
         {
             LogHttpRequest(requestMessage);
-            if (_delay.Exist)
-                await Task.Delay(_delay.Value);
+            if (Delay.Exist)
+                await Task.Delay(Delay.Value);
             var response = await Client.SendAsync(requestMessage, completionOption);
             response.Content = await DecompressHttpContent(response.Content);
             LogHttpResponse(response);
@@ -78,8 +86,8 @@ namespace InstaSharper.Classes
         public async Task<string> GetJsonAsync(Uri requestUri)
         {
             _logger?.LogRequest(requestUri);
-            if (_delay.Exist)
-                await Task.Delay(_delay.Value);
+            if (Delay.Exist)
+                await Task.Delay(Delay.Value);
             var response = await Client.GetAsync(requestUri);
             response.Content = await DecompressHttpContent(response.Content);
             LogHttpResponse(response);
@@ -120,7 +128,7 @@ namespace InstaSharper.Classes
                     await deflateStream.CopyToAsync(decompressed);
                 }
             }
-            else if(isGzip)
+            else if (isGzip)
             {
                 using (var gzipStream = new GZipStream(data, CompressionMode.Decompress))
                 {

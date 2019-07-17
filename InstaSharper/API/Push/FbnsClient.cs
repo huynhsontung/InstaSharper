@@ -115,7 +115,7 @@ namespace InstaSharper.API.Push
                 {"_csrftoken", _user.CsrfToken },
                 {"guid", _device.Uuid.ToString() },
                 {"_uuid", _device.Uuid.ToString() },
-                {"users", _user.LoggedInUnder.Pk.ToString() }
+                {"users", _user.LoggedInUser.Pk.ToString() }
             };
             var request = HttpHelper.GetDefaultRequest(HttpMethod.Post, uri, _device);
             request.Content = new FormUrlEncodedContent(fields);

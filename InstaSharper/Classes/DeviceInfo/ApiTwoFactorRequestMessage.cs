@@ -21,10 +21,10 @@ namespace InstaSharper.Classes.DeviceInfo
         public string two_factor_identifier { get; set; }
 
 
-        internal string GenerateSignature(string signatureKey = null)
+        internal string GenerateSignature(ApiVersion apiVersion, string signatureKey)
         {
             if (string.IsNullOrEmpty(signatureKey))
-                signatureKey = InstaApiConstants.IG_SIGNATURE_KEY;
+                signatureKey = apiVersion.SignatureKey;
             return CryptoHelper.CalculateHash(signatureKey,
                 JsonConvert.SerializeObject(this));
         }

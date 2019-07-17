@@ -2,6 +2,7 @@
 using System.Net;
 using InstaSharper.API.Push;
 using InstaSharper.Classes.DeviceInfo;
+using InstaSharper.Enums;
 
 namespace InstaSharper.Classes
 {
@@ -13,5 +14,6 @@ namespace InstaSharper.Classes
         public bool IsAuthenticated { get; set; }
         public CookieContainer Cookies { get; set; }
         public FbnsConnectionData FbnsConnectionData { get; set; }
+        public ApiVersionNumber? ApiVersion { get; set; }
     }
 }

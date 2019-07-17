@@ -6,14 +6,14 @@ using InstaSharper.API;
 
 namespace InstaSharper.Helpers
 {
-    internal static class CryptoHelper
+    internal class CryptoHelper
     {
-        private static string ByteToString(byte[] buff)
+        public static string ByteToString(byte[] buff)
         {
             return buff.Aggregate("", (current, item) => current + item.ToString("X2"));
         }
 
-        private static string Base64Encode(string plainText)
+        public static string Base64Encode(string plainText)
         {
             var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
             return Convert.ToBase64String(plainTextBytes);
@@ -75,10 +75,10 @@ namespace InstaSharper.Helpers
 
             // Convert to standard hex string 
             return hash.Select(a => a.ToString("x2"))
-                .Aggregate((a, b) => string.Format("{0}{1}", a, b));
+                .Aggregate((a, b) => $"{a}{b}");
         }
 
-        private static byte[] GetHash(byte[] bytes)
+        public static byte[] GetHash(byte[] bytes)
         {
             using (var hash = SHA256.Create())
             {
@@ -86,7 +86,7 @@ namespace InstaSharper.Helpers
             }
         }
 
-        private static byte[] ByteConcat(byte[] left, byte[] right)
+        public static byte[] ByteConcat(byte[] left, byte[] right)
         {
             if (null == left) return right;
 

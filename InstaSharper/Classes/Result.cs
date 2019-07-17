@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using InstaSharper.Classes.ResponseWrappers.Errors;
 using InstaSharper.Helpers;
 
 namespace InstaSharper.Classes
@@ -62,6 +63,11 @@ namespace InstaSharper.Classes
             return new Result<T>(false, resValue, new ResultInfo(exception));
         }
 
+        public static IResult<T> Fail<T>(Exception exception, T resValue, ResponseType responseType)
+        {
+            return new Result<T>(false, resValue, new ResultInfo(exception, responseType));
+        }
+
         public static IResult<T> Fail<T>(ResultInfo info, T resValue)
         {
             return new Result<T>(false, resValue, info);
@@ -69,20 +75,55 @@ namespace InstaSharper.Classes
 
         public static IResult<T> Fail<T>(string errMsg, ResponseType responseType, T resValue)
         {
-            return new Result<T>(false, resValue, new ResultInfo(responseType, errMsg, String.Empty));
+            return new Result<T>(false, resValue, new ResultInfo(responseType, errMsg));
         }
 
         public static IResult<T> UnExpectedResponse<T>(HttpResponseMessage response, string json)
         {
             if (string.IsNullOrEmpty(json))
             {
-                var resultInfo = new ResultInfo(ResponseType.UnExpectedResponse, $"Unexpected response status: {response.StatusCode}", String.Empty);
+                var resultInfo = new ResultInfo(ResponseType.UnExpectedResponse,
+                    $"Unexpected response status: {response.StatusCode}");
                 return new Result<T>(false, default(T), resultInfo);
             }
             else
             {
                 var status = ErrorHandlingHelper.GetBadStatusFromJsonString(json);
-                var responseType = ResponseType.UnExpectedResponse;
+                var responseType = GetResponseType(status);
+
+                var resultInfo = new ResultInfo(responseType, status)
+                {
+                    Challenge = status.Challenge
+                };
+                return new Result<T>(false, default(T), resultInfo);
+            }
+        }
+
+        public static IResult<T> UnExpectedResponse<T>(HttpResponseMessage response, string message, string json)
+        {
+            if (string.IsNullOrEmpty(json))
+            {
+                var resultInfo = new ResultInfo(ResponseType.UnExpectedResponse,
+                    $"{message}\r\nUnexpected response status: {response.StatusCode}");
+                return new Result<T>(false, default(T), resultInfo);
+            }
+            else
+            {
+                var status = ErrorHandlingHelper.GetBadStatusFromJsonString(json);
+                var responseType = GetResponseType(status);
+
+                var resultInfo = new ResultInfo(responseType, message)
+                {
+                    Challenge = status.Challenge
+                };
+
+                return new Result<T>(false, default(T), resultInfo);
+            }
+        }
+        static ResponseType GetResponseType(BadStatusResponse status)
+        {
+            var responseType = ResponseType.UnExpectedResponse;
+            if(!string.IsNullOrWhiteSpace(status.ErrorType))
                 switch (status.ErrorType)
                 {
                     case "checkpoint_logged_out":
@@ -97,54 +138,52 @@ namespace InstaSharper.Classes
                     case "sentry_block":
                         responseType = ResponseType.SentryBlock;
                         break;
+                    case "inactive user":
+                    case "inactive_user":
+                        responseType = ResponseType.InactiveUser;
+                        break;
                     case "checkpoint_challenge_required":
-                        responseType = ResponseType.CheckPointChallengeRequired;
-                        break;
-                    case "unknown":
-                        responseType = ResponseType.Unknown;
+                        responseType = ResponseType.ChallengeRequired;
                         break;
                 }
 
-                if (status.Spam) responseType = ResponseType.Spam;
-                switch (status.FeedbackTitle)
-                {
-                    // feedback_message: This action was blocked. Please try again later.
-                    // We restrict certain content and actions to protect our community.
-                    // Tell us if you think we made a mistake.
-                    case "Action Blocked":
-                        responseType = ResponseType.ActionBlocked;
-                        break;
-                    // feedback_message: It looks like you were misusing this feature by going too fast.
-                    // You’ve been temporarily blocked from using it. We restrict certain content and actions
-                    // to protect our community. Tell us if you think we made a mistake.
-                    case "You’re Temporarily Blocked":
-                        responseType = ResponseType.TemporarilyBlocked;
-                        break;
-                }
+            if (!status.IsOk() && status.Message.Contains("wait a few minutes"))
+                responseType = ResponseType.RequestsLimit;
 
-                switch (status.FeedbackMessage)
-                {
-                    case "The post you were viewing has been deleted.":
-                        responseType = ResponseType.DeletedPost;
-                        break;
-                }
+            if (!string.IsNullOrEmpty(status.Message) && status.Message.Contains("consent_required"))
+                responseType = ResponseType.ConsentRequired;
 
-                switch (status.Message)
-                {
-                    case "Sorry, you cannot like this media":
-                        responseType = ResponseType.CantLikeMedia;
-                        break;
-                    case "Please check the code we sent you and try again.":
-                        responseType = ResponseType.InvalidChallengeCode;
-                        break;
-                }
+            if (!string.IsNullOrEmpty(status.FeedbackTitle) && status.FeedbackTitle.ToLower().Contains("action blocked"))
+                responseType = ResponseType.ActionBlocked;
 
-                if (!status.IsOk() && status.Message.Contains("wait a few minutes"))
-                    responseType = ResponseType.RequestsLimit;
+            if (!string.IsNullOrEmpty(status.Message) && status.Message.Contains("login_required"))
+                responseType = ResponseType.LoginRequired;
 
-                var resultInfo = new ResultInfo(responseType, status.Message, json);
-                return new Result<T>(false, default(T), resultInfo);
-            }
+            if (!string.IsNullOrEmpty(status.Message) && status.Message.ToLower().Contains("media not found or unavailable"))
+                responseType = ResponseType.MediaNotFound;
+
+            if (!string.IsNullOrEmpty(status.FeedbackTitle) && status.FeedbackTitle.ToLower().Contains("commenting is Off"))
+                responseType = ResponseType.CommentingIsDisabled;
+
+            if (!string.IsNullOrEmpty(status.Message) && status.Message.ToLower().Contains("already liked"))
+                responseType = ResponseType.AlreadyLiked;
+
+            if (!string.IsNullOrEmpty(status.FeedbackMessage) && status.FeedbackMessage.ToLower().Contains("post you were viewing has been deleted"))
+                responseType = ResponseType.DeletedPost;
+
+            if (!string.IsNullOrEmpty(status.Message) && status.Message.ToLower().Contains("you cannot like this"))
+                responseType = ResponseType.CantLike;
+
+            if (status.Payload != null)
+                if (!string.IsNullOrEmpty(status.Payload.Message) && status.Payload.Message.ToLower().Contains("media is not accessible"))
+                    responseType = ResponseType.DeletedPost;
+
+            if (status.Spam)
+                responseType = ResponseType.Spam;
+
+            if (status?.Message?.IndexOf("challenge_required") != -1)
+                responseType = ResponseType.ChallengeRequired;
+            return responseType;
         }
     }
 }

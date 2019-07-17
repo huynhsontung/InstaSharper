@@ -1,5 +1,6 @@
 ﻿using System;
 using InstaSharper.Classes.ResponseWrappers;
+using InstaSharper.Classes.ResponseWrappers.Errors;
 using Newtonsoft.Json;
 
 namespace InstaSharper.Helpers
@@ -11,16 +12,8 @@ namespace InstaSharper.Helpers
             var badStatus = new BadStatusResponse();
             try
             {
-                if (string.IsNullOrEmpty(json))
-                {
-                    badStatus.ErrorType = "Unknown";
-                    badStatus.Message = "No info about error received from IG";
-                }
-                else if (json.Contains("Oops, an error occurred"))
-                {
-                    badStatus.ErrorType = "IG server reported error";
+                if (json == "Oops, an error occurred\n")
                     badStatus.Message = json;
-                }
                 else badStatus = JsonConvert.DeserializeObject<BadStatusResponse>(json);
             }
             catch (Exception ex)

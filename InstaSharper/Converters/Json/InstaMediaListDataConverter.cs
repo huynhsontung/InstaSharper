@@ -1,5 +1,6 @@
 ﻿using System;
-using InstaSharper.Classes.ResponseWrappers;
+using InstaSharper.Classes.ResponseWrappers.Media;
+using InstaSharper.Classes.ResponseWrappers.Story;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
