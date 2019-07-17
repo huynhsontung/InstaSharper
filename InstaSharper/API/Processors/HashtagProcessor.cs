@@ -25,20 +25,18 @@ namespace InstaSharper.API.Processors
     {
         private readonly AndroidDevice _deviceInfo;
         private readonly IHttpRequestProcessor _httpRequestProcessor;
-        private readonly InstaApi _instaApi;
         private readonly IInstaLogger _logger;
         private readonly UserSessionData _user;
         private readonly UserAuthValidate _userAuthValidate;
         public HashtagProcessor(AndroidDevice deviceInfo, UserSessionData user,
             IHttpRequestProcessor httpRequestProcessor, IInstaLogger logger,
-            UserAuthValidate userAuthValidate, InstaApi instaApi)
+            UserAuthValidate userAuthValidate)
         {
             _deviceInfo = deviceInfo;
             _user = user;
             _httpRequestProcessor = httpRequestProcessor;
             _logger = logger;
             _userAuthValidate = userAuthValidate;
-            _instaApi = instaApi;
         }
         /// <summary>
         ///     Follow a hashtag
