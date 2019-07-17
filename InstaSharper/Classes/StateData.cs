@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 using InstaSharper.API.Push;
-using InstaSharper.Classes.Android.DeviceInfo;
+using InstaSharper.Classes.DeviceInfo;
 
 namespace InstaSharper.Classes
 {

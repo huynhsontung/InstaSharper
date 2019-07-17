@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using InstaSharper.Classes;
-using InstaSharper.Classes.Android.DeviceInfo;
+using InstaSharper.Classes.DeviceInfo;
 using InstaSharper.Classes.Models;
 using InstaSharper.Classes.ResponseWrappers;
 using InstaSharper.Converters;

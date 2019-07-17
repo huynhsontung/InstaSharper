@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InstaSharper.Classes.Android.DeviceInfo
+namespace InstaSharper.Classes.DeviceInfo
 {
     [Serializable]
     public class AndroidDevice
@@ -8,6 +8,9 @@ namespace InstaSharper.Classes.Android.DeviceInfo
         public string DeviceId { get; internal set; } // format: android-{md5}
         public Guid PhoneId { get; internal set; } = Guid.NewGuid();
         public Guid Uuid { get; internal set; } = Guid.NewGuid();
+        public Guid GoogleAdId { get; internal set; } = Guid.NewGuid();
+        public Guid RankToken { get; internal set; } = Guid.NewGuid();
+        public Guid AdId { get; internal set; } = Guid.NewGuid();
 
         public string UserAgent { get; internal set; }
         public AndroidVersion AndroidVersion { get; internal set; }
@@ -18,7 +21,7 @@ namespace InstaSharper.Classes.Android.DeviceInfo
         public string HardwareManufacturer { get; internal set; }
         public string HardwareModel { get; internal set; }
 
-        public const string CPU_ABI = "armeabi-v7a:armeabi";
+        internal const string CPU_ABI = "armeabi-v7a:armeabi";
     }
 
     [Serializable]
@@ -26,5 +29,10 @@ namespace InstaSharper.Classes.Android.DeviceInfo
     {
         public int Width { get; internal set; }
         public int Height { get; internal set; }
+
+        public override string ToString()
+        {
+            return $"{Width}x{Height}";
+        }
     }
 }

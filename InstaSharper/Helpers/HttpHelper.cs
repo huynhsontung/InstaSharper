@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using InstaSharper.API;
-using InstaSharper.Classes.Android.DeviceInfo;
+using InstaSharper.Classes.DeviceInfo;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

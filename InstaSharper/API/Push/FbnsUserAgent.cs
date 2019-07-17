@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using InstaSharper.Classes.Android.DeviceInfo;
+using InstaSharper.Classes.DeviceInfo;
 
 // ReSharper disable StringLiteralTypo
 

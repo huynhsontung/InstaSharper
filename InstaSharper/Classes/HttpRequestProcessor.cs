@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Threading.Tasks;
-using InstaSharper.Classes.Android.DeviceInfo;
+using InstaSharper.Classes.DeviceInfo;
 using InstaSharper.Logger;
 
 namespace InstaSharper.Classes

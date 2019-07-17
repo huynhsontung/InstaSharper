@@ -2,7 +2,7 @@
 using InstaSharper.Helpers;
 using Newtonsoft.Json;
 
-namespace InstaSharper.Classes.Android.DeviceInfo
+namespace InstaSharper.Classes.DeviceInfo
 {
     internal class ApiTwoFactorRequestMessage
     {

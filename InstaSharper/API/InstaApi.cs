@@ -8,7 +8,7 @@ using DotNetty.Codecs.Mqtt.Packets;
 using InstaSharper.API.Processors;
 using InstaSharper.API.Push;
 using InstaSharper.Classes;
-using InstaSharper.Classes.Android.DeviceInfo;
+using InstaSharper.Classes.DeviceInfo;
 using InstaSharper.Classes.Models;
 using InstaSharper.Classes.ResponseWrappers;
 using InstaSharper.Classes.ResponseWrappers.BaseResponse;
@@ -996,7 +996,7 @@ namespace InstaSharper.API
                     _httpRequestProcessor.HttpHandler.CookieContainer.GetCookies(_httpRequestProcessor.Client
                         .BaseAddress);
                 _logger?.LogResponse(firstResponse);
-                var csrftoken = cookies[InstaApiConstants.CSRFTOKEN]?.Value ?? string.Empty;
+                var csrftoken = cookies["csrftoken"]?.Value ?? string.Empty;
                 _user.CsrfToken = csrftoken;
                 var instaUri = UriCreator.GetLoginUri();
                 var signature =
@@ -1044,7 +1044,7 @@ namespace InstaSharper.API
                 IsUserAuthenticated = loginInfo.User?.UserName.ToLower() == _user.UserName.ToLower();
                 var converter = ConvertersFabric.Instance.GetUserShortConverter(loginInfo.User);
                 _user.LoggedInUnder = converter.Convert();
-                _user.RankToken = $"{_user.LoggedInUnder.Pk}_{_httpRequestProcessor.RequestMessage.phone_id}";
+                _user.RankToken = $"{_user.LoggedInUnder.Pk}_{_httpRequestProcessor.RequestMessage.PhoneId}";
                 return Result.Success(InstaLoginResult.Success);
             }
             catch (Exception exception)
@@ -1177,7 +1177,7 @@ namespace InstaSharper.API
             IsUserAuthenticated = sendVerifyCodeResponse.LoggedInUser?.UserName.ToLower() == _user.UserName.ToLower();
             var converter = ConvertersFabric.Instance.GetUserShortConverter(sendVerifyCodeResponse.LoggedInUser);
             _user.LoggedInUnder = converter.Convert();
-            _user.RankToken = $"{_user.LoggedInUnder.Pk}_{_httpRequestProcessor.RequestMessage.phone_id}";
+            _user.RankToken = $"{_user.LoggedInUnder.Pk}_{_httpRequestProcessor.RequestMessage.PhoneId}";
             return Result.Success(sendVerifyCodeResponse);
         }
         
@@ -1200,8 +1200,8 @@ namespace InstaSharper.API
             try
             {
                 var twoFactorRequestMessage = new ApiTwoFactorRequestMessage(verificationCode,
-                    _httpRequestProcessor.RequestMessage.username,
-                    _httpRequestProcessor.RequestMessage.device_id,
+                    _httpRequestProcessor.RequestMessage.Username,
+                    _httpRequestProcessor.RequestMessage.DeviceId,
                     _twoFactorInfo.TwoFactorIdentifier);
 
                 var instaUri = UriCreator.GetTwoFactorLoginUri();
@@ -1231,7 +1231,7 @@ namespace InstaSharper.API
                         loginInfo.User != null && loginInfo.User.UserName.ToLower() == _user.UserName.ToLower();
                     var converter = ConvertersFabric.Instance.GetUserShortConverter(loginInfo.User);
                     _user.LoggedInUnder = converter.Convert();
-                    _user.RankToken = $"{_user.LoggedInUnder.Pk}_{_httpRequestProcessor.RequestMessage.phone_id}";
+                    _user.RankToken = $"{_user.LoggedInUnder.Pk}_{_httpRequestProcessor.RequestMessage.PhoneId}";
 
                     return Result.Success(InstaLoginTwoFactorResult.Success);
                 }

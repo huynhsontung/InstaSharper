@@ -88,7 +88,7 @@ namespace InstaSharper.Converters
         }
 
         public IObjectConverter<InstaDirectInboxItem, InstaDirectInboxItemResponse> GetDirectThreadItemConverter(
-            InstaDirectInboxItemResponse threadItem, long viewerId)
+            InstaDirectInboxItemResponse threadItem, string viewerId)
         {
             return new InstaDirectThreadItemConverter { SourceObject = threadItem, ViewerId = viewerId };
         }

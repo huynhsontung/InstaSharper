@@ -16,24 +16,24 @@ namespace InstaSharper.Tests.Endpoints
 
         private readonly ITestOutputHelper _output;
 
-        [Fact]
-        public async void CreateUserTest()
-        {
-            var username = "simonthehymen";
-            var password = "SimonHuman";
-            var email = "donot.touchit@mail.ru";
-            var firstName = "Simon";
-            var apiInstance =
-                TestHelpers.GetDefaultInstaApiInstance(new UserSessionData
-                {
-                    UserName = username,
-                    Password = password
-                });
-
-            var createResult = await apiInstance.CreateNewAccount(username, password, email, firstName);
-            Assert.True(createResult.Succeeded);
-            Assert.True(createResult.Value.AccountCreated);
-        }
+//        [Fact]
+//        public async void CreateUserTest()
+//        {
+//            var username = "simonthehymen";
+//            var password = "SimonHuman";
+//            var email = "donot.touchit@mail.ru";
+//            var firstName = "Simon";
+//            var apiInstance =
+//                TestHelpers.GetDefaultInstaApiInstance(new UserSessionData
+//                {
+//                    UserName = username,
+//                    Password = password
+//                });
+//
+//            var createResult = await apiInstance.CreateNewAccount(username, password, email, firstName);
+//            Assert.True(createResult.Succeeded);
+//            Assert.True(createResult.Value.AccountCreated);
+//        }
 
         [Fact]
         public async void UserLoginFailTest()
@@ -58,7 +58,7 @@ namespace InstaSharper.Tests.Endpoints
         public async void UserLoginSuccessTest()
         {
             var username = "instashaper_burner";
-            var password = Environment.GetEnvironmentVariable("iloveinstasharper");
+            var password = "iloveinstasharper";
 
             var apiInstance = TestHelpers.GetDefaultInstaApiInstance(new UserSessionData
             {

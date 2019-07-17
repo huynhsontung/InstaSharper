@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using InstaSharper.Classes;
-using InstaSharper.Classes.Android.DeviceInfo;
+using InstaSharper.Classes.DeviceInfo;
 using InstaSharper.Classes.Models;
 using InstaSharper.Classes.ResponseWrappers;
 using InstaSharper.Converters;
@@ -81,9 +81,9 @@ namespace InstaSharper.API.Processors
                 var request = HttpHelper.GetDefaultRequest(HttpMethod.Get, userUri, _deviceInfo);
                 request.Properties.Add(new KeyValuePair<string, object>(InstaApiConstants.HEADER_TIMEZONE,
                     InstaApiConstants.TIMEZONE_OFFSET.ToString()));
-                request.Properties.Add(new KeyValuePair<string, object>(InstaApiConstants.HEADER_COUNT, "1"));
+                request.Properties.Add(new KeyValuePair<string, object>("count", "1"));
                 request.Properties.Add(
-                    new KeyValuePair<string, object>(InstaApiConstants.HEADER_RANK_TOKEN, _user.RankToken));
+                    new KeyValuePair<string, object>("rank_token", _user.RankToken));
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)

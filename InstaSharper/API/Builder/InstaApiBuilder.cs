@@ -3,7 +3,7 @@ using System.IO;
 using System.Net.Http;
 using InstaSharper.API.Push;
 using InstaSharper.Classes;
-using InstaSharper.Classes.Android.DeviceInfo;
+using InstaSharper.Classes.DeviceInfo;
 using InstaSharper.Helpers;
 using InstaSharper.Logger;
 
@@ -45,16 +45,16 @@ namespace InstaSharper.API.Builder
             {
                 _requestMessage = new ApiRequestMessage
                 {
-                    phone_id = _device.PhoneId.ToString(),
-                    guid = _device.Uuid,
-                    password = _user?.Password,
-                    username = _user?.UserName,
-                    device_id = _device.DeviceId
+                    PhoneId = _device.PhoneId.ToString(),
+                    Guid = _device.Uuid,
+                    Password = _user?.Password,
+                    Username = _user?.UserName,
+                    DeviceId = _device.DeviceId
                 };
             }
 
-            if (string.IsNullOrEmpty(_requestMessage.password)) _requestMessage.password = _user?.Password;
-            if (string.IsNullOrEmpty(_requestMessage.username)) _requestMessage.username = _user?.UserName;
+            if (string.IsNullOrEmpty(_requestMessage.Password)) _requestMessage.Password = _user?.Password;
+            if (string.IsNullOrEmpty(_requestMessage.Username)) _requestMessage.Username = _user?.UserName;
 
             if (_httpRequestProcessor == null)
                 _httpRequestProcessor =

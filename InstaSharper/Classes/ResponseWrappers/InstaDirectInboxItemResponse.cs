@@ -10,7 +10,7 @@ namespace InstaSharper.Classes.ResponseWrappers
 
         [JsonProperty("like")] public string Like { get; set; }
 
-        [JsonProperty("user_id")] public long UserId { get; set; }
+        [JsonProperty("user_id")] public string UserId { get; set; }
 
         [JsonProperty("timestamp")] public string TimeStamp { get; set; }
 

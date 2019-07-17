@@ -1,7 +1,7 @@
 using System.IO;
 using System.Net.Http;
 using InstaSharper.Classes;
-using InstaSharper.Classes.Android.DeviceInfo;
+using InstaSharper.Classes.DeviceInfo;
 using InstaSharper.Logger;
 
 namespace InstaSharper.API.Builder

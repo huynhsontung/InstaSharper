@@ -12,7 +12,7 @@ using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using InstaSharper.API.Push.PacketHelpers;
 using InstaSharper.Classes;
-using InstaSharper.Classes.Android.DeviceInfo;
+using InstaSharper.Classes.DeviceInfo;
 using InstaSharper.Helpers;
 
 namespace InstaSharper.API.Push

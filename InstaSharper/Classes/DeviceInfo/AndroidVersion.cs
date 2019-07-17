@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace InstaSharper.Classes.Android.DeviceInfo
+namespace InstaSharper.Classes.DeviceInfo
 {
     [Serializable]
     public class AndroidVersion
     {
-        public static readonly List<AndroidVersion> AndroidVersions = new List<AndroidVersion>
+        internal static readonly List<AndroidVersion> AndroidVersions = new List<AndroidVersion>
         {
             new AndroidVersion
             {

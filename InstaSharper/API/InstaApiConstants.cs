@@ -4,43 +4,29 @@ namespace InstaSharper.API
 {
     internal static class InstaApiConstants
     {
-        public const string MAX_MEDIA_ID_POSTFIX = "/media/?max_id=";
-        public const string HEADER_MAX_ID = "max_id";
-        public const string MEDIA = "/media/";
-        public const string P_SUFFIX = "p/";
-        public const string CSRFTOKEN = "csrftoken";
-
-        public const string HEADER_XCSRF_TOKEN = "X-CSRFToken";
-        public const string HEADER_X_INSTAGRAM_AJAX = "X-Instagram-AJAX";
-        public const string HEADER_X_REQUESTED_WITH = "X-Requested-With";
-        public const string HEADER_XML_HTTP_REQUEST = "XMLHttpRequest";
-
+        #region Api Version
 
         public const string IG_VERSION = "85.0.0.21.100";
+        public const string IG_CAPABILITIES = "3brTBw==";
         public const string VERSION_CODE = "146536611";
-        public const string PACKAGE_NAME = "com.instagram.android";
         public const string
             IG_SIGNATURE_KEY =
                 "937463b5272b5d60e9d20f0f8d7d192193dd95095a3ad43725d494300a5ea5fc";
 
+        #endregion
+
+        public const string PACKAGE_NAME = "com.instagram.android";
         public const string USER_AGENT_LOCALE = "en_US";
 
-        public const string HEADER_QUERY = "q";
-        public const string HEADER_RANK_TOKEN = "rank_token";
-        public const string HEADER_COUNT = "count";
-        public const string HEADER_EXCLUDE_LIST = "exclude_list";
         public const string HEADER_IG_SIGNATURE = "signed_body";
 
         public const string FACEBOOK_ANALYTICS_APPLICATION_ID = "567067343352427";
         public const string IG_SIGNATURE_KEY_VERSION = "4";
         public const string HEADER_IG_SIGNATURE_KEY_VERSION = "ig_sig_key_version";
-        public const string IG_CAPABILITIES = "3brTBw==";
         public const string IG_CONNECTION_TYPE = "WIFI";
         public const string ACCEPT_LANGUAGE = "en-US";
         public const string ACCEPT_ENCODING = "gzip, deflate";
         public const string X_FB_HTTP_ENGINE = "Liger";
-        public const string TIMEZONE = "Pacific/Auckland";
-        public const string HEADER_PHONE_ID = "phone_id";
         public const string HEADER_TIMEZONE = "timezone_offset";
         public const string COMMENT_BREADCRUMB_KEY = "iN4$aGr0m";
         public const int TIMEZONE_OFFSET = 43200;

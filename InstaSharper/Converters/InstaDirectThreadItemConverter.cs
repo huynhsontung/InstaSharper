@@ -9,18 +9,18 @@ namespace InstaSharper.Converters
     {
         public InstaDirectInboxItemResponse SourceObject { get; set; }
 
-        public long ViewerId { get; set; }
+        public string ViewerId { get; set; }
 
         public InstaDirectInboxItem Convert()
         {
             var threadItem = new InstaDirectInboxItem
             {
                 ClientContext = SourceObject.ClientContext,
-                ItemId = SourceObject.ItemId
+                ItemId = SourceObject.ItemId,
+                TimeStamp = DateTimeHelper.UnixTimestampMilisecondsToDateTime(SourceObject.TimeStamp),
+                UserId = SourceObject.UserId
             };
 
-            threadItem.TimeStamp = DateTimeHelper.UnixTimestampMilisecondsToDateTime(SourceObject.TimeStamp);
-            threadItem.UserId = SourceObject.UserId;
             threadItem.FromMe = threadItem.UserId == ViewerId ? true : false;
 
             var truncatedItemType = SourceObject.ItemType.Trim().Replace("_", "");
