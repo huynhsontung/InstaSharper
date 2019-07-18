@@ -21,7 +21,7 @@ namespace InstaSharper.API.Builder
         private IInstaLogger _logger;
         private ApiRequestMessage _requestMessage;
         private UserSessionData _user;
-        private ApiVersionNumber? _apiVersionNumber;
+        private ApiVersion _apiVersion;
         private ISessionHandler _sessionHandler;
         private FbnsConnectionData _fbnsConnectionData;
         private bool _isUserAuthenticated;
@@ -71,10 +71,9 @@ namespace InstaSharper.API.Builder
                 _httpRequestProcessor =
                     new HttpRequestProcessor(_delay, _httpClient, _httpHandler, _requestMessage, _logger);
 
-            if (_apiVersionNumber == null)
-                _apiVersionNumber = ApiVersionNumber.Version86;
+            if(_apiVersion == null) _apiVersion = ApiVersion.GetApiVersion(ApiVersionNumber.Latest);
 
-            var instaApi = new InstaApi(_user, _logger, _device, _httpRequestProcessor, _fbnsConnectionData, _apiVersionNumber.Value);
+                var instaApi = new InstaApi(_user, _logger, _device, _httpRequestProcessor, _fbnsConnectionData, _apiVersion);
 
             if (_sessionHandler != null)
             {
@@ -175,7 +174,7 @@ namespace InstaSharper.API.Builder
 
         /// <summary>
         ///     Set custom android device.
-        ///     <para>Note: this is optional, if you didn't set this, InstagramApiSharp will choose random device.</para>
+        ///     <para>This is optional, if you don't set this, InstaSharper will choose random device.</para>
         /// </summary>
         /// <param name="androidDevice">Android device</param>
         /// <returns>
@@ -187,15 +186,16 @@ namespace InstaSharper.API.Builder
             return this;
         }
         /// <summary>
-        ///     Set instagram api version (for user agent version)
+        ///     Set instagram api version (for user agent version).
+        ///     <para>This is optional, InstaSharper will choose the latest api version by default.</para>
         /// </summary>
-        /// <param name="apiVersion">Api version</param>
+        /// <param name="apiVersionNumber">Api version</param>
         /// <returns>
         ///     API Builder
         /// </returns>
-        public IInstaApiBuilder SetApiVersion(ApiVersionNumber apiVersion)
+        public IInstaApiBuilder SetApiVersion(ApiVersionNumber apiVersionNumber)
         {
-            _apiVersionNumber = apiVersion;
+            _apiVersion = ApiVersion.GetApiVersion(apiVersionNumber);
             return this;
         }
 
@@ -233,9 +233,7 @@ namespace InstaSharper.API.Builder
             _httpHandler.CookieContainer = data.Cookies;
             _isUserAuthenticated = data.IsAuthenticated;
             _fbnsConnectionData = data.FbnsConnectionData;
-            if (data.ApiVersion == null)
-                data.ApiVersion = ApiVersionNumber.Version86;
-            _apiVersionNumber = data.ApiVersion;
+            _apiVersion = data.CurrentApiVersion;
             return this;
         }
 
@@ -247,9 +245,7 @@ namespace InstaSharper.API.Builder
             _httpHandler.CookieContainer = data.Cookies;
             _isUserAuthenticated = data.IsAuthenticated;
             _fbnsConnectionData = data.FbnsConnectionData;
-            if (data.ApiVersion == null)
-                data.ApiVersion = ApiVersionNumber.Version86;
-            _apiVersionNumber = data.ApiVersion;
+            _apiVersion = data.CurrentApiVersion;
             return this;
         }
 

@@ -60,7 +60,7 @@ namespace InstaSharper.API.Builder
         /// <param name="delay">Timespan delay</param>
         /// <returns>API Builder</returns>
         IInstaApiBuilder SetRequestDelay(IRequestDelay delay);
-        [Obsolete("Deprecated. Please use IInstaApi.SetDevice instead.")]
+        
         /// <summary>
         ///     Set custom android device.
         ///     <para>Note: this is optional, if you didn't set this, <see cref="InstagramApiSharp"/> will choose random device.</para>
@@ -68,12 +68,12 @@ namespace InstaSharper.API.Builder
         /// <param name="androidDevice">Android device</param>
         /// <returns>API Builder</returns>
         IInstaApiBuilder SetDevice(AndroidDevice androidDevice);
-        [Obsolete("Deprecated. Please use IInstaApi.SetApiVersion instead.")]
+        
         /// <summary>
         ///     Set instagram api version (for user agent version)
         /// </summary>
-        /// <param name="apiVersion">Api version</param>
-        IInstaApiBuilder SetApiVersion(ApiVersionNumber apiVersion);
+        /// <param name="apiVersionNumber">Api version</param>
+        IInstaApiBuilder SetApiVersion(ApiVersionNumber apiVersionNumber);
 
         /// <summary>
         ///     Set Http request processor

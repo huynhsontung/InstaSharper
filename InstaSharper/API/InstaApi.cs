@@ -167,15 +167,14 @@ namespace InstaSharper.API
         #region Constructor
 
         public InstaApi(UserSessionData user, IInstaLogger logger, AndroidDevice deviceInfo,
-            IHttpRequestProcessor httpRequestProcessor, FbnsConnectionData fbnsData, ApiVersionNumber apiVersionNumber)
+            IHttpRequestProcessor httpRequestProcessor, FbnsConnectionData fbnsData, ApiVersion apiVersion)
         {
             _userAuthValidate = new UserAuthValidate();
             _user = user;
             _logger = logger;
             DeviceInfo = deviceInfo;
             RequestProcessor = httpRequestProcessor;
-            ApiVersion.GetApiVersion(apiVersionNumber);
-            ApiVersion.CurrentApiVersion = ApiVersion.GetApiVersion(apiVersionNumber);
+            if (apiVersion != null) ApiVersion.CurrentApiVersion = apiVersion;
             PushClient = new FbnsClient(DeviceInfo, _user, RequestProcessor, fbnsData);
         }
 
@@ -2240,7 +2239,6 @@ namespace InstaSharper.API
         /// <param name="apiVersion">Api version</param>
         public void SetApiVersion(ApiVersionNumber apiVersion)
         {
-            ApiVersion.GetApiVersion(apiVersion);
             ApiVersion.CurrentApiVersion = ApiVersion.GetApiVersion(apiVersion);
         }
         /// <summary>

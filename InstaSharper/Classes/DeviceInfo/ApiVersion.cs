@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using InstaSharper.Enums;
 
 namespace InstaSharper.Classes.DeviceInfo
@@ -10,7 +11,7 @@ namespace InstaSharper.Classes.DeviceInfo
         /// <summary>
         ///     This property has data for signed requests. Changing this leads to changes in request handling of all the processors.
         /// </summary>
-        public static ApiVersion CurrentApiVersion = GetApiVersion(ApiVersionNumber.Version86);
+        public static ApiVersion CurrentApiVersion = GetApiVersion(ApiVersionNumber.Latest);
 
         public string SignatureKey { get; set; }
         public string AppVersion { get; set; }
@@ -81,6 +82,16 @@ namespace InstaSharper.Classes.DeviceInfo
                     }
                 },
                 {
+                    ApiVersionNumber.Version85,
+                    new ApiVersion
+                    {
+                        AppVersionCode = "146536611",
+                        AppVersion = "85.0.0.21.100",
+                        Capabilities = "3brTvw==",
+                        SignatureKey = "937463b5272b5d60e9d20f0f8d7d192193dd95095a3ad43725d494300a5ea5fc"
+                    }
+                },
+                {
                     ApiVersionNumber.Version86,
                     new ApiVersion
                     {
@@ -94,6 +105,12 @@ namespace InstaSharper.Classes.DeviceInfo
 
         public static ApiVersion GetApiVersion(ApiVersionNumber versionNumber)
         {
+            if (versionNumber == ApiVersionNumber.Latest)
+            {
+                var lastestVersion = Enum.GetValues(typeof(ApiVersionNumber)).Cast<ApiVersionNumber>().Max();
+                return ApiVersions[lastestVersion];
+            }
+
             return ApiVersions[versionNumber];
         }
 
