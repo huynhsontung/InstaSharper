@@ -78,7 +78,7 @@ namespace InstaSharper.API.Processors
                     {"_uid", _user.LoggedInUser.Pk.ToString()},
                     {"_csrftoken", _user.CsrfToken}
                 };
-                var hash = CryptoHelper.CalculateHash(HttpHelper.ApiVersion.SignatureKey,
+                var hash = CryptoHelper.CalculateHash(ApiVersion.CurrentApiVersion.SignatureKey,
                     JsonConvert.SerializeObject(fields));
                 var payload = JsonConvert.SerializeObject(fields);
                 var signature = $"{hash}.{Uri.EscapeDataString(payload)}";
@@ -124,7 +124,7 @@ namespace InstaSharper.API.Processors
                     {"_uid", _user.LoggedInUser.Pk.ToString()},
                     {"_csrftoken", _user.CsrfToken}
                 };
-                var hash = CryptoHelper.CalculateHash(HttpHelper.ApiVersion.SignatureKey,
+                var hash = CryptoHelper.CalculateHash(ApiVersion.CurrentApiVersion.SignatureKey,
                     JsonConvert.SerializeObject(fields));
                 var payload = JsonConvert.SerializeObject(fields);
                 var signature = $"{hash}.{Uri.EscapeDataString(payload)}";
@@ -1235,7 +1235,7 @@ namespace InstaSharper.API.Processors
             UserAuthValidator.Validate(_userAuthValidate);
             try
             {
-                var instaUri = UriCreator.GetPresenceUri(HttpHelper.ApiVersion.SignatureKey);
+                var instaUri = UriCreator.GetPresenceUri(ApiVersion.CurrentApiVersion.SignatureKey);
                 
                 var request = HttpHelper.GetDefaultRequest(HttpMethod.Get, instaUri, _deviceInfo);
                 var response = await _httpRequestProcessor.SendAsync(request);

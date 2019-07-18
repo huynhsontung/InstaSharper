@@ -37,7 +37,6 @@ namespace InstaSharper.API
 
         private IRequestDelay _delay = RequestDelay.Empty();
         private readonly IInstaLogger _logger;
-        private ApiVersionNumber _apiVersionNumber;
         private ApiVersion _apiVersion;
         private InstaTwoFactorLoginInfo _twoFactorInfo;
         private InstaChallengeLoginInfo _challengeInfo;
@@ -48,7 +47,6 @@ namespace InstaSharper.API
             set { _userSession = value; _userAuthValidate.User = value; }
         }
         private UserAuthValidate _userAuthValidate;
-        private bool _isCustomDeviceSet = false;
 
         private string _waterfallIdReg = "", _deviceIdReg = "", _phoneIdReg = "", _guidReg = "";
         private InstaAccountRegistrationPhoneNumber _signUpPhoneNumberInfo;
@@ -177,9 +175,8 @@ namespace InstaSharper.API
             _logger = logger;
             DeviceInfo = deviceInfo;
             RequestProcessor = httpRequestProcessor;
-            _apiVersionNumber = apiVersionNumber;
             _apiVersion = ApiVersion.GetApiVersion(apiVersionNumber);
-            HttpHelper.ApiVersion = _apiVersion;
+            ApiVersion.CurrentApiVersion = _apiVersion;
             PushClient = new FbnsClient(DeviceInfo, _user, RequestProcessor, fbnsData);
         }
 
@@ -1114,21 +1111,9 @@ namespace InstaSharper.API
                     _twoFactorInfo.TwoFactorIdentifier);
 
                 var instaUri = UriCreator.GetTwoFactorLoginUri();
-                var signature =
-                    $"{twoFactorRequestMessage.GenerateSignature(_apiVersion, _apiVersion.SignatureKey)}.{twoFactorRequestMessage.GetMessageString()}";
-                var fields = new Dictionary<string, string>
-                {
-                    {InstaApiConstants.HEADER_IG_SIGNATURE, signature},
-                    {
-                        InstaApiConstants.HEADER_IG_SIGNATURE_KEY_VERSION,
-                        InstaApiConstants.IG_SIGNATURE_KEY_VERSION
-                    }
-                };
-                var request = HttpHelper.GetDefaultRequest(HttpMethod.Post, instaUri, DeviceInfo);
-                request.Content = new FormUrlEncodedContent(fields);
-                request.Properties.Add(InstaApiConstants.HEADER_IG_SIGNATURE, signature);
-                request.Properties.Add(InstaApiConstants.HEADER_IG_SIGNATURE_KEY_VERSION,
-                    InstaApiConstants.IG_SIGNATURE_KEY_VERSION);
+                var hash = twoFactorRequestMessage.GenerateSignature(_apiVersion, _apiVersion.SignatureKey);
+                var payload = twoFactorRequestMessage.GetMessageString();
+                var request = HttpHelper.GetSignedRequest(instaUri, DeviceInfo, hash, payload);
                 var response = await RequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
 
@@ -2254,9 +2239,8 @@ namespace InstaSharper.API
         /// <param name="apiVersion">Api version</param>
         public void SetApiVersion(ApiVersionNumber apiVersion)
         {
-            _apiVersionNumber = apiVersion;
             _apiVersion = ApiVersion.GetApiVersion(apiVersion);
-            HttpHelper.ApiVersion = _apiVersion;
+            ApiVersion.CurrentApiVersion = _apiVersion;
         }
         /// <summary>
         ///     Set custom android device.
@@ -2266,11 +2250,9 @@ namespace InstaSharper.API
         /// <param name="device">Android device</param>
         public void SetDevice(AndroidDevice device)
         {
-            _isCustomDeviceSet = false;
             if (device == null)
                 return;
             DeviceInfo = device;
-            _isCustomDeviceSet = true;
         }
         /// <summary>
         ///     Set Accept Language
@@ -2464,7 +2446,7 @@ namespace InstaSharper.API
                 UserSession = _user,
                 Cookies = RequestProcessor.HttpHandler.CookieContainer,
                 FbnsConnectionData = PushClient.ConnectionData,
-                ApiVersion = _apiVersionNumber
+                ApiVersion = ApiVersion.CurrentApiVersion.VersionNumber
             };
             return SerializationHelper.SerializeToStream(state);
         }
@@ -2484,7 +2466,7 @@ namespace InstaSharper.API
                 UserSession = _user,
                 Cookies = RequestProcessor.HttpHandler.CookieContainer,
                 FbnsConnectionData = PushClient.ConnectionData,
-                ApiVersion = _apiVersionNumber
+                ApiVersion = ApiVersion.CurrentApiVersion.VersionNumber
             };
             return SerializationHelper.SerializeToString(state);
         }
@@ -2524,8 +2506,7 @@ namespace InstaSharper.API
         public void LoadStateDataFromStream(Stream stream)
         {
             var data = SerializationHelper.DeserializeFromStream<StateData>(stream);
-            if (!_isCustomDeviceSet)
-                DeviceInfo = data.DeviceInfo;
+            DeviceInfo = data.DeviceInfo;
             _user = data.UserSession;
 
             RequestProcessor.RequestMessage.Username = data.UserSession.UserName;
@@ -2539,9 +2520,11 @@ namespace InstaSharper.API
 
             if (data.ApiVersion == null)
                 data.ApiVersion = ApiVersionNumber.Version86;
-            _apiVersionNumber = data.ApiVersion.Value;
-            _apiVersion = ApiVersion.GetApiVersion(_apiVersionNumber);
-            HttpHelper.ApiVersion = _apiVersion;
+            _apiVersion = ApiVersion.GetApiVersion(data.ApiVersion.Value);
+            ApiVersion.CurrentApiVersion = _apiVersion;
+
+            Task.Run(async () => { await PushClient.Shutdown(); });
+            PushClient = new FbnsClient(DeviceInfo, _user, RequestProcessor, data.FbnsConnectionData);
 
             IsUserAuthenticated = data.IsAuthenticated;
             InvalidateProcessors();
@@ -2552,8 +2535,7 @@ namespace InstaSharper.API
         public void LoadStateDataFromString(string json)
         {
             var data = SerializationHelper.DeserializeFromString<StateData>(json);
-            if (!_isCustomDeviceSet)
-                DeviceInfo = data.DeviceInfo;
+            DeviceInfo = data.DeviceInfo;
             _user = data.UserSession;
 
             //Load Stream Edit 
@@ -2568,44 +2550,16 @@ namespace InstaSharper.API
 
             if (data.ApiVersion == null)
                 data.ApiVersion = ApiVersionNumber.Version86;
-            _apiVersionNumber = data.ApiVersion.Value;
-            _apiVersion = ApiVersion.GetApiVersion(_apiVersionNumber);
-            HttpHelper.ApiVersion = _apiVersion;
+            _apiVersion = ApiVersion.GetApiVersion(data.ApiVersion.Value);
+            ApiVersion.CurrentApiVersion = _apiVersion;
+
+            Task.Run(async () => { await PushClient.Shutdown(); });
+            PushClient = new FbnsClient(DeviceInfo, _user, RequestProcessor, data.FbnsConnectionData);
 
             IsUserAuthenticated = data.IsAuthenticated;
             InvalidateProcessors();
         }
 
-
-        /// <summary>
-        ///     Set state data from StateData object
-        /// </summary>
-        /// <param name="stateData"></param>
-        public void LoadStateDataFromObject(StateData stateData)
-        {
-            if (!_isCustomDeviceSet)
-                DeviceInfo = stateData.DeviceInfo;
-            _user = stateData.UserSession;
-
-            //Load Stream Edit 
-            RequestProcessor.RequestMessage.Username = stateData.UserSession.UserName;
-            RequestProcessor.RequestMessage.Password = stateData.UserSession.Password;
-
-            RequestProcessor.RequestMessage.DeviceId = stateData.DeviceInfo.DeviceId;
-            RequestProcessor.RequestMessage.PhoneId = stateData.DeviceInfo.PhoneId.ToString();
-            RequestProcessor.RequestMessage.Guid = stateData.DeviceInfo.Uuid;
-            RequestProcessor.RequestMessage.AdId = stateData.DeviceInfo.AdId.ToString();
-            RequestProcessor.HttpHandler.CookieContainer = stateData.Cookies;
-
-            if (stateData.ApiVersion == null)
-                stateData.ApiVersion = ApiVersionNumber.Version86;
-            _apiVersionNumber = stateData.ApiVersion.Value;
-            _apiVersion = ApiVersion.GetApiVersion(_apiVersionNumber);
-            HttpHelper.ApiVersion = _apiVersion;
-
-            IsUserAuthenticated = stateData.IsAuthenticated;
-            InvalidateProcessors();
-        }
 
         /// <summary>
         ///     Set state data from provided stream asynchronously

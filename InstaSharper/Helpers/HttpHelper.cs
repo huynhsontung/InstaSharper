@@ -12,8 +12,6 @@ namespace InstaSharper.Helpers
 {
     internal static class HttpHelper
     {
-        public static ApiVersion ApiVersion = ApiVersion.GetApiVersion(ApiVersionNumber.Version86);
-
         public static HttpRequestMessage GetDefaultRequest(HttpMethod method, Uri uri, AndroidDevice deviceInfo)
         {
             var request = new HttpRequestMessage(method, uri);
@@ -53,7 +51,7 @@ namespace InstaSharper.Helpers
             AndroidDevice deviceInfo,
             Dictionary<string, string> data)
         {
-            var hash = CryptoHelper.CalculateHash(ApiVersion.SignatureKey,
+            var hash = CryptoHelper.CalculateHash(ApiVersion.CurrentApiVersion.SignatureKey,
                 JsonConvert.SerializeObject(data));
             var payload = JsonConvert.SerializeObject(data);
             return GetSignedRequest(uri, deviceInfo, hash, payload);
@@ -63,13 +61,13 @@ namespace InstaSharper.Helpers
             AndroidDevice deviceInfo,
             JObject data)
         {
-            var hash = CryptoHelper.CalculateHash(ApiVersion.SignatureKey,
+            var hash = CryptoHelper.CalculateHash(ApiVersion.CurrentApiVersion.SignatureKey,
                 data.ToString(Formatting.None));
             var payload = data.ToString(Formatting.None);
             return GetSignedRequest(uri, deviceInfo, hash, payload);
         }
 
-        private static HttpRequestMessage GetSignedRequest(Uri uri, AndroidDevice deviceInfo, string hash, string payload)
+        public static HttpRequestMessage GetSignedRequest(Uri uri, AndroidDevice deviceInfo, string hash, string payload)
         {
             var signature = $"{hash}.{payload}";
             var fields = new Dictionary<string, string>
@@ -87,7 +85,7 @@ namespace InstaSharper.Helpers
 
         public static string GetSignature(JObject data)
         {
-            var hash = CryptoHelper.CalculateHash(ApiVersion.SignatureKey, data.ToString(Formatting.None));
+            var hash = CryptoHelper.CalculateHash(ApiVersion.CurrentApiVersion.SignatureKey, data.ToString(Formatting.None));
             var payload = data.ToString(Formatting.None);
             var signature = $"{hash}.{payload}";
             return signature;

@@ -21,7 +21,7 @@ namespace InstaSharper.Classes.DeviceInfo
         public string two_factor_identifier { get; set; }
 
 
-        internal string GenerateSignature(ApiVersion apiVersion, string signatureKey)
+        internal string GenerateSignature(ApiVersion apiVersion, string signatureKey = null)
         {
             if (string.IsNullOrEmpty(signatureKey))
                 signatureKey = apiVersion.SignatureKey;

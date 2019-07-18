@@ -6,6 +6,9 @@ namespace InstaSharper.Classes.DeviceInfo
 {
     public class ApiVersion
     {
+        public static ApiVersion CurrentApiVersion = GetApiVersion(ApiVersionNumber.Version86);
+
+        public ApiVersionNumber VersionNumber { get; set; }
         public string SignatureKey { get; set; }
         public string AppVersion { get; set; }
         public string AppApiVersionCode { get; set; }
@@ -18,6 +21,7 @@ namespace InstaSharper.Classes.DeviceInfo
                     ApiVersionNumber.Version35,
                     new ApiVersion
                     {
+                        VersionNumber = ApiVersionNumber.Version35,
                         AppApiVersionCode = "95414346",
                         AppVersion = "35.0.0.20.96",
                         Capabilities = "3brTBw==",
@@ -28,6 +32,7 @@ namespace InstaSharper.Classes.DeviceInfo
                     ApiVersionNumber.Version44,
                     new ApiVersion
                     {
+                        VersionNumber = ApiVersionNumber.Version44,
                         AppApiVersionCode = "107092322",
                         AppVersion = "44.0.0.9.93",
                         Capabilities = "3brTPw==",
@@ -38,6 +43,7 @@ namespace InstaSharper.Classes.DeviceInfo
                     ApiVersionNumber.Version61,
                     new ApiVersion
                     {
+                        VersionNumber = ApiVersionNumber.Version61,
                         AppApiVersionCode = "107092322",
                         AppVersion = "61.0.0.19.86",
                         Capabilities = "3brTPw==",
@@ -48,6 +54,7 @@ namespace InstaSharper.Classes.DeviceInfo
                     ApiVersionNumber.Version64,
                     new ApiVersion
                     {
+                        VersionNumber = ApiVersionNumber.Version64,
                         AppApiVersionCode = "125398467",
                         AppVersion = "64.0.0.14.96",
                         Capabilities = "3brTvw==",
@@ -58,6 +65,7 @@ namespace InstaSharper.Classes.DeviceInfo
                     ApiVersionNumber.Version74,
                     new ApiVersion
                     {
+                        VersionNumber = ApiVersionNumber.Version74,
                         AppApiVersionCode = "125398467",
                         AppVersion = "74.0.0.21.99",
                         Capabilities = "3brTvw==",
@@ -68,6 +76,7 @@ namespace InstaSharper.Classes.DeviceInfo
                     ApiVersionNumber.Version76,
                     new ApiVersion
                     {
+                        VersionNumber = ApiVersionNumber.Version76,
                         AppApiVersionCode = "138226743",
                         AppVersion = "76.0.0.15.395",
                         Capabilities = "3brTvw==",
@@ -78,6 +87,7 @@ namespace InstaSharper.Classes.DeviceInfo
                     ApiVersionNumber.Version86,
                     new ApiVersion
                     {
+                        VersionNumber = ApiVersionNumber.Version86,
                         AppApiVersionCode = "147375143",
                         AppVersion = "86.0.0.24.87",
                         Capabilities = "3brTvw==",
@@ -88,9 +98,7 @@ namespace InstaSharper.Classes.DeviceInfo
 
         public static ApiVersion GetApiVersion(ApiVersionNumber versionNumber)
         {
-            return (from apiVer in ApiVersions
-                    where apiVer.Key == versionNumber
-                    select apiVer.Value).FirstOrDefault();
+            return ApiVersions[versionNumber];
         }
 
     }

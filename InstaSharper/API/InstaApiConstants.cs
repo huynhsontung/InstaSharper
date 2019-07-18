@@ -89,7 +89,7 @@ namespace InstaSharper.API
         };
 
         public static string ACCEPT_LANGUAGE = "en-US";
-        public const string USER_AGENT_LOCALE = "en_US";
+        public static string USER_AGENT_LOCALE => ACCEPT_LANGUAGE.Replace("-", "_");
         public const string FACEBOOK_LOGIN_URI = "https://m.facebook.com/v2.3/dialog/oauth?access_token=&client_id=124024574287414&e2e={0}&scope=email&default_audience=friends&redirect_uri=fbconnect://success&display=touch&response_type=token,signed_request&return_scopes=true";
         public const string FACEBOOK_TOKEN = "https://graph.facebook.com/me?access_token={0}&fields=id,is_employee,name";
         public const string FACEBOOK_TOKEN_PICTURE = "https://graph.facebook.com/me?access_token={0}&fields=picture";

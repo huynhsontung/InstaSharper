@@ -283,9 +283,9 @@ namespace InstaSharper.API.Processors
                 var data = new Dictionary<string, string>
                 {
                     {"query_id", "425892567746558"},
-                    {"locale", InstaApiConstants.ACCEPT_LANGUAGE.Replace("-", "_")},
+                    {"locale", InstaApiConstants.USER_AGENT_LOCALE},
                     {"vc_policy", "ads_viewer_context_policy"},
-                    {"signed_body", $"{HttpHelper.ApiVersion.SignatureKey}."},
+                    {"signed_body", $"{ApiVersion.CurrentApiVersion.SignatureKey}."},
                     {InstaApiConstants.HEADER_IG_SIGNATURE_KEY_VERSION, InstaApiConstants.IG_SIGNATURE_KEY_VERSION},
                     {"strip_nulls", "true"},
                     {"strip_defaults", "true"},
@@ -578,9 +578,9 @@ namespace InstaSharper.API.Processors
                 var data = new Dictionary<string, string>
                 {
                     {"query_id", "425892567746558"},
-                    {"locale", InstaApiConstants.ACCEPT_LANGUAGE.Replace("-", "_")},
+                    {"locale", InstaApiConstants.USER_AGENT_LOCALE},
                     {"vc_policy", "ads_viewer_context_policy"},
-                    {"signed_body", $"{HttpHelper.ApiVersion.SignatureKey}."},
+                    {"signed_body", $"{ApiVersion.CurrentApiVersion.SignatureKey}."},
                     {InstaApiConstants.HEADER_IG_SIGNATURE_KEY_VERSION, InstaApiConstants.IG_SIGNATURE_KEY_VERSION},
                     {"strip_nulls", "true"},
                     {"strip_defaults", "true"},
@@ -630,9 +630,9 @@ namespace InstaSharper.API.Processors
                 var data = new Dictionary<string, string>
                 {
                     {"query_id", "706774002864790"},
-                    {"locale", InstaApiConstants.ACCEPT_LANGUAGE.Replace("-", "_")},
+                    {"locale", InstaApiConstants.USER_AGENT_LOCALE},
                     {"vc_policy", "ads_viewer_context_policy"},
-                    {"signed_body", $"{HttpHelper.ApiVersion.SignatureKey}."},
+                    {"signed_body", $"{ApiVersion.CurrentApiVersion.SignatureKey}."},
                     {InstaApiConstants.HEADER_IG_SIGNATURE_KEY_VERSION, InstaApiConstants.IG_SIGNATURE_KEY_VERSION},
                     {"strip_nulls", "true"},
                     {"strip_defaults", "true"},
@@ -776,9 +776,9 @@ namespace InstaSharper.API.Processors
                 var data = new Dictionary<string, string>
                 {
                     {"query_id", "1860980127555904"},
-                    {"locale", InstaApiConstants.ACCEPT_LANGUAGE.Replace("-", "_")},
+                    {"locale", InstaApiConstants.USER_AGENT_LOCALE},
                     {"vc_policy", "ads_viewer_context_policy"},
-                    {"signed_body", $"{HttpHelper.ApiVersion.SignatureKey}."},
+                    {"signed_body", $"{ApiVersion.CurrentApiVersion.SignatureKey}."},
                     {InstaApiConstants.HEADER_IG_SIGNATURE_KEY_VERSION, InstaApiConstants.IG_SIGNATURE_KEY_VERSION},
                     {"strip_nulls", "true"},
                     {"strip_defaults", "true"},
