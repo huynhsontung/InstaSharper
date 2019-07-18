@@ -37,7 +37,6 @@ namespace InstaSharper.API
 
         private IRequestDelay _delay = RequestDelay.Empty();
         private readonly IInstaLogger _logger;
-        private ApiVersion _apiVersion;
         private InstaTwoFactorLoginInfo _twoFactorInfo;
         private InstaChallengeLoginInfo _challengeInfo;
         private UserSessionData _userSession;
@@ -175,8 +174,8 @@ namespace InstaSharper.API
             _logger = logger;
             DeviceInfo = deviceInfo;
             RequestProcessor = httpRequestProcessor;
-            _apiVersion = ApiVersion.GetApiVersion(apiVersionNumber);
-            ApiVersion.CurrentApiVersion = _apiVersion;
+            ApiVersion.GetApiVersion(apiVersionNumber);
+            ApiVersion.CurrentApiVersion = ApiVersion.GetApiVersion(apiVersionNumber);
             PushClient = new FbnsClient(DeviceInfo, _user, RequestProcessor, fbnsData);
         }
 
@@ -925,10 +924,11 @@ namespace InstaSharper.API
                 var instaUri = UriCreator.GetLoginUri();
                 var signature = string.Empty;
                 var devid = string.Empty;
+                var apiVersion = ApiVersion.CurrentApiVersion;
                 if (isNewLogin)
-                    signature = $"{RequestProcessor.RequestMessage.GenerateSignature(_apiVersion, _apiVersion.SignatureKey, out devid)}.{RequestProcessor.RequestMessage.GetMessageString()}";
+                    signature = $"{RequestProcessor.RequestMessage.GenerateSignature(apiVersion, apiVersion.SignatureKey, out devid)}.{RequestProcessor.RequestMessage.GetMessageString()}";
                 else
-                    signature = $"{RequestProcessor.RequestMessage.GenerateChallengeSignature(_apiVersion, _apiVersion.SignatureKey, csrftoken, out devid)}.{RequestProcessor.RequestMessage.GetChallengeMessageString(csrftoken)}";
+                    signature = $"{RequestProcessor.RequestMessage.GenerateChallengeSignature(apiVersion, apiVersion.SignatureKey, csrftoken, out devid)}.{RequestProcessor.RequestMessage.GetChallengeMessageString(csrftoken)}";
                 DeviceInfo.DeviceId = devid;
                 var fields = new Dictionary<string, string>
                 {
@@ -1111,7 +1111,8 @@ namespace InstaSharper.API
                     _twoFactorInfo.TwoFactorIdentifier);
 
                 var instaUri = UriCreator.GetTwoFactorLoginUri();
-                var hash = twoFactorRequestMessage.GenerateSignature(_apiVersion, _apiVersion.SignatureKey);
+                var apiVersion = ApiVersion.CurrentApiVersion;
+                var hash = twoFactorRequestMessage.GenerateSignature(apiVersion, apiVersion.SignatureKey);
                 var payload = twoFactorRequestMessage.GetMessageString();
                 var request = HttpHelper.GetSignedRequest(instaUri, DeviceInfo, hash, payload);
                 var response = await RequestProcessor.SendAsync(request);
@@ -2121,7 +2122,7 @@ namespace InstaSharper.API
         /// <summary>
         ///     Get current API version info (signature key, api version info, app id)
         /// </summary>
-        public ApiVersion GetApiVersionInfo() => _apiVersion;
+        public ApiVersion GetApiVersionInfo() => ApiVersion.CurrentApiVersion;
 
         /// <summary>
         ///     Get user agent of current <see cref="IInstaApi"/>
@@ -2239,8 +2240,8 @@ namespace InstaSharper.API
         /// <param name="apiVersion">Api version</param>
         public void SetApiVersion(ApiVersionNumber apiVersion)
         {
-            _apiVersion = ApiVersion.GetApiVersion(apiVersion);
-            ApiVersion.CurrentApiVersion = _apiVersion;
+            ApiVersion.GetApiVersion(apiVersion);
+            ApiVersion.CurrentApiVersion = ApiVersion.GetApiVersion(apiVersion);
         }
         /// <summary>
         ///     Set custom android device.
@@ -2446,7 +2447,7 @@ namespace InstaSharper.API
                 UserSession = _user,
                 Cookies = RequestProcessor.HttpHandler.CookieContainer,
                 FbnsConnectionData = PushClient.ConnectionData,
-                ApiVersion = ApiVersion.CurrentApiVersion.VersionNumber
+                CurrentApiVersion = ApiVersion.CurrentApiVersion
             };
             return SerializationHelper.SerializeToStream(state);
         }
@@ -2466,7 +2467,7 @@ namespace InstaSharper.API
                 UserSession = _user,
                 Cookies = RequestProcessor.HttpHandler.CookieContainer,
                 FbnsConnectionData = PushClient.ConnectionData,
-                ApiVersion = ApiVersion.CurrentApiVersion.VersionNumber
+                CurrentApiVersion = ApiVersion.CurrentApiVersion
             };
             return SerializationHelper.SerializeToString(state);
         }
@@ -2518,10 +2519,7 @@ namespace InstaSharper.API
             RequestProcessor.RequestMessage.AdId = data.DeviceInfo.AdId.ToString();
             RequestProcessor.HttpHandler.CookieContainer = data.Cookies;
 
-            if (data.ApiVersion == null)
-                data.ApiVersion = ApiVersionNumber.Version86;
-            _apiVersion = ApiVersion.GetApiVersion(data.ApiVersion.Value);
-            ApiVersion.CurrentApiVersion = _apiVersion;
+            ApiVersion.CurrentApiVersion = data.CurrentApiVersion;
 
             Task.Run(async () => { await PushClient.Shutdown(); });
             PushClient = new FbnsClient(DeviceInfo, _user, RequestProcessor, data.FbnsConnectionData);
@@ -2548,10 +2546,7 @@ namespace InstaSharper.API
             RequestProcessor.RequestMessage.AdId = data.DeviceInfo.AdId.ToString();
             RequestProcessor.HttpHandler.CookieContainer = data.Cookies;
 
-            if (data.ApiVersion == null)
-                data.ApiVersion = ApiVersionNumber.Version86;
-            _apiVersion = ApiVersion.GetApiVersion(data.ApiVersion.Value);
-            ApiVersion.CurrentApiVersion = _apiVersion;
+            ApiVersion.CurrentApiVersion = data.CurrentApiVersion;
 
             Task.Run(async () => { await PushClient.Shutdown(); });
             PushClient = new FbnsClient(DeviceInfo, _user, RequestProcessor, data.FbnsConnectionData);

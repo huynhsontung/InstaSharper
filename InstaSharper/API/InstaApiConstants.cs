@@ -23,17 +23,6 @@ namespace InstaSharper.API
     /// </summary>
     internal static class InstaApiConstants
     {
-        #region Api Version
-
-        public const string IG_VERSION = "85.0.0.21.100";
-        public const string IG_CAPABILITIES = "3brTBw==";
-        public const string VERSION_CODE = "146536611";
-        public const string
-            IG_SIGNATURE_KEY =
-                "937463b5272b5d60e9d20f0f8d7d192193dd95095a3ad43725d494300a5ea5fc";
-
-        #endregion
-
         #region Main
 
         public const string PACKAGE_NAME = "com.instagram.android";

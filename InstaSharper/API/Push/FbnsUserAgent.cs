@@ -17,8 +17,8 @@ namespace InstaSharper.API.Push
             var fields = new Dictionary<string, string>
             {
                 {"FBAN", appName},
-                {"FBAV", InstaApiConstants.IG_VERSION},
-                {"FBBV", InstaApiConstants.VERSION_CODE},
+                {"FBAV", ApiVersion.CurrentApiVersion.AppVersion},
+                {"FBBV", ApiVersion.CurrentApiVersion.AppVersionCode},
                 {"FBDM",
                     $"{{density={Math.Round(device.Dpi / 160f, 1):F1},width={device.ScreenResolution.Width},height={device.ScreenResolution.Height}}}"
                 },
