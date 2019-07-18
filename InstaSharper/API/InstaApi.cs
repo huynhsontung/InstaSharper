@@ -2588,9 +2588,9 @@ namespace InstaSharper.API
 
         internal void InvalidateProcessors()
         {
-            _hashtagProcessor = new HashtagProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _locationProcessor = new LocationProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _collectionProcessor = new CollectionProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
+            _hashtagProcessor = new HashtagProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate);
+            _locationProcessor = new LocationProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate);
+            _collectionProcessor = new CollectionProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate);
             _mediaProcessor = new MediaProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
             _userProcessor = new UserProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
             _storyProcessor = new StoryProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
@@ -2605,7 +2605,7 @@ namespace InstaSharper.API
             _tvProcessor = new TVProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
             _businessProcessor = new BusinessProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
             _shoppingProcessor = new ShoppingProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _webProcessor = new WebProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
+            _webProcessor = new WebProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate);
 
         }
 
