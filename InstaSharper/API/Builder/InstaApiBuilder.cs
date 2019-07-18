@@ -8,6 +8,7 @@ using InstaSharper.Classes.SessionHandlers;
 using InstaSharper.Enums;
 using InstaSharper.Helpers;
 using InstaSharper.Logger;
+using TimeZoneConverter;
 
 namespace InstaSharper.API.Builder
 {
@@ -65,6 +66,7 @@ namespace InstaSharper.API.Builder
             if (string.IsNullOrEmpty(_requestMessage.Password)) _requestMessage.Password = _user?.Password;
             if (string.IsNullOrEmpty(_requestMessage.Username)) _requestMessage.Username = _user?.UserName;
 
+            InstaApiConstants.TIMEZONE = TZConvert.WindowsToIana(TimeZoneInfo.Local.StandardName);
             InstaApiConstants.TIMEZONE_OFFSET = (int)DateTimeOffset.Now.Offset.TotalSeconds;
             
             if (_httpRequestProcessor == null)
@@ -73,7 +75,7 @@ namespace InstaSharper.API.Builder
 
             if(_apiVersion == null) _apiVersion = ApiVersion.GetApiVersion(ApiVersionNumber.Latest);
 
-                var instaApi = new InstaApi(_user, _logger, _device, _httpRequestProcessor, _fbnsConnectionData, _apiVersion);
+            var instaApi = new InstaApi(_user, _logger, _device, _httpRequestProcessor, _fbnsConnectionData, _apiVersion);
 
             if (_sessionHandler != null)
             {

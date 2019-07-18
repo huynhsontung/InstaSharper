@@ -49,7 +49,7 @@ namespace InstaSharper.API.Push
                 ConnectionData.UserAgent = FbnsUserAgent.BuildFbUserAgent(device);
         }
 
-        internal async Task Start()
+        public async Task Start()
         {
             _connectRetryCancellationToken?.Cancel();
             _connectRetryCancellationToken = new CancellationTokenSource();
@@ -124,7 +124,7 @@ namespace InstaSharper.API.Push
             ConnectionData.FbnsToken = token;
         }
 
-        internal async Task Shutdown()
+        public async Task Shutdown()
         {
             _connectRetryCancellationToken?.Cancel();
             if (_loopGroup != null) await _loopGroup.ShutdownGracefullyAsync();

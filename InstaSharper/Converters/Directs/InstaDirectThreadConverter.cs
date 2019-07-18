@@ -21,7 +21,7 @@ namespace InstaSharper.Converters.Directs
                 Muted = SourceObject.Muted,
                 Named = SourceObject.Named,
                 Pending = SourceObject.Pending,
-                ViewerId = SourceObject.VieweId,
+                ViewerId = SourceObject.ViewerId,
                 LastActivity = DateTimeHelper.UnixTimestampMilisecondsToDateTime(SourceObject.LastActivity),
                 ThreadId = SourceObject.ThreadId,
                 OldestCursor = SourceObject.OldestCursor,
@@ -53,7 +53,9 @@ namespace InstaSharper.Converters.Directs
                 foreach (var item in SourceObject.Items)
                 {
                     var converter = ConvertersFabric.Instance.GetDirectThreadItemConverter(item);
-                    thread.Items.Add(converter.Convert());
+                    var threadItem = converter.Convert();
+                    threadItem.FromMe = threadItem.UserId.ToString() == thread.ViewerId;
+                    thread.Items.Add(threadItem);
                 }
             }
 

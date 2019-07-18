@@ -355,7 +355,7 @@ namespace InstaSharper.API.Processors
                     threadResponse.Users = nextThread.Value.Users;
                     threadResponse.ValuedRequest = nextThread.Value.ValuedRequest;
                     threadResponse.VCMuted = nextThread.Value.VCMuted;
-                    threadResponse.VieweId = nextThread.Value.VieweId;
+                    threadResponse.ViewerId = nextThread.Value.ViewerId;
                     threadResponse.Items.AddRange(nextThread.Value.Items);
                     pagesLoaded++;
                 }

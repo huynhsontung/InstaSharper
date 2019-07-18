@@ -14,7 +14,6 @@
 
 using System;
 using Newtonsoft.Json.Linq;
-using TimeZoneConverter;
 
 namespace InstaSharper.API
 {
@@ -43,7 +42,7 @@ namespace InstaSharper.API
         public const string INSTAGRAM_URL = "https://i.instagram.com";
         public const string SUPPORTED_CAPABILITIES_HEADER = "supported_capabilities_new";
 
-        public static string TIMEZONE = TZConvert.WindowsToIana(TimeZoneInfo.Local.StandardName);
+        public static string TIMEZONE = "America/Los_Angeles";
         public static int TIMEZONE_OFFSET = 0;
 
         public static readonly JArray SupportedCapabilities = new JArray

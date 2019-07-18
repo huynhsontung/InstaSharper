@@ -8,16 +8,6 @@ namespace InstaSharper.Classes.DeviceInfo
     [Serializable]
     public class ApiVersion
     {
-        /// <summary>
-        ///     This property has data for signed requests. Changing this leads to changes in request handling of all the processors.
-        /// </summary>
-        public static ApiVersion CurrentApiVersion = GetApiVersion(ApiVersionNumber.Latest);
-
-        public string SignatureKey { get; set; }
-        public string AppVersion { get; set; }
-        public string AppVersionCode { get; set; }
-        public string Capabilities { get; set; }
-
         internal static readonly Dictionary<ApiVersionNumber, ApiVersion> ApiVersions =
             new Dictionary<ApiVersionNumber, ApiVersion>
             {
@@ -103,15 +93,23 @@ namespace InstaSharper.Classes.DeviceInfo
                 }
             };
 
+        /// <summary>
+        ///     This property has data for signed requests. Changing this leads to changes in request handling of all the processors.
+        /// </summary>
+        public static ApiVersion CurrentApiVersion = GetApiVersion(ApiVersionNumber.Latest);
+
+        public string SignatureKey { get; set; }
+        public string AppVersion { get; set; }
+        public string AppVersionCode { get; set; }
+        public string Capabilities { get; set; }
+
+        
+
         public static ApiVersion GetApiVersion(ApiVersionNumber versionNumber)
         {
-            if (versionNumber == ApiVersionNumber.Latest)
-            {
-                var lastestVersion = Enum.GetValues(typeof(ApiVersionNumber)).Cast<ApiVersionNumber>().Max();
-                return ApiVersions[lastestVersion];
-            }
-
-            return ApiVersions[versionNumber];
+            if (versionNumber != ApiVersionNumber.Latest) return ApiVersions[versionNumber];
+            var latestVersion = Enum.GetValues(typeof(ApiVersionNumber)).Cast<ApiVersionNumber>().Max();
+            return ApiVersions[latestVersion];
         }
 
     }

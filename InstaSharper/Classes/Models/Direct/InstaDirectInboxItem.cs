@@ -9,7 +9,7 @@ using InstaSharper.Enums;
 
 namespace InstaSharper.Classes.Models.Direct
 {
-    public class InstaDirectInboxItem
+    public class InstaDirectInboxItem : IEquatable<InstaDirectInboxItem>
     {
         public string Text { get; set; }
 
@@ -67,5 +67,12 @@ namespace InstaSharper.Classes.Models.Direct
         public InstaDirectHashtag HashtagMedia { get; set; }
 
         public InstaDirectBroadcast LiveViewerInvite { get; set; }
+
+        public bool FromMe { get; set; } = false;
+
+        public bool Equals(InstaDirectInboxItem other)
+        {
+            return ItemId == other?.ItemId;
+        }
     }
 }
