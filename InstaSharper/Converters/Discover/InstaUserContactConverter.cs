@@ -26,11 +26,10 @@ namespace InstaSharper.Converters.Discover
                 UserName = SourceObject.UserName,
                 FullName = SourceObject.FullName,
                 IsPrivate = SourceObject.IsPrivate,
-                ProfilePicture = SourceObject.ProfilePicture,
+                ProfilePictureUrl = SourceObject.ProfilePictureUrl,
                 ProfilePictureId = SourceObject.ProfilePictureId,
                 IsVerified = SourceObject.IsVerified,
-                ExtraDisplayName = SourceObject.ExtraDisplayName,
-                ProfilePicUrl = SourceObject.ProfilePicture
+                ExtraDisplayName = SourceObject.ExtraDisplayName
             };
             return user;
         }

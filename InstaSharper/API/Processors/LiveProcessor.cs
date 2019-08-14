@@ -1018,7 +1018,7 @@ namespace InstaSharper.API.Processors
                 {
                     data.Add("recipient_users", "[[" + recipients.EncodeList(false) + "]]");
                 }
-                var request = HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                var request = HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)

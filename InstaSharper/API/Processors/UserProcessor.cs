@@ -353,7 +353,7 @@ namespace InstaSharper.API.Processors
                     {"user_ids", string.Join(",", userIds)},
                     {"_uuid", _deviceInfo.Uuid.ToString()}
                 };
-                var request = HttpHelper.GetDefaultRequest(userUri, _deviceInfo, data);
+                var request = HttpHelper.GetDefaultPostRequest(userUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
 
@@ -1622,7 +1622,7 @@ namespace InstaSharper.API.Processors
                     data.Add("max_id", paginationParameters.NextMaxId);
 
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
 

@@ -458,7 +458,7 @@ namespace InstaSharper.API.Processors
                         data.Add("next_media_ids", mediaIds);
                 }
 
-                var request = HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                var request = HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
 

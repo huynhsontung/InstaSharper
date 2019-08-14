@@ -21,7 +21,7 @@ namespace InstaSharper.Classes.DeviceInfo
         public string HardwareManufacturer { get; internal set; }
         public string HardwareModel { get; internal set; }
 
-        internal const string CPU_ABI = "armeabi-v7a:armeabi";
+        public const string CPU_ABI = "armeabi-v7a:armeabi";
     }
 
     [Serializable]

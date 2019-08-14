@@ -141,7 +141,7 @@ namespace InstaSharper.API.Processors
                     {"doc_id", "1742970149122229"},
                 };
 
-                var request = HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                var request = HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 //{"data":{"me":{"taggable_catalogs":{"edges":[],"page_info":{"has_next_page":false,"end_cursor":null}},"id":"17841407343005740"}}}

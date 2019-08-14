@@ -15,7 +15,7 @@ namespace InstaSharper.API.Push
      * Reference from Valga/Fbns-react
      * https://github.com/valga/fbns-react
      */
-    static class PayloadProcessor
+    public static class PayloadProcessor
     {
         private const short CLIENT_ID = 1;
         private const short CLIENT_INFO = 4;

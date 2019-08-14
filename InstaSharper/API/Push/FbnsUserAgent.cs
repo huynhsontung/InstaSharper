@@ -6,7 +6,7 @@ using InstaSharper.Classes.DeviceInfo;
 
 namespace InstaSharper.API.Push
 {
-    internal sealed class FbnsUserAgent
+    public sealed class FbnsUserAgent
     {
         const string FBNS_APPLICATION_NAME = "MQTT";
         const string INSTAGRAM_APPLICATION_NAME = "Instagram";  // for Realtime features

@@ -283,11 +283,12 @@ namespace InstaSharper.API
         ///     <para>I.e: 16200 for Iran/Tehran</para>
         /// </param>
         void SetTimezoneOffset(int timezoneOffset);
+
         /// <summary>
         ///     Send get request
         /// </summary>
         /// <param name="uri">Desire uri (must include https://i.instagram.com/api/v...) </param>
-        Task<IResult<string>> SendGetRequestAsync(System.Uri uri);
+        Task<HttpResponseMessage> SendGetRequestAsync(Uri uri);
         /// <summary>
         ///     Send signed post request (include signed signature) 
         /// </summary>

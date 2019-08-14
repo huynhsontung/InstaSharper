@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace InstaSharper.Helpers
 {
-    internal static class HttpHelper
+    public static class HttpHelper
     {
         public static HttpRequestMessage GetDefaultRequest(HttpMethod method, Uri uri, AndroidDevice deviceInfo)
         {
@@ -29,7 +29,7 @@ namespace InstaSharper.Helpers
             return request;
         }
 
-        public static HttpRequestMessage GetDefaultRequest(Uri uri, AndroidDevice deviceInfo, Dictionary<string, string> data)
+        public static HttpRequestMessage GetDefaultPostRequest(Uri uri, AndroidDevice deviceInfo, Dictionary<string, string> data)
         {
             var request = GetDefaultRequest(HttpMethod.Post, uri, deviceInfo);
             request.Content = new FormUrlEncodedContent(data);

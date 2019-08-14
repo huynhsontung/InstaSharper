@@ -4,7 +4,7 @@ using InstaSharper.Classes.Models.User;
 
 namespace InstaSharper.Classes.Models.Direct
 {
-    public class InstaDirectInboxThread
+    public class InstaDirectInboxThread : IEquatable<InstaDirectInboxThread>
     {
         public bool Muted { get; set; }
 
@@ -67,5 +67,11 @@ namespace InstaSharper.Classes.Models.Direct
         public string NewestCursor { get; set; }
 
         public bool MentionsMuted { get; set; }
+
+        public bool Equals(InstaDirectInboxThread other)
+        {
+            if (other == null) return false;
+            return other.ThreadId == ThreadId;
+        }
     }
 }

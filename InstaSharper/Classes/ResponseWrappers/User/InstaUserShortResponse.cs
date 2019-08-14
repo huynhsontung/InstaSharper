@@ -7,7 +7,7 @@ namespace InstaSharper.Classes.ResponseWrappers.User
     {
         [JsonProperty("username")] public string UserName { get; set; }
 
-        [JsonProperty("profile_pic_url")] public string ProfilePicture { get; set; }
+        [JsonProperty("profile_pic_url")] public string ProfilePictureUrl { get; set; }
 
         [JsonProperty("profile_pic_id")] public string ProfilePictureId { get; set; } = "unknown";
 

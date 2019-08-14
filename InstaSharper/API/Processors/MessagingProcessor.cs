@@ -75,7 +75,7 @@ namespace InstaSharper.API.Processors
                     {"_csrftoken", _user.CsrfToken},
                     {"_uuid", _deviceInfo.Uuid.ToString()}
                 };
-                var request = HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                var request = HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
 
@@ -126,7 +126,7 @@ namespace InstaSharper.API.Processors
                     instaUri = UriCreator.GetApprovePendingMultipleDirectRequestUri();
                     data.Add("thread_ids", threadIds.EncodeList(false));
                 }
-                var request = HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                var request = HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
 
@@ -183,7 +183,7 @@ namespace InstaSharper.API.Processors
                     {"use_unified_inbox", "true"}
                 };
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -220,7 +220,7 @@ namespace InstaSharper.API.Processors
                     {"_uuid", _deviceInfo.Uuid.ToString()}
                 };
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -573,7 +573,7 @@ namespace InstaSharper.API.Processors
                     {"_uuid", _deviceInfo.Uuid.ToString()},
                 };
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -619,7 +619,7 @@ namespace InstaSharper.API.Processors
                     {"item_id", itemId}
                 };
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -697,7 +697,7 @@ namespace InstaSharper.API.Processors
                     {"_uuid", _deviceInfo.Uuid.ToString()}
                 };
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -827,7 +827,7 @@ namespace InstaSharper.API.Processors
                     data.Add("recipient_users", "[[" + recipients.EncodeList(false) + "]]");
                 }
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -902,7 +902,7 @@ namespace InstaSharper.API.Processors
                     data.Add("recipient_users", "[[" + recipients.EncodeList(false) + "]]");
                 }
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -945,7 +945,7 @@ namespace InstaSharper.API.Processors
                 };
 
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
 
@@ -1037,7 +1037,7 @@ namespace InstaSharper.API.Processors
                     {"_uuid", _deviceInfo.Uuid.ToString()}
                 };
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -1079,7 +1079,7 @@ namespace InstaSharper.API.Processors
                     {"_uuid", _deviceInfo.Uuid.ToString()}
                 };
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -1272,7 +1272,7 @@ namespace InstaSharper.API.Processors
                     data.Add("recipient_users", $"[{userIds.EncodeRecipients()}]");
 
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -1365,7 +1365,7 @@ namespace InstaSharper.API.Processors
                     {"item_id", itemId}
                 };
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -1401,7 +1401,7 @@ namespace InstaSharper.API.Processors
                     {"_uuid", _deviceInfo.Uuid.ToString()}
                 };
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -1440,7 +1440,7 @@ namespace InstaSharper.API.Processors
                     {"title", title},
                 };
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -1481,7 +1481,7 @@ namespace InstaSharper.API.Processors
                         data.Add("thread_ids", threadIds.EncodeList(false));
                     }
                 }
-                var request = HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                var request = HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
 
@@ -1524,7 +1524,7 @@ namespace InstaSharper.API.Processors
                     {"client_context", Guid.NewGuid().ToString()}
                 };
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)

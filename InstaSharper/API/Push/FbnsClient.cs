@@ -72,12 +72,12 @@ namespace InstaSharper.API.Push
                 .Handler(new ActionChannelInitializer<TcpSocketChannel>(channel =>
                 {
                     var pipeline = channel.Pipeline;
-                    pipeline.AddLast(new TlsHandler(
+                    pipeline.AddLast("tls",new TlsHandler(
                         stream => new SslStream(stream, true, (sender, certificate, chain, errors) => true),
                         new ClientTlsSettings(DEFAULT_HOST)));
-                    pipeline.AddLast(new FbnsPacketEncoder());
-                    pipeline.AddLast(new FbnsPacketDecoder());
-                    pipeline.AddLast(new PacketInboundHandler(this));
+                    pipeline.AddLast("encoder",new FbnsPacketEncoder());
+                    pipeline.AddLast("decoder",new FbnsPacketDecoder());
+                    pipeline.AddLast("handler",new PacketInboundHandler(this));
                 }));
 
             try

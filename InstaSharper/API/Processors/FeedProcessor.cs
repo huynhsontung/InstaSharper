@@ -612,7 +612,7 @@ namespace InstaSharper.API.Processors
                 else
                     data.Add("reason", "warm_start_fetch");
 
-                var request = HttpHelper.GetDefaultRequest(userFeedUri, _deviceInfo, data);
+                var request = HttpHelper.GetDefaultPostRequest(userFeedUri, _deviceInfo, data);
                 request.Headers.Add("X-Ads-Opt-Out", "0");
                 request.Headers.Add("X-Google-AD-ID", _deviceInfo.GoogleAdId.ToString());
                 request.Headers.Add("X-DEVICE-ID", _deviceInfo.Uuid.ToString());

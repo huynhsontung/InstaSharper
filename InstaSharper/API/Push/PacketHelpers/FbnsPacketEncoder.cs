@@ -9,7 +9,7 @@ using DotNetty.Transport.Channels;
 
 namespace InstaSharper.API.Push.PacketHelpers
 {
-    internal sealed class FbnsPacketEncoder : MessageToMessageEncoder<Packet>
+    public sealed class FbnsPacketEncoder : MessageToMessageEncoder<Packet>
     {
         const int PACKET_ID_LENGTH = 2;
         const int STRING_SIZE_LENGTH = 2;

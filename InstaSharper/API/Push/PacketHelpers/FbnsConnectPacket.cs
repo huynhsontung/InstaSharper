@@ -4,7 +4,7 @@ using DotNetty.Codecs.Mqtt.Packets;
 
 namespace InstaSharper.API.Push.PacketHelpers
 {
-    internal sealed class FbnsConnectPacket : Packet
+    public sealed class FbnsConnectPacket : Packet
     {
         public override PacketType PacketType { get; } = PacketType.CONNECT;
 

@@ -880,7 +880,7 @@ namespace InstaSharper.API.Processors
                 };
 
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 
@@ -1008,11 +1008,10 @@ namespace InstaSharper.API.Processors
                                 tried = true;
                                 goto TryToGetMyUser;
                             }
-                            else
-                                profilePicture = _user.LoggedInUser.ProfilePicture;
+                            profilePicture = _user.LoggedInUser.ProfilePictureUrl;
                         }
                         else
-                            profilePicture = myUser.Value.ProfilePicture;
+                            profilePicture = myUser.Value.ProfilePictureUrl;
 
 
                         foreach (var question in uploadOptions.Questions)

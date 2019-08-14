@@ -13,7 +13,7 @@ namespace InstaSharper.API.Push.PacketHelpers
     ///     Customized MqttDecoder for Fbns that only handles Publish, PubAck, and ConnAck
     /// </summary>
     /// Reference: https://github.com/Azure/DotNetty/blob/dev/src/DotNetty.Codecs.Mqtt/MqttDecoder.cs
-    internal sealed class FbnsPacketDecoder : ReplayingDecoder<FbnsPacketDecoder.ParseState>
+    public sealed class FbnsPacketDecoder : ReplayingDecoder<FbnsPacketDecoder.ParseState>
     {
         private static class Signatures
         {

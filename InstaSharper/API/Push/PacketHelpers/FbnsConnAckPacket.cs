@@ -2,7 +2,7 @@
 
 namespace InstaSharper.API.Push.PacketHelpers
 {
-    internal sealed class FbnsConnAckPacket : Packet
+    public sealed class FbnsConnAckPacket : Packet
     {
         public override PacketType PacketType { get; } = PacketType.CONNACK;
 

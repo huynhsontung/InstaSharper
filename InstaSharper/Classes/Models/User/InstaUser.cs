@@ -8,7 +8,7 @@
             UserName = instaUserShort.UserName;
             FullName = instaUserShort.FullName;
             IsPrivate = instaUserShort.IsPrivate;
-            ProfilePicture = instaUserShort.ProfilePicture;
+            ProfilePictureUrl = instaUserShort.ProfilePictureUrl;
             ProfilePictureId = instaUserShort.ProfilePictureId;
             IsVerified = instaUserShort.IsVerified;
         }

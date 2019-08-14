@@ -28,9 +28,9 @@ namespace InstaSharper.Classes
             _logger = logger;
         }
 
-        public HttpClientHandler HttpHandler { get; set; }
+        public HttpClientHandler HttpHandler { get; private set; }
         public ApiRequestMessage RequestMessage { get; }
-        public HttpClient Client { get; set; }
+        public HttpClient Client { get; private set; }
         public void SetHttpClientHandler(HttpClientHandler handler)
         {
             HttpHandler = handler;

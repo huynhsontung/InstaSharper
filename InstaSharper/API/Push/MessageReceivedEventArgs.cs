@@ -8,13 +8,13 @@ namespace InstaSharper.API.Push
     {
         private string _notificationContentJson;
 
-        [JsonIgnore] public string Json { get; internal set; }
+        [JsonIgnore] public string Json { get; set; }
 
-        [JsonProperty("token")] public string Token { get; internal set; }
-        [JsonProperty("ck")] public string ConnectionKey { get; internal set; }
-        [JsonProperty("pn")] public string PackageName { get; internal set; }
-        [JsonProperty("cp")] public string CollapseKey { get; internal set; }
-        [JsonProperty("fbpushnotif")] internal string NotificationContentJson
+        [JsonProperty("token")] public string Token { get; set; }
+        [JsonProperty("ck")] public string ConnectionKey { get; set; }
+        [JsonProperty("pn")] public string PackageName { get; set; }
+        [JsonProperty("cp")] public string CollapseKey { get; set; }
+        [JsonProperty("fbpushnotif")] public string NotificationContentJson
         {
             get => _notificationContentJson;
             set
@@ -23,36 +23,36 @@ namespace InstaSharper.API.Push
                 _notificationContentJson = value;
             }
         }
-        [JsonIgnore] public PushNotification NotificationContent { get; internal set; }
-        [JsonProperty("nid")] public string NotificationId { get; internal set; }
-        [JsonProperty("bu")] public string IsBuffered { get; internal set; }
+        [JsonIgnore] public PushNotification NotificationContent { get; set; }
+        [JsonProperty("nid")] public string NotificationId { get; set; }
+        [JsonProperty("bu")] public string IsBuffered { get; set; }
     }
 
     public struct BadgeCount
     {
-        [JsonProperty("di")] public int Direct { get; internal set; }
-        [JsonProperty("ds")] public int Ds { get; internal set; }
-        [JsonProperty("ac")] public int Activities { get; internal set; }
+        [JsonProperty("di")] public int Direct { get; set; }
+        [JsonProperty("ds")] public int Ds { get; set; }
+        [JsonProperty("ac")] public int Activities { get; set; }
     }
 
     public struct PushNotification
     {
         private string _badgeCountJson;
 
-        [JsonProperty("t")] public string Title { get; internal set; }
-        [JsonProperty("m")] public string Message { get; internal set; }
-        [JsonProperty("tt")] public string TickerText { get; internal set; }
-        [JsonProperty("ig")] public string IgAction { get; internal set; }
-        [JsonProperty("collapse_key")] public string CollapseKey { get; internal set; }
-        [JsonProperty("i")] public string OptionalImage { get; internal set; }
-        [JsonProperty("a")] public string OptionalAvatarUrl { get; internal set; }
-        [JsonProperty("sound")] public string Sound { get; internal set; }
-        [JsonProperty("pi")] public string PushId { get; internal set; }
-        [JsonProperty("c")] public string PushCategory { get; internal set; }
-        [JsonProperty("u")] public string IntendedRecipientUserId { get; internal set; }
-        [JsonProperty("s")] public string SourceUserId { get; internal set; }
-        [JsonProperty("igo")] public string IgActionOverride { get; internal set; }
-        [JsonProperty("bc")] internal string BadgeCountJson
+        [JsonProperty("t")] public string Title { get; set; }
+        [JsonProperty("m")] public string Message { get; set; }
+        [JsonProperty("tt")] public string TickerText { get; set; }
+        [JsonProperty("ig")] public string IgAction { get; set; }
+        [JsonProperty("collapse_key")] public string CollapseKey { get; set; }
+        [JsonProperty("i")] public string OptionalImage { get; set; }
+        [JsonProperty("a")] public string OptionalAvatarUrl { get; set; }
+        [JsonProperty("sound")] public string Sound { get; set; }
+        [JsonProperty("pi")] public string PushId { get; set; }
+        [JsonProperty("c")] public string PushCategory { get; set; }
+        [JsonProperty("u")] public string IntendedRecipientUserId { get; set; }
+        [JsonProperty("s")] public string SourceUserId { get; set; }
+        [JsonProperty("igo")] public string IgActionOverride { get; set; }
+        [JsonProperty("bc")] public string BadgeCountJson
         {
             get => _badgeCountJson;
             set
@@ -61,7 +61,7 @@ namespace InstaSharper.API.Push
                 _badgeCountJson = value;
             }
         }
-        [JsonIgnore] public BadgeCount BadgeCount { get; internal set; }
-        [JsonProperty("ia")] public string InAppActors { get; internal set; }
+        [JsonIgnore] public BadgeCount BadgeCount { get; set; }
+        [JsonProperty("ia")] public string InAppActors { get; set; }
     }
 }

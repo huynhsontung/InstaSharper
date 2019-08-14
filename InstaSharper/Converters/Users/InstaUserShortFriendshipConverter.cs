@@ -26,10 +26,9 @@ namespace InstaSharper.Converters.Users
                 UserName = SourceObject.UserName,
                 FullName = SourceObject.FullName,
                 IsPrivate = SourceObject.IsPrivate,
-                ProfilePicture = SourceObject.ProfilePicture,
+                ProfilePictureUrl = SourceObject.ProfilePictureUrl,
                 ProfilePictureId = SourceObject.ProfilePictureId,
-                IsVerified = SourceObject.IsVerified,
-                ProfilePicUrl = SourceObject.ProfilePicture
+                IsVerified = SourceObject.IsVerified
             };
             if (SourceObject.FriendshipStatus != null)
             {

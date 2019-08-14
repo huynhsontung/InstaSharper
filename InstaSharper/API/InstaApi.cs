@@ -934,7 +934,7 @@ namespace InstaSharper.API
                     {InstaApiConstants.HEADER_IG_SIGNATURE, signature},
                     {InstaApiConstants.HEADER_IG_SIGNATURE_KEY_VERSION, InstaApiConstants.IG_SIGNATURE_KEY_VERSION}
                 };
-                var request = HttpHelper.GetDefaultRequest(instaUri, DeviceInfo, fields);
+                var request = HttpHelper.GetDefaultPostRequest(instaUri, DeviceInfo, fields);
                 request.Headers.Add("Host", "i.instagram.com");
                 var response = await RequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
@@ -1070,8 +1070,7 @@ namespace InstaSharper.API
                 _user.LoggedInUser.FullName = us.Value.FullName;
                 _user.LoggedInUser.IsPrivate = us.Value.IsPrivate;
                 _user.LoggedInUser.IsVerified = us.Value.IsVerified;
-                _user.LoggedInUser.ProfilePicture = us.Value.ProfilePicUrl;
-                _user.LoggedInUser.ProfilePicUrl = us.Value.ProfilePicUrl;
+                _user.LoggedInUser.ProfilePictureUrl = us.Value.ProfilePicUrl;
 
                 return Result.Success(true);
             }
@@ -2298,35 +2297,31 @@ namespace InstaSharper.API
         {
             InstaApiConstants.TIMEZONE_OFFSET = timezoneOffset;
         }
+
         /// <summary>
         ///     Send get request
         /// </summary>
         /// <param name="uri">Desire uri (must include https://i.instagram.com/api/v...) </param>
-        public async Task<IResult<string>> SendGetRequestAsync(Uri uri)
+        public async Task<HttpResponseMessage> SendGetRequestAsync(Uri uri)
         {
             try
             {
                 if (uri == null)
-                    return Result.Fail("Uri cannot be null!", default(string));
+                    throw new ArgumentNullException(nameof(uri));
                 
                 var request = HttpHelper.GetDefaultRequest(HttpMethod.Get, uri, DeviceInfo);
                 var response = await RequestProcessor.SendAsync(request);
-                var json = await response.Content.ReadAsStringAsync();
-
-                if (response.StatusCode != HttpStatusCode.OK)
-                    return Result.UnExpectedResponse<string>(response, json);
-
-                return Result.Success(json);
+                return response;
             }
             catch (HttpRequestException httpException)
             {
                 _logger?.LogException(httpException);
-                return Result.Fail(httpException, default(string), ResponseType.NetworkProblem);
+                throw;
             }
             catch (Exception exception)
             {
                 _logger?.LogException(exception);
-                return Result.Fail(exception, default(string));
+                throw;
             }
         }
         
@@ -2405,7 +2400,7 @@ namespace InstaSharper.API
                 data.Add("_uuid", DeviceInfo.Uuid.ToString());
                 data.Add("_uid", _user.LoggedInUser.Pk.ToString());
                 data.Add("_csrftoken", _user.CsrfToken);
-                var request = HttpHelper.GetDefaultRequest(uri, DeviceInfo, data);
+                var request = HttpHelper.GetDefaultPostRequest(uri, DeviceInfo, data);
                 var response = await RequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
 

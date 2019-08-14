@@ -9,7 +9,7 @@ namespace InstaSharper.Classes
         public string UserName { get; set; }
         public string Password { get; set; }
 
-        public InstaUserShort LoggedInUser { get; set; }
+        public InstaUserShort LoggedInUser { get; internal set; }
 
         public string RankToken { get; set; }
         public string CsrfToken { get; set; }

@@ -289,7 +289,7 @@ namespace InstaSharper.API.Processors
                     {"contacts", jsonContacts}
                 };
 
-                var request = HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, fields);
+                var request = HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, fields);
 
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();

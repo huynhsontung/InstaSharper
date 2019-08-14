@@ -505,7 +505,7 @@ namespace InstaSharper.API.Processors
                 if (!string.IsNullOrEmpty(maxId))
                     data.Add("max_id", maxId);
                 var request =
-                    HttpHelper.GetDefaultRequest(instaUri, _deviceInfo, data);
+                    HttpHelper.GetDefaultPostRequest(instaUri, _deviceInfo, data);
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
 

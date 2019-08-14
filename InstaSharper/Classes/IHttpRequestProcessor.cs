@@ -7,7 +7,7 @@ namespace InstaSharper.Classes
 {
     public interface IHttpRequestProcessor
     {
-        HttpClientHandler HttpHandler { get; set; }
+        HttpClientHandler HttpHandler { get; }
         ApiRequestMessage RequestMessage { get; }
         HttpClient Client { get; }
         void SetHttpClientHandler(HttpClientHandler handler);
