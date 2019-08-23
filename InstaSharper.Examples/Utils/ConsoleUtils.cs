@@ -1,5 +1,6 @@
 ﻿using System;
 using InstaSharper.Classes.Models;
+using InstaSharper.Classes.Models.Media;
 
 namespace InstaSharper.Examples.Utils
 {
