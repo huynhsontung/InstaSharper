@@ -2,6 +2,7 @@
 using System.Linq;
 using InstaSharper.Classes;
 using InstaSharper.Classes.Models;
+using InstaSharper.Enums;
 using InstaSharper.Tests.Classes;
 using Xunit;
 
@@ -22,7 +23,7 @@ namespace InstaSharper.Tests.Endpoints
         public async void GetMediaByIdTest(string mediaId)
         {
             Assert.True(_authInfo.ApiInstance.IsUserAuthenticated);
-            var media = await _authInfo.ApiInstance.GetMediaByIdAsync(mediaId);
+            var media = await _authInfo.ApiInstance.MediaProcessor.GetMediaByIdAsync(mediaId);
             Assert.NotNull(media);
         }
 
@@ -31,7 +32,7 @@ namespace InstaSharper.Tests.Endpoints
         public async void GetMediaLikersTest(string mediaId)
         {
             Assert.True(_authInfo.ApiInstance.IsUserAuthenticated);
-            var likers = await _authInfo.ApiInstance.GetMediaLikersAsync(mediaId);
+            var likers = await _authInfo.ApiInstance.MediaProcessor.GetMediaLikersAsync(mediaId);
             var anyDuplicate = likers.Value.GroupBy(x => x.Pk).Any(g => g.Count() > 1);
             Assert.NotNull(likers);
             Assert.False(anyDuplicate);
@@ -43,7 +44,7 @@ namespace InstaSharper.Tests.Endpoints
         {
             Assert.True(_authInfo.ApiInstance.IsUserAuthenticated);
             var comments =
-                await _authInfo.ApiInstance.GetMediaCommentsAsync(mediaId, PaginationParameters.MaxPagesToLoad(5));
+                await _authInfo.ApiInstance.CommentProcessor.GetMediaCommentsAsync(mediaId, PaginationParameters.MaxPagesToLoad(5));
 
             var anyDuplicate = comments.Value.Comments.GroupBy(x => x.Pk).Any(g => g.Count() > 1);
 
@@ -58,7 +59,7 @@ namespace InstaSharper.Tests.Endpoints
             Assert.True(_authInfo.ApiInstance.IsUserAuthenticated);
             var random = new Random(DateTime.Now.Millisecond);
 
-            var posts = await _authInfo.ApiInstance.GetUserMediaAsync(userToFetch,
+            var posts = await _authInfo.ApiInstance.UserProcessor.GetUserMediaAsync(userToFetch,
                 PaginationParameters.MaxPagesToLoad(3));
             var anyDuplicate = posts.Value.GroupBy(x => x.Code).Any(g => g.Count() > 1);
 
@@ -73,8 +74,8 @@ namespace InstaSharper.Tests.Endpoints
         {
             Assert.True(_authInfo.ApiInstance.IsUserAuthenticated);
             var text = "Wazz up dude";
-            var postResult = await _authInfo.ApiInstance.CommentMediaAsync(mediaId, text);
-            var delResult = await _authInfo.ApiInstance.DeleteCommentAsync(mediaId, postResult.Value.Pk.ToString());
+            var postResult = await _authInfo.ApiInstance.CommentProcessor.CommentMediaAsync(mediaId, text);
+            var delResult = await _authInfo.ApiInstance.CommentProcessor.DeleteCommentAsync(mediaId, postResult.Value.Pk.ToString());
             Assert.True(postResult.Succeeded);
             Assert.Equal(text, postResult.Value.Text);
             Assert.True(delResult.Succeeded);
@@ -85,7 +86,7 @@ namespace InstaSharper.Tests.Endpoints
         public async void DeleteMediaPhotoTest(string mediaId, InstaMediaType mediaType)
         {
             Assert.True(_authInfo.ApiInstance.IsUserAuthenticated);
-            var deleteMediaPhoto = await _authInfo.ApiInstance.DeleteMediaAsync(mediaId, mediaType);
+            var deleteMediaPhoto = await _authInfo.ApiInstance.MediaProcessor.DeleteMediaAsync(mediaId, mediaType);
             Assert.False(deleteMediaPhoto.Value);
         }
 
@@ -94,7 +95,7 @@ namespace InstaSharper.Tests.Endpoints
         public async void DeleteMediaVideoTest(string mediaId, InstaMediaType mediaType)
         {
             Assert.True(_authInfo.ApiInstance.IsUserAuthenticated);
-            var deleteMediaVideo = await _authInfo.ApiInstance.DeleteMediaAsync(mediaId, mediaType);
+            var deleteMediaVideo = await _authInfo.ApiInstance.MediaProcessor.DeleteMediaAsync(mediaId, mediaType);
             Assert.True(deleteMediaVideo.Value);
         }
 
@@ -103,8 +104,8 @@ namespace InstaSharper.Tests.Endpoints
         public async void EditMediaTest(string mediaId, string caption)
         {
             Assert.True(_authInfo.ApiInstance.IsUserAuthenticated);
-            var editMedia = await _authInfo.ApiInstance.EditMediaAsync(mediaId, caption);
-            Assert.True(editMedia.Value);
+            var editMedia = await _authInfo.ApiInstance.MediaProcessor.EditMediaAsync(mediaId, caption);
+            Assert.True(editMedia.Succeeded);
         }
 
         [Theory]
@@ -114,7 +115,7 @@ namespace InstaSharper.Tests.Endpoints
             var uri = new Uri(url);
 
             Assert.True(_authInfo.ApiInstance.IsUserAuthenticated);
-            var mediaId = await _authInfo.ApiInstance.GetMediaIdFromUrlAsync(uri);
+            var mediaId = await _authInfo.ApiInstance.MediaProcessor.GetMediaIdFromUrlAsync(uri);
             Assert.True(mediaId.Succeeded);
         }
 
@@ -125,7 +126,7 @@ namespace InstaSharper.Tests.Endpoints
             var uri = new Uri(url);
 
             Assert.True(_authInfo.ApiInstance.IsUserAuthenticated);
-            var mediaId = await _authInfo.ApiInstance.GetMediaIdFromUrlAsync(uri);
+            var mediaId = await _authInfo.ApiInstance.MediaProcessor.GetMediaIdFromUrlAsync(uri);
             Assert.False(mediaId.Succeeded);
         }
 
@@ -134,7 +135,7 @@ namespace InstaSharper.Tests.Endpoints
         public async void GetShareLinkFromMediaId(string mediaId)
         {
             Assert.True(_authInfo.ApiInstance.IsUserAuthenticated);
-            var url = await _authInfo.ApiInstance.GetShareLinkFromMediaIdAsync(mediaId);
+            var url = await _authInfo.ApiInstance.MediaProcessor.GetShareLinkFromMediaIdAsync(mediaId);
             Assert.True(url.Succeeded);
         }
     }
