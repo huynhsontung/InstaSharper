@@ -104,15 +104,18 @@ namespace InstaSharper.Classes.DeviceInfo
 
         public static AndroidVersion FromString(string versionString)
         {
-            var version = new Version(versionString);
+            var version = new Version(AppendMinor(versionString));
             foreach (var androidVersion in AndroidVersions)
-                if (version.CompareTo(new Version(androidVersion.VersionNumber)) == 0 ||
-                    version.CompareTo(new Version(androidVersion.VersionNumber)) > 0 &&
+            {
+                if (version.CompareTo(new Version(AppendMinor(androidVersion.VersionNumber))) == 0 ||
                     androidVersion != AndroidVersions.Last() &&
-                    version.CompareTo(new Version(AndroidVersions[AndroidVersions.IndexOf(androidVersion) + 1]
-                        .VersionNumber)) < 0)
+                    version.CompareTo(new Version(AppendMinor(androidVersion.VersionNumber))) > 0 &&
+                    version.CompareTo(new Version(AppendMinor(AndroidVersions[AndroidVersions.IndexOf(androidVersion) + 1].VersionNumber))) < 0)
                     return androidVersion;
+        }
             return null;
         }
+        private static string AppendMinor(string version)
+            => version.Contains(".") ? version : version + ".0";
     }
 }
