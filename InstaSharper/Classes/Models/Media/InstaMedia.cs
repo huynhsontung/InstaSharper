@@ -42,8 +42,8 @@ namespace InstaSharper.Classes.Models.Media
 
         public InstaCaption Caption { get; set; }
 
-        private string _cmcount;
-        public string CommentsCount { get => _cmcount; set { _cmcount = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CommentsCount")); } }
+        private int _cmcount;
+        public int CommentsCount { get => _cmcount; set { _cmcount = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CommentsCount")); } }
 
         public bool IsCommentsDisabled { get; set; }
 
