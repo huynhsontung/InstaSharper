@@ -148,7 +148,7 @@ MIT
 
 - Anyone who uses this wrapper MUST follow [Instagram Policy](https://www.instagram.com/about/legal/terms/api/)
 - Provided project MUST NOT be used for marketing purposes
-- I will not provide support to anyone who wants this API to send massive messages/likes/follows and so on
+- Support will not be provided to those who wish to use this API to send massive messages, likes, follows, and etc
 - Use this API at your own risk
 
 ## Legal
