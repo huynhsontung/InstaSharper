@@ -16,7 +16,7 @@ This project intends to provide all the features available in the Instagram API.
 
 #### This repository is provided for reference purposes only.
 
-* Please note that this project is still in design and development phase; the libraries may suffer major changes even at the interface level, so don't rely (yet) in this software for production uses. *
+* Please note that this project is still in design and development phase; the libraries may suffer major changes even at the interface level, so do not rely on this software for production uses yet. *
 
 ## Cross-platform by design
 Build with .NET Standard. Can be used on Mac, Linux, Windows.
@@ -148,7 +148,7 @@ MIT
 
 - Anyone who uses this wrapper MUST follow [Instagram Policy](https://www.instagram.com/about/legal/terms/api/)
 - Provided project MUST NOT be used for marketing purposes
-- I will not provide support to anyone who wants this API to send massive messages/likes/follows and so on
+- Support will not be provided to those who wish to use this API to send massive messages, likes, follows, and etc
 - Use this API at your own risk
 
 ## Legal
