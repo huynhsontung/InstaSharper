@@ -90,6 +90,11 @@ namespace InstaSharper.API.Builder
         IInstaApiBuilder SetSessionHandler(ISessionHandler sessionHandler);
 
         /// <summary>
+        ///     Set state data from <see cref="IInstaApi.GetStateData()"/>
+        /// </summary>
+        IInstaApiBuilder LoadStateData(StateData data);
+
+        /// <summary>
         ///     Set state data from <see cref="IInstaApi.GetStateDataAsStream()"/>
         /// </summary>
         IInstaApiBuilder LoadStateDataFromStream(Stream data);

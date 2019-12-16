@@ -8,7 +8,7 @@ using InstaSharper.Logger;
 
 namespace InstaSharper.Classes
 {
-    internal class HttpRequestProcessor : IHttpRequestProcessor
+    public class HttpRequestProcessor : IHttpRequestProcessor
     {
         /// <summary>
         ///     <see cref="HttpRequestProcessor"/> can handle gzip and deflate compression. Modifying this requires updating <see cref="DecompressHttpContent"/> method.

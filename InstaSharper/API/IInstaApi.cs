@@ -138,6 +138,12 @@ namespace InstaSharper.API
         #region State data
 
         /// <summary>
+        ///     Get current state info
+        /// </summary>
+        /// <returns>State data</returns>
+        StateData GetStateData();
+
+        /// <summary>
         ///     Get current state info as Memory stream
         /// </summary>
         /// <returns>State data</returns>

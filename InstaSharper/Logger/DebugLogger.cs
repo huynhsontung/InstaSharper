@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -110,8 +112,11 @@ namespace InstaSharper.Logger
 
         private void Write(string message)
         {
+#if DEBUG
+            Debug.WriteLine($"{DateTime.Now.ToString(CultureInfo.CurrentCulture)}:\t{message}");
+#endif
 #if NET45 || NET451 || NET452 || NET46 || NET461 || NET462 || NET47 || NET471 || NET472 || NETSTANDARD1_0 || NETSTANDARD1_1 || NETSTANDARD1_2 || NETSTANDARD1_3 || NETSTANDARD1_4 || NETSTANDARD1_5 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETSTANDARD2_1 || NETSTANDARD2_2 || NETSTANDARD2_3
-            Console.WriteLine($"{DateTime.Now.ToString()}:\t{message}");
+            Console.WriteLine($"{DateTime.Now.ToString(CultureInfo.CurrentCulture)}:\t{message}");
 #else
             System.Diagnostics.Debug.WriteLine($"{DateTime.Now.ToString()}:\t{message}");
 #endif

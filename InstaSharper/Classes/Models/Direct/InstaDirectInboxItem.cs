@@ -72,7 +72,7 @@ namespace InstaSharper.Classes.Models.Direct
 
         public bool Equals(InstaDirectInboxItem other)
         {
-            return ItemId == other?.ItemId;
+            return ItemId.Equals(other?.ItemId);
         }
     }
 }

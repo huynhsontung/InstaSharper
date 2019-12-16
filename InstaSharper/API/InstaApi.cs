@@ -2426,6 +2426,23 @@ namespace InstaSharper.API
         #region State data
 
         /// <summary>
+        ///     Get current state info
+        /// </summary>
+        /// <returns>State data</returns>
+        public StateData GetStateData()
+        {
+            return new StateData
+            {
+                DeviceInfo = DeviceInfo,
+                IsAuthenticated = IsUserAuthenticated,
+                UserSession = _user,
+                Cookies = RequestProcessor.HttpHandler.CookieContainer,
+                FbnsConnectionData = PushClient.ConnectionData,
+                CurrentApiVersion = ApiVersion.CurrentApiVersion
+            };
+        }
+
+        /// <summary>
         ///     Get current state info as Memory stream
         /// </summary>
         /// <returns>

@@ -227,9 +227,8 @@ namespace InstaSharper.API.Builder
             return this;
         }
 
-        public IInstaApiBuilder LoadStateDataFromStream(Stream stream)
+        public IInstaApiBuilder LoadStateData(StateData data)
         {
-            var data = SerializationHelper.DeserializeFromStream<StateData>(stream);
             _device = data.DeviceInfo;
             _user = data.UserSession;
             _httpHandler.CookieContainer = data.Cookies;
@@ -239,16 +238,16 @@ namespace InstaSharper.API.Builder
             return this;
         }
 
+        public IInstaApiBuilder LoadStateDataFromStream(Stream stream)
+        {
+            var data = SerializationHelper.DeserializeFromStream<StateData>(stream);
+            return LoadStateData(data);
+        }
+
         public IInstaApiBuilder LoadStateDataFromString(string json)
         {
             var data = SerializationHelper.DeserializeFromString<StateData>(json);
-            _device = data.DeviceInfo;
-            _user = data.UserSession;
-            _httpHandler.CookieContainer = data.Cookies;
-            _isUserAuthenticated = data.IsAuthenticated;
-            _fbnsConnectionData = data.FbnsConnectionData;
-            _apiVersion = data.CurrentApiVersion;
-            return this;
+            return LoadStateData(data);
         }
 
         /// <summary>
