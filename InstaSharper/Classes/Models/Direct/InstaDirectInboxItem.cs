@@ -21,6 +21,8 @@ namespace InstaSharper.Classes.Models.Direct
 
         public InstaDirectThreadItemType ItemType { get; set; } = InstaDirectThreadItemType.Text;
 
+        public InstaDirectReactions Reactions { get; set; }
+
         public InstaInboxMedia Media { get; set; }
 
         public InstaMedia MediaShare { get; set; }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using InstaSharper.Classes.Models.Direct;
 using InstaSharper.Classes.ResponseWrappers.BaseResponse;
 using InstaSharper.Classes.ResponseWrappers.Hashtags;
 using InstaSharper.Classes.ResponseWrappers.Location;
@@ -22,6 +23,8 @@ namespace InstaSharper.Classes.ResponseWrappers.Direct
         [JsonProperty("item_id")] public string ItemId { get; set; }
 
         [JsonProperty("item_type")] public string ItemType { get; set; }
+
+        [JsonProperty("reactions")] public InstaDirectReactions Reactions { get; set; }
 
         [JsonProperty("media_share")] public InstaMediaItemResponse MediaShare { get; set; }
 

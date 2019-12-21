@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using InstaSharper.Classes.Models.Direct;
 using InstaSharper.Classes.ResponseWrappers.Direct;
 using InstaSharper.Helpers;
@@ -23,6 +24,7 @@ namespace InstaSharper.Converters.Directs
                 Pending = SourceObject.Pending,
                 ViewerId = SourceObject.ViewerId,
                 LastActivity = DateTimeHelper.UnixTimestampMilisecondsToDateTime(SourceObject.LastActivity),
+                LastNonSenderItemAt = DateTimeHelper.UnixTimestampMilisecondsToDateTime(SourceObject.LastNonSenderItemAt),
                 ThreadId = SourceObject.ThreadId,
                 OldestCursor = SourceObject.OldestCursor,
                 IsGroup = SourceObject.IsGroup,
@@ -106,8 +108,8 @@ namespace InstaSharper.Converters.Directs
             }
             try
             {
-                if (thread.LastActivity > thread.LastSeenAt[0].SeenTime)
-                    thread.HasUnreadMessage = true;
+                var viewer = thread.LastSeenAt.Single(x => thread.ViewerId == x.PK.ToString());
+                thread.HasUnreadMessage = thread.LastNonSenderItemAt > viewer.SeenTime;
             }
             catch 
             {

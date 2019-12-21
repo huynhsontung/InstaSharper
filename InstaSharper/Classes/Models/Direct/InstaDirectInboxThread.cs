@@ -16,6 +16,8 @@ namespace InstaSharper.Classes.Models.Direct
         
         public DateTime LastActivity { get; set; }
 
+        public DateTime LastNonSenderItemAt { get; set; }
+
         public bool HasUnreadMessage { get; set; }
 
         public string ViewerId { get; set; }
