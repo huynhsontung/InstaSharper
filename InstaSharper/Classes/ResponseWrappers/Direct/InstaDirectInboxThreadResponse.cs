@@ -20,7 +20,7 @@ namespace InstaSharper.Classes.ResponseWrappers.Direct
 
         [JsonProperty("last_non_sender_item_at")] public string LastNonSenderItemAt { get; set; }
 
-        [JsonProperty("viewer_id")] public string ViewerId { get; set; }
+        [JsonProperty("viewer_id")] public long ViewerId { get; set; }
 
         [JsonProperty("thread_id")] public string ThreadId { get; set; }
 

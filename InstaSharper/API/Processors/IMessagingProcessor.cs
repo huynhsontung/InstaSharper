@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using InstaSharper.Classes;
 using InstaSharper.Classes.Models.Direct;
@@ -55,7 +56,7 @@ namespace InstaSharper.API.Processors
         /// <returns>
         ///     <see cref="T:InstagramApiSharp.Classes.Models.InstaDirectInboxContainer" />
         /// </returns>
-        Task<IResult<InstaDirectInboxContainer>> GetDirectInboxAsync(PaginationParameters paginationParameters);
+        Task<IResult<InstaDirectInboxContainer>> GetInboxAsync(PaginationParameters paginationParameters);
         /// <summary>
         ///     Get direct inbox thread by its id asynchronously
         /// </summary>
@@ -64,7 +65,15 @@ namespace InstaSharper.API.Processors
         /// <returns>
         ///     <see cref="InstaDirectInboxThread" />
         /// </returns>
-        Task<IResult<InstaDirectInboxThread>> GetDirectInboxThreadAsync(string threadId, PaginationParameters paginationParameters);
+        Task<IResult<InstaDirectInboxThread>> GetThreadAsync(string threadId, PaginationParameters paginationParameters);
+
+        /// <summary>
+        /// Get a thread by the recipients list
+        /// </summary>
+        /// <param name="userIds">List of recipients' user ids</param>
+        /// <returns><see cref="InstaDirectInboxThread" /></returns>
+        Task<IResult<InstaDirectInboxThread>> GetThreadByParticipantsAsync(IEnumerable<long> userIds);
+
         /// <summary>
         ///     Get direct pending inbox threads for current user asynchronously
         /// </summary>
@@ -91,14 +100,6 @@ namespace InstaSharper.API.Processors
         ///     <see cref="InstaRecipients" />
         /// </returns>
         Task<IResult<InstaRecipients>> GetRankedRecipientsByUsernameAsync(string username);
-
-        /// <summary>
-        ///     Get recent recipients (threads and users) asynchronously
-        /// </summary>
-        /// <returns>
-        ///     <see cref="InstaRecipients" />
-        /// </returns>
-        Task<IResult<InstaRecipients>> GetRecentRecipientsAsync();
 
         /// <summary>
         ///     Get direct users presence
@@ -289,10 +290,11 @@ namespace InstaSharper.API.Processors
         ///     Send direct text message to provided users and threads
         /// </summary>
         /// <param name="recipients">Comma-separated users PK</param>
-        /// <param name="threadIds">Message thread ids</param>
+        /// <param name="threadId"></param>
         /// <param name="text">Message text</param>
         /// <returns>List of threads</returns>
-        Task<IResult<InstaDirectInboxThreadList>> SendDirectTextAsync(string recipients, string threadIds,
+        Task<IResult<InstaDirectInboxThreadList>> SendDirectTextAsync(IEnumerable<long> recipients,
+            string threadId,
             string text);
 
         /// <summary>

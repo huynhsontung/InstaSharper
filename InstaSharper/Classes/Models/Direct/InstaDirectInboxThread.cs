@@ -20,7 +20,7 @@ namespace InstaSharper.Classes.Models.Direct
 
         public bool HasUnreadMessage { get; set; }
 
-        public string ViewerId { get; set; }
+        public long ViewerId { get; set; }
 
         public string ThreadId { get; set; }
 

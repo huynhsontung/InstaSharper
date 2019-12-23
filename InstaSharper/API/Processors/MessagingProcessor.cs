@@ -247,7 +247,7 @@ namespace InstaSharper.API.Processors
         /// <returns>
         ///     <see cref="T:InstagramApiSharp.Classes.Models.InstaDirectInboxContainer" />
         /// </returns>
-        public async Task<IResult<InstaDirectInboxContainer>> GetDirectInboxAsync(PaginationParameters paginationParameters)
+        public async Task<IResult<InstaDirectInboxContainer>> GetInboxAsync(PaginationParameters paginationParameters)
         {
             UserAuthValidator.Validate(_userAuthValidate);
             try
@@ -305,7 +305,7 @@ namespace InstaSharper.API.Processors
         /// <returns>
         ///     <see cref="InstaDirectInboxThread" />
         /// </returns>
-        public async Task<IResult<InstaDirectInboxThread>> GetDirectInboxThreadAsync(string threadId, PaginationParameters paginationParameters)
+        public async Task<IResult<InstaDirectInboxThread>> GetThreadAsync(string threadId, PaginationParameters paginationParameters)
         {
             UserAuthValidator.Validate(_userAuthValidate);
             try
@@ -364,6 +364,41 @@ namespace InstaSharper.API.Processors
                 threadResponse.Items.Reverse();
                 var converter = ConvertersFabric.Instance.GetDirectThreadConverter(threadResponse);
 
+
+                return Result.Success(converter.Convert());
+            }
+            catch (HttpRequestException httpException)
+            {
+                _logger?.LogException(httpException);
+                return Result.Fail(httpException, default(InstaDirectInboxThread), ResponseType.NetworkProblem);
+            }
+            catch (Exception exception)
+            {
+                _logger?.LogException(exception);
+                return Result.Fail<InstaDirectInboxThread>(exception);
+            }
+        }
+
+        public async Task<IResult<InstaDirectInboxThread>> GetThreadByParticipantsAsync(IEnumerable<long> userIds)
+        {
+            UserAuthValidator.Validate(_userAuthValidate);
+            try
+            {
+                var threadUri = UriCreator.GetThreadByRecipientsUri(userIds);
+                var request = HttpHelper.GetDefaultRequest(HttpMethod.Get, threadUri, _deviceInfo);
+                var response = await _httpRequestProcessor.SendAsync(request);
+                var json = await response.Content.ReadAsStringAsync();
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                    return Result.UnExpectedResponse<InstaDirectInboxThread>(response, json);
+
+                if (string.IsNullOrEmpty(json)) return Result.Success<InstaDirectInboxThread>(null);
+
+                var threadResponse = JsonConvert.DeserializeObject<InstaDirectInboxThreadResponse>(json,
+                    new InstaThreadDataConverter());
+
+                threadResponse.Items?.Reverse();
+                var converter = ConvertersFabric.Instance.GetDirectThreadConverter(threadResponse);
 
                 return Result.Success(converter.Convert());
             }
@@ -489,7 +524,8 @@ namespace InstaSharper.API.Processors
         }
 
         /// <summary>
-        ///     Get recent recipients (threads and users) asynchronously
+        ///     Get recent recipients (threads and users) asynchronously.
+        /// <para>*DEPRECATED* Endpoint no longer exists.</para>
         /// </summary>
         /// <returns>
         ///     <see cref="InstaRecipients" />
@@ -1100,29 +1136,31 @@ namespace InstaSharper.API.Processors
         }
 
         /// <summary>
-        ///     Send direct text message to provided users and threads
+        ///     Send direct text message to provided users OR thread. 
+        /// You have to provide either a list of recipients or a thread id. One of them can be null.
         /// </summary>
-        /// <param name="recipients">Comma-separated users PK</param>
-        /// <param name="threadIds">Message thread ids</param>
+        /// <param name="recipients">users PKs</param>
+        /// <param name="threadId"></param>
         /// <param name="text">Message text</param>
         /// <returns>List of threads</returns>
-        public async Task<IResult<InstaDirectInboxThreadList>> SendDirectTextAsync(string recipients, string threadIds,
+        public async Task<IResult<InstaDirectInboxThreadList>> SendDirectTextAsync(IEnumerable<long> recipients,
+            string threadId,
             string text)
         {
             UserAuthValidator.Validate(_userAuthValidate);
             var threads = new InstaDirectInboxThreadList();
             try
             {
+                if (string.IsNullOrEmpty(text)) throw new ArgumentException("Message text is empty", nameof(text));
+                var recipientsString = recipients != null ? string.Join(",", recipients) : string.Empty;
                 var directSendMessageUri = UriCreator.GetDirectSendMessageUri();
                 var request = HttpHelper.GetDefaultRequest(HttpMethod.Post, directSendMessageUri, _deviceInfo);
                 var fields = new Dictionary<string, string> { { "text", text } };
-                if (!string.IsNullOrEmpty(recipients))
-                    fields.Add("recipient_users", "[[" + recipients + "]]");
-                else
-                    fields.Add("recipient_users", "[]");
-
-                if (!string.IsNullOrEmpty(threadIds))
-                    fields.Add("thread_ids", "[" + threadIds + "]");
+                if (!string.IsNullOrEmpty(threadId))
+                    fields.Add("thread_ids", "[" + threadId + "]");
+                else if (!string.IsNullOrEmpty(recipientsString))
+                    fields.Add("recipient_users", "[[" + recipientsString + "]]");
+                else throw new ArgumentException("You have to provide either a thread id or a list of users' PKs");
 
                 request.Content = new FormUrlEncodedContent(fields);
                 var response = await _httpRequestProcessor.SendAsync(request);

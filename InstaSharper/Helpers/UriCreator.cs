@@ -1097,9 +1097,10 @@ namespace InstaSharper.Helpers
             return instaUri;
         }
 
-        public static Uri GetParticipantRecipientUserUri(long userId)
+        public static Uri GetThreadByRecipientsUri(IEnumerable<long> userIds)
         {
-            if (!Uri.TryCreate(BaseInstagramUri, string.Format(InstaApiConstants.GET_PARTICIPANTS_RECIPIENT_USER, userId), out var instaUri))
+            var idString = string.Join(",", userIds);
+            if (!Uri.TryCreate(BaseInstagramUri, string.Format(InstaApiConstants.GET_DIRECT_THREAD_FROM_USERS, idString), out var instaUri))
                 throw new Exception("Cant create URI for get participants recipient user");
             return instaUri;
         }

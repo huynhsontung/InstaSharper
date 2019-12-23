@@ -56,7 +56,8 @@ namespace InstaSharper.Converters.Directs
                 {
                     var converter = ConvertersFabric.Instance.GetDirectThreadItemConverter(item);
                     var threadItem = converter.Convert();
-                    threadItem.FromMe = threadItem.UserId.ToString() == thread.ViewerId;
+                    threadItem.FromMe = threadItem.UserId == thread.ViewerId;
+                    AddCustomText(ref threadItem);
                     thread.Items.Add(threadItem);
                 }
             }
@@ -64,7 +65,9 @@ namespace InstaSharper.Converters.Directs
             if (SourceObject.LastPermanentItem != null)
             {
                 var converter = ConvertersFabric.Instance.GetDirectThreadItemConverter(SourceObject.LastPermanentItem);
-                thread.LastPermanentItem = converter.Convert();
+                var lastPermanentItem = converter.Convert();
+                AddCustomText(ref lastPermanentItem);
+                thread.LastPermanentItem = lastPermanentItem;
             }
             if (SourceObject.Users != null && SourceObject.Users.Count > 0)
             {
@@ -108,7 +111,7 @@ namespace InstaSharper.Converters.Directs
             }
             try
             {
-                var viewer = thread.LastSeenAt.Single(x => thread.ViewerId == x.PK.ToString());
+                var viewer = thread.LastSeenAt.Single(x => thread.ViewerId == x.PK);
                 thread.HasUnreadMessage = thread.LastNonSenderItemAt > viewer.SeenTime;
             }
             catch 
@@ -118,6 +121,38 @@ namespace InstaSharper.Converters.Directs
             
 
             return thread;
+        }
+
+        private static void AddCustomText(ref InstaDirectInboxItem item)
+        {
+            switch (item.ItemType)
+            {
+                case InstaDirectThreadItemType.ReelShare:
+                    switch (item.ReelShareMedia.Type)
+                    {
+                        case "reaction":
+                            item.Text = item.FromMe
+                                ? $"You reacted to their story {item.ReelShareMedia.Text}"
+                                : $"Reacted to your story {item.ReelShareMedia.Text}";
+                            break;
+                        case "reply":
+                            item.Text = item.FromMe ? "You replied to their story" : "Replied to your story";
+                            break;
+                        case "mention":
+                            item.Text = item.FromMe ? "You mentioned them in your story" : "Mentioned you in their story";
+                            break;
+                    }
+                    break;
+
+                case InstaDirectThreadItemType.RavenMedia:
+                    item.Text = item.FromMe ? "You sent them a photo" : "Sent you a photo";
+                    break;
+
+                case InstaDirectThreadItemType.ActionLog:
+                    item.Text = item.ActionLog.Description;
+                    break;
+
+            }
         }
     }
 }
