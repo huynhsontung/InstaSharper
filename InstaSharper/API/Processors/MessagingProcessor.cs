@@ -1143,12 +1143,12 @@ namespace InstaSharper.API.Processors
         /// <param name="threadId"></param>
         /// <param name="text">Message text</param>
         /// <returns>List of threads</returns>
-        public async Task<IResult<InstaDirectInboxThreadList>> SendDirectTextAsync(IEnumerable<long> recipients,
+        public async Task<IResult<List<InstaDirectInboxThread>>> SendDirectTextAsync(IEnumerable<long> recipients,
             string threadId,
             string text)
         {
             UserAuthValidator.Validate(_userAuthValidate);
-            var threads = new InstaDirectInboxThreadList();
+            var threads = new List<InstaDirectInboxThread>();
             try
             {
                 if (string.IsNullOrEmpty(text)) throw new ArgumentException("Message text is empty", nameof(text));
@@ -1167,9 +1167,9 @@ namespace InstaSharper.API.Processors
                 var json = await response.Content.ReadAsStringAsync();
 
                 if (response.StatusCode != HttpStatusCode.OK)
-                    return Result.UnExpectedResponse<InstaDirectInboxThreadList>(response, json);
+                    return Result.UnExpectedResponse<List<InstaDirectInboxThread>>(response, json);
                 var result = JsonConvert.DeserializeObject<InstaSendDirectMessageResponse>(json);
-                if (!result.IsOk()) return Result.Fail<InstaDirectInboxThreadList>(result.Status);
+                if (!result.IsOk()) return Result.Fail<List<InstaDirectInboxThread>>(result.Status);
                 threads.AddRange(result.Threads.Select(thread =>
                     ConvertersFabric.Instance.GetDirectThreadConverter(thread).Convert()));
                 return Result.Success(threads);
@@ -1177,12 +1177,12 @@ namespace InstaSharper.API.Processors
             catch (HttpRequestException httpException)
             {
                 _logger?.LogException(httpException);
-                return Result.Fail(httpException, default(InstaDirectInboxThreadList), ResponseType.NetworkProblem);
+                return Result.Fail(httpException, default(List<InstaDirectInboxThread>), ResponseType.NetworkProblem);
             }
             catch (Exception exception)
             {
                 _logger?.LogException(exception);
-                return Result.Fail<InstaDirectInboxThreadList>(exception);
+                return Result.Fail<List<InstaDirectInboxThread>>(exception);
             }
         }
 

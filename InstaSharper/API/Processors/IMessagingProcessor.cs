@@ -293,7 +293,7 @@ namespace InstaSharper.API.Processors
         /// <param name="threadId"></param>
         /// <param name="text">Message text</param>
         /// <returns>List of threads</returns>
-        Task<IResult<InstaDirectInboxThreadList>> SendDirectTextAsync(IEnumerable<long> recipients,
+        Task<IResult<List<InstaDirectInboxThread>>> SendDirectTextAsync(IEnumerable<long> recipients,
             string threadId,
             string text);
 
