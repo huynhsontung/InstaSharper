@@ -634,7 +634,7 @@ namespace InstaSharper.API.Processors
         /// </summary>
         /// <param name="threadId">Thread id</param>
         /// <param name="itemId">Item id (message id)</param>
-        public async Task<IResult<bool>> LikeThreadMessageAsync(string threadId, string itemId)
+        public async Task<IResult<bool>> LikeItemAsync(string threadId, string itemId)
         {
             UserAuthValidator.Validate(_userAuthValidate);
             try
@@ -674,12 +674,25 @@ namespace InstaSharper.API.Processors
                 return Result.Fail<bool>(exception);
             }
         }
+
+        public Task<IResult<bool>> MarkVisualItemsSeen(string threadId, ICollection<string> itemIds)
+        {
+            // todo: Implement MarkVisualItemsSeen
+            throw new NotImplementedException();
+        }
+
+        public Task<IResult<bool>> MarkVisualItemsReplayed(string threadId, ICollection<string> itemIds)
+        {
+            // todo: Implement MarkVisualItemsReplayed
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         ///     Mark direct message as seen
         /// </summary>
         /// <param name="threadId">Thread id</param>
         /// <param name="itemId">Message id (item id)</param>
-        public async Task<IResult<bool>> MarkDirectThreadAsSeenAsync(string threadId, string itemId)
+        public async Task<IResult<bool>> MarkItemSeenAsync(string threadId, string itemId)
         {
             UserAuthValidator.Validate(_userAuthValidate);
             try
@@ -1608,7 +1621,7 @@ namespace InstaSharper.API.Processors
                     requestContent.Add(new StringContent($"[{threadId}]"), "thread_ids");
                 byte[] fileBytes;
                 if (image.ImageBytes == null)
-                    fileBytes = File.ReadAllBytes(image.Uri);
+                    fileBytes = File.ReadAllBytes(image.Url);
                 else
                     fileBytes = image.ImageBytes;
                 var imageContent = new ByteArrayContent(fileBytes);

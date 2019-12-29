@@ -63,13 +63,11 @@ namespace InstaSharper.Converters.Stories
 
             if (SourceObject.Images?.Candidates != null)
                 foreach (var image in SourceObject.Images.Candidates)
-                    instaStory.ImageList.Add(new InstaImage(image.Url, int.Parse(image.Width),
-                        int.Parse(image.Height)));
+                    instaStory.ImageList.Add(new InstaImage(image.Url, image.Width, image.Height));
 
             if (SourceObject.VideoVersions != null && SourceObject.VideoVersions.Any())
                 foreach (var video in SourceObject.VideoVersions)
-                    instaStory.VideoList.Add(new InstaVideo(video.Url, int.Parse(video.Width), int.Parse(video.Height),
-                        video.Type));
+                    instaStory.VideoList.Add(new InstaVideo(video.Url, video.Width, video.Height, video.Type));
 
             if (SourceObject.ReelMentions != null && SourceObject.ReelMentions.Any())
                 foreach (var mention in SourceObject.ReelMentions)

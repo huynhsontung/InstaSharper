@@ -45,9 +45,9 @@ namespace InstaSharper.Converters.Highlights
             };
 
             if (SourceObject.Reel.CoverMedia.CroppedImageVersion != null)
-                hLight.CoverMedia.CroppedImage = new InstaImage(SourceObject.Reel.CoverMedia.CroppedImageVersion.Url, int.Parse(SourceObject.Reel.CoverMedia.CroppedImageVersion.Width), int.Parse(SourceObject.Reel.CoverMedia.CroppedImageVersion.Height));
+                hLight.CoverMedia.CroppedImage = new InstaImage(SourceObject.Reel.CoverMedia.CroppedImageVersion.Url, SourceObject.Reel.CoverMedia.CroppedImageVersion.Width, SourceObject.Reel.CoverMedia.CroppedImageVersion.Height);
             if (SourceObject.Reel.CoverMedia.FullImageVersion != null)
-                hLight.CoverMedia.Image = new InstaImage(SourceObject.Reel.CoverMedia.FullImageVersion.Url, int.Parse(SourceObject.Reel.CoverMedia.FullImageVersion.Width), int.Parse(SourceObject.Reel.CoverMedia.FullImageVersion.Height));
+                hLight.CoverMedia.Image = new InstaImage(SourceObject.Reel.CoverMedia.FullImageVersion.Url, SourceObject.Reel.CoverMedia.FullImageVersion.Width, SourceObject.Reel.CoverMedia.FullImageVersion.Height);
             var userConverter = ConvertersFabric.Instance.GetUserShortConverter(SourceObject.Reel.User);
             hLight.User = userConverter.Convert();
 

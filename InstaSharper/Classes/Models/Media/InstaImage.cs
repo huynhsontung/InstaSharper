@@ -1,12 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using InstaSharper.Classes.ResponseWrappers.Media;
+using Newtonsoft.Json;
 
 namespace InstaSharper.Classes.Models.Media
 {
-    public class InstaImage
+    public class InstaImage : ImageResponse
     {
-        public InstaImage(string uri, int width, int height)
+        public InstaImage(string url, int width, int height)
         {
-            Uri = uri;
+            Url = url;
             Width = width;
             Height = height;
         }
@@ -14,12 +15,6 @@ namespace InstaSharper.Classes.Models.Media
         public InstaImage()
         {
         }
-
-        public string Uri { get; set; }
-
-        public int Width { get; set; }
-
-        public int Height { get; set; }
 
         [JsonIgnore]
         /// <summary>

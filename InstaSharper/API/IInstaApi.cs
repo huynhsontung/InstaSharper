@@ -290,6 +290,8 @@ namespace InstaSharper.API
         /// </param>
         void SetTimezoneOffset(int timezoneOffset);
 
+        Task<HttpResponseMessage> SendGetRequestAsync(Uri uri, HttpCompletionOption completionOption);
+
         /// <summary>
         ///     Send get request
         /// </summary>

@@ -23,14 +23,14 @@ namespace InstaSharper.Converters.Directs
 
             var animatedMedia = new InstaAnimatedImageMedia
             {
-                Height = double.Parse(SourceObject.Height ?? "0"),
+                Height = int.Parse(SourceObject.Height ?? "0"),
                 Mp4Url = SourceObject.Mp4,
-                Mp4Size = double.Parse(SourceObject.Mp4Size ?? "0"),
-                Size = double.Parse(SourceObject.Size ?? "0"),
+                Mp4Size = int.Parse(SourceObject.Mp4Size ?? "0"),
+                Size = int.Parse(SourceObject.Size ?? "0"),
                 Url = SourceObject.Url,
                 WebpUrl = SourceObject.Webp,
-                WebpSize = double.Parse(SourceObject.WebpSize ?? "0"),
-                Width = double.Parse(SourceObject.Width ?? "0")
+                WebpSize = int.Parse(SourceObject.WebpSize ?? "0"),
+                Width = int.Parse(SourceObject.Width ?? "0")
             };
 
             return animatedMedia;

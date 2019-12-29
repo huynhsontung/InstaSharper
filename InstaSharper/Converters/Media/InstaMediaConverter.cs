@@ -87,12 +87,12 @@ namespace InstaSharper.Converters.Media
             if (SourceObject.Images?.Candidates == null) return media;
 
             foreach (var image in SourceObject.Images.Candidates)
-                media.Images.Add(new InstaImage(image.Url, int.Parse(image.Width), int.Parse(image.Height)));
+                media.Images.Add(new InstaImage(image.Url, image.Width, image.Height));
 
             if (SourceObject.Videos == null) return media;
 
             foreach (var video in SourceObject.Videos)
-                media.Videos.Add(new InstaVideo(video.Url, int.Parse(video.Width), int.Parse(video.Height),
+                media.Videos.Add(new InstaVideo(video.Url, video.Width, video.Height,
                     video.Type));
 
             return media;

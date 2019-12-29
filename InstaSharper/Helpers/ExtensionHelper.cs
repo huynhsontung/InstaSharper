@@ -175,7 +175,7 @@ namespace InstaSharper.Helpers
             {
                 Height = instaImage.Height,
                 ImageBytes = instaImage.ImageBytes,
-                Uri = instaImage.Uri,
+                Uri = instaImage.Url,
                 Width = instaImage.Width,
                 UserTags = userTags?.ToList()
             };

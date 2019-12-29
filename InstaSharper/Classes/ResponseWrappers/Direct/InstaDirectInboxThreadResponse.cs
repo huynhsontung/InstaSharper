@@ -3,6 +3,7 @@ using InstaSharper.Classes.Models.Direct;
 using InstaSharper.Classes.ResponseWrappers.BaseResponse;
 using InstaSharper.Classes.ResponseWrappers.User;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace InstaSharper.Classes.ResponseWrappers.Direct
 {
@@ -69,7 +70,7 @@ namespace InstaSharper.Classes.ResponseWrappers.Direct
         [JsonProperty("newest_cursor")] public string NewestCursor { get; set; }
 
 
-        [JsonProperty("last_seen_at")] public object LastSeenAt { get; set; }
+        [JsonProperty("last_seen_at")] public Dictionary<long, InstaLastSeen> LastSeenAt { get; set; }
 
 
 

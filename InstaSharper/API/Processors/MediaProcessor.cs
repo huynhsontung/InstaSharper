@@ -977,7 +977,7 @@ namespace InstaSharper.API.Processors
         private async Task<IResult<string>> UploadSingleVideo(Action<InstaUploaderProgress> progress, InstaVideoUpload video, InstaUploaderProgress upProgress, bool album = true)
         {
             var uploadId = ApiRequestMessage.GenerateRandomUploadId();
-            var videoHashCode = Path.GetFileName(video.Video.Uri ?? $"C:\\{13.GenerateRandomString()}.mp4").GetHashCode();
+            var videoHashCode = Path.GetFileName(video.Video.Url ?? $"C:\\{13.GenerateRandomString()}.mp4").GetHashCode();
             var waterfallId = Guid.NewGuid().ToString();
             var videoEntityName = $"{uploadId}_0_{videoHashCode}";
             var videoUri = UriCreator.GetStoryUploadVideoUri(uploadId, videoHashCode);
@@ -1015,7 +1015,7 @@ namespace InstaSharper.API.Processors
                 return Result.UnExpectedResponse<string>(response, json);
             }
             
-            var videoBytes = video.Video.VideoBytes ?? File.ReadAllBytes(video.Video.Uri);
+            var videoBytes = video.Video.VideoBytes ?? File.ReadAllBytes(video.Video.Url);
 
             var videoContent = new ByteArrayContent(videoBytes);
             //var progressContent = new ProgressableStreamContent(videoContent, 4096, progress)
@@ -1026,7 +1026,7 @@ namespace InstaSharper.API.Processors
             request.Content = videoContent;
             upProgress.UploadState = InstaUploadState.Uploading;
             progress?.Invoke(upProgress);
-            var vidExt = Path.GetExtension(video.Video.Uri ?? $"C:\\{13.GenerateRandomString()}.mp4").Replace(".", "").ToLower();
+            var vidExt = Path.GetExtension(video.Video.Url ?? $"C:\\{13.GenerateRandomString()}.mp4").Replace(".", "").ToLower();
             if (vidExt == "mov")
                 request.Headers.Add("X-Entity-Type", "video/quicktime");
             else
@@ -1525,7 +1525,7 @@ namespace InstaSharper.API.Processors
                 };
                 byte[] fileBytes;
                 if (image.ImageBytes == null)
-                    fileBytes = File.ReadAllBytes(image.Uri);
+                    fileBytes = File.ReadAllBytes(image.Url);
                 else
                     fileBytes = image.ImageBytes;
 

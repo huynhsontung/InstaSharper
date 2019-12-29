@@ -622,7 +622,7 @@ namespace InstaSharper.API.Processors
                 };
                 byte[] fileBytes;
                 if (nametagImage.ImageBytes == null)
-                    fileBytes = File.ReadAllBytes(nametagImage.Uri);
+                    fileBytes = File.ReadAllBytes(nametagImage.Url);
                 else
                     fileBytes = nametagImage.ImageBytes;
 

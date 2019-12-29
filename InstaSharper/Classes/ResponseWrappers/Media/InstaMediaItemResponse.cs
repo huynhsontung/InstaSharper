@@ -40,7 +40,7 @@ namespace InstaSharper.Classes.ResponseWrappers.Media
 
         [JsonProperty("original_width")] public int Width { get; set; }
 
-        [JsonProperty("original_height")] public string Height { get; set; }
+        [JsonProperty("original_height")] public int Height { get; set; }
 
         [JsonProperty("user")] public InstaUserResponse User { get; set; }
 

@@ -22,7 +22,7 @@ namespace InstaSharper.Converters.Directs
                 ClientContext = SourceObject.ClientContext,
                 ItemId = SourceObject.ItemId,
                 Reactions = SourceObject.Reactions,
-                TimeStamp = DateTimeHelper.UnixTimestampMilisecondsToDateTime(SourceObject.TimeStamp),
+                TimeStamp = DateTimeHelper.UnixTimestampMicrosecondsToDateTime(SourceObject.TimeStamp),
                 UserId = SourceObject.UserId
             };
 
@@ -119,7 +119,7 @@ namespace InstaSharper.Converters.Directs
                         };
                         if (!string.IsNullOrEmpty(SourceObject.RavenExpiringMediaActionSummary.TimeStamp))
                             threadItem.RavenExpiringMediaActionSummary.
-                                ExpireTime = DateTimeHelper.UnixTimestampMilisecondsToDateTime(SourceObject.RavenExpiringMediaActionSummary.TimeStamp);
+                                ExpireTime = DateTimeHelper.UnixTimestampMicrosecondsToDateTime(SourceObject.RavenExpiringMediaActionSummary.TimeStamp);
 
                     }
 

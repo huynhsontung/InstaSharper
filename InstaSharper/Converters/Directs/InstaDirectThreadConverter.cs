@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using InstaSharper.Classes.Models.Direct;
 using InstaSharper.Classes.ResponseWrappers.Direct;
+using InstaSharper.Enums;
 using InstaSharper.Helpers;
 using Newtonsoft.Json;
 
@@ -23,8 +25,9 @@ namespace InstaSharper.Converters.Directs
                 Named = SourceObject.Named,
                 Pending = SourceObject.Pending,
                 ViewerId = SourceObject.ViewerId,
-                LastActivity = DateTimeHelper.UnixTimestampMilisecondsToDateTime(SourceObject.LastActivity),
-                LastNonSenderItemAt = DateTimeHelper.UnixTimestampMilisecondsToDateTime(SourceObject.LastNonSenderItemAt),
+                LastSeenAt = SourceObject.LastSeenAt,
+                LastActivity = DateTimeHelper.UnixTimestampMicrosecondsToDateTime(SourceObject.LastActivity),
+                LastNonSenderItemAt = DateTimeHelper.UnixTimestampMicrosecondsToDateTime(SourceObject.LastNonSenderItemAt),
                 ThreadId = SourceObject.ThreadId,
                 OldestCursor = SourceObject.OldestCursor,
                 IsGroup = SourceObject.IsGroup,
@@ -57,6 +60,8 @@ namespace InstaSharper.Converters.Directs
                     var converter = ConvertersFabric.Instance.GetDirectThreadItemConverter(item);
                     var threadItem = converter.Convert();
                     threadItem.FromMe = threadItem.UserId == thread.ViewerId;
+                    if (threadItem.Reactions != null)
+                        threadItem.Reactions.MeLiked = threadItem.Reactions.Likes.Any(x => x.SenderId == thread.ViewerId);
                     AddCustomText(ref threadItem);
                     thread.Items.Add(threadItem);
                 }
@@ -66,6 +71,7 @@ namespace InstaSharper.Converters.Directs
             {
                 var converter = ConvertersFabric.Instance.GetDirectThreadItemConverter(SourceObject.LastPermanentItem);
                 var lastPermanentItem = converter.Convert();
+                lastPermanentItem.FromMe = lastPermanentItem.UserId == thread.ViewerId;
                 AddCustomText(ref lastPermanentItem);
                 thread.LastPermanentItem = lastPermanentItem;
             }
@@ -87,32 +93,10 @@ namespace InstaSharper.Converters.Directs
                 }
             }
 
-            if (SourceObject.LastSeenAt != null && SourceObject.LastSeenAt != null)
-            {
-                try
-                {
-                    var lastSeenJson = System.Convert.ToString(SourceObject.LastSeenAt);
-                    var obj = JsonConvert.DeserializeObject<InstaLastSeenAtResponse>(lastSeenJson);
-                    thread.LastSeenAt = new List<InstaLastSeen>();
-                    foreach (var extraItem in obj.Extras)
-                    {
-                        var convertedLastSeen = JsonConvert.DeserializeObject<InstaLastSeenItemResponse>(extraItem.Value.ToString(Formatting.None));
-                        var lastSeen = new InstaLastSeen
-                        {
-                            PK = long.Parse(extraItem.Key),
-                            ItemId = convertedLastSeen.ItemId,
-                        };
-                        if (convertedLastSeen.TimestampPrivate != null)
-                            lastSeen.SeenTime = DateTimeHelper.UnixTimestampMilisecondsToDateTime(convertedLastSeen.TimestampPrivate);
-                        thread.LastSeenAt.Add(lastSeen);
-                    }
-                }
-                catch { }
-            }
             try
             {
-                var viewer = thread.LastSeenAt.Single(x => thread.ViewerId == x.PK);
-                thread.HasUnreadMessage = thread.LastNonSenderItemAt > viewer.SeenTime;
+                var viewer = thread.LastSeenAt.Single(x => thread.ViewerId == x.Key);
+                thread.HasUnreadMessage = thread.LastNonSenderItemAt > viewer.Value.SeenTime;
             }
             catch 
             {
@@ -145,13 +129,55 @@ namespace InstaSharper.Converters.Directs
                     break;
 
                 case InstaDirectThreadItemType.RavenMedia:
-                    item.Text = item.FromMe ? "You sent them a photo" : "Sent you a photo";
+                    var mediaType = item.RavenMedia?.MediaType ?? item.VisualMedia.Media.MediaType;
+                    if (mediaType == InstaMediaType.Image)
+                        item.Text = item.FromMe ? "You sent them a photo" : "Sent you a photo";
+                    else
+                        item.Text = item.FromMe ? "You sent them a video" : "Sent you a video";
                     break;
 
                 case InstaDirectThreadItemType.ActionLog:
                     item.Text = item.ActionLog.Description;
                     break;
 
+                case InstaDirectThreadItemType.Link:
+                    item.Text = item.FromMe ? "You sent them a link" : "Sent you a link";
+                    break;
+
+                case InstaDirectThreadItemType.Media:
+                    if (item.Media.MediaType == InstaMediaType.Image)
+                        item.Text = item.FromMe ? "You sent them a photo" : "Sent you a photo";
+                    else
+                        item.Text = item.FromMe ? "You sent them a video" : "Sent you a video";
+                    break;
+
+                case InstaDirectThreadItemType.MediaShare:
+                    item.Text = item.FromMe ? "You shared a post" : "Shared a post";
+                    break;
+
+                case InstaDirectThreadItemType.StoryShare:
+                    item.Text = item.FromMe ? "You shared a story" : "Shared a story";
+                    break;
+
+                case InstaDirectThreadItemType.VoiceMedia:
+                    item.Text = item.FromMe ? "You sent a voice clip" : "Sent you a voice clip";
+                    break;
+
+                case InstaDirectThreadItemType.AnimatedMedia:
+                    item.Text = item.FromMe ? "You sent a GIF" : "Sent you a GIF";
+                    break;
+
+                case InstaDirectThreadItemType.Hashtag:
+                    break;
+
+                case InstaDirectThreadItemType.Profile:
+                    break;
+
+                case InstaDirectThreadItemType.Placeholder:
+                    break;
+
+                case InstaDirectThreadItemType.Location:
+                    break;
             }
         }
     }

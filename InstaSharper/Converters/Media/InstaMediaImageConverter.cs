@@ -11,7 +11,7 @@ namespace InstaSharper.Converters.Media
         public InstaImage Convert()
         {
             if (SourceObject == null) throw new ArgumentNullException($"Source object");
-            var image = new InstaImage(SourceObject.Url, int.Parse(SourceObject.Width), int.Parse(SourceObject.Height));
+            var image = new InstaImage(SourceObject.Url, SourceObject.Width, SourceObject.Height);
             return image;
         }
     }

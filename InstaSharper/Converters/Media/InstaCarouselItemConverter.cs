@@ -22,10 +22,10 @@ namespace InstaSharper.Converters.Media
             };
             if (SourceObject?.Images?.Candidates != null)
                 foreach (var image in SourceObject.Images.Candidates)
-                    carouselItem.Images.Add(new InstaImage(image.Url, int.Parse(image.Width), int.Parse(image.Height)));
+                    carouselItem.Images.Add(new InstaImage(image.Url, image.Width, image.Height));
             if (SourceObject?.Videos != null)
                 foreach (var video in SourceObject.Videos)
-                    carouselItem.Videos.Add(new InstaVideo(video.Url, int.Parse(video.Width), int.Parse(video.Height),
+                    carouselItem.Videos.Add(new InstaVideo(video.Url, video.Width, video.Height,
                         video.Type));
             if (SourceObject.UserTagList?.In != null && SourceObject.UserTagList?.In?.Count > 0)
                 foreach (var tag in SourceObject.UserTagList.In)

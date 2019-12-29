@@ -8,10 +8,10 @@ namespace InstaSharper.Classes.ResponseWrappers.Media
 
         [JsonProperty("url")] public string Url { get; set; }
 
-        [JsonProperty("height")] public string Height { get; set; }
+        [JsonProperty("height")] public int Height { get; set; }
 
         [JsonProperty("type")] public int Type { get; set; }
 
-        [JsonProperty("width")] public string Width { get; set; }
+        [JsonProperty("width")] public int Width { get; set; }
     }
 }

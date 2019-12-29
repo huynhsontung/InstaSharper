@@ -2298,19 +2298,15 @@ namespace InstaSharper.API
             InstaApiConstants.TIMEZONE_OFFSET = timezoneOffset;
         }
 
-        /// <summary>
-        ///     Send get request
-        /// </summary>
-        /// <param name="uri">Desire uri (must include https://i.instagram.com/api/v...) </param>
-        public async Task<HttpResponseMessage> SendGetRequestAsync(Uri uri)
+        public async Task<HttpResponseMessage> SendGetRequestAsync(Uri uri, HttpCompletionOption completionOption)
         {
             try
             {
                 if (uri == null)
                     throw new ArgumentNullException(nameof(uri));
-                
+
                 var request = HttpHelper.GetDefaultRequest(HttpMethod.Get, uri, DeviceInfo);
-                var response = await RequestProcessor.SendAsync(request);
+                var response = await RequestProcessor.SendAsync(request, completionOption);
                 return response;
             }
             catch (HttpRequestException httpException)
@@ -2323,6 +2319,15 @@ namespace InstaSharper.API
                 _logger?.LogException(exception);
                 throw;
             }
+        }
+
+        /// <summary>
+        ///     Send get request
+        /// </summary>
+        /// <param name="uri">Desire uri (must include https://i.instagram.com/api/v...) </param>
+        public async Task<HttpResponseMessage> SendGetRequestAsync(Uri uri)
+        {
+            return await SendGetRequestAsync(uri, HttpCompletionOption.ResponseContentRead);
         }
         
         /// <summary>

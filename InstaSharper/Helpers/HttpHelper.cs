@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using InstaSharper.API;
 using InstaSharper.Classes;
 using InstaSharper.Classes.DeviceInfo;
@@ -12,6 +13,19 @@ namespace InstaSharper.Helpers
 {
     public static class HttpHelper
     {
+        public static void SetDefaultRequestHeaders(HttpRequestHeaders defaultHeaders, AndroidDevice deviceInfo)
+        {
+            defaultHeaders.Connection.ParseAdd("Keep-Alive");
+            defaultHeaders.UserAgent.ParseAdd(deviceInfo.UserAgent);
+            defaultHeaders.AcceptEncoding.ParseAdd(HttpRequestProcessor.ACCEPT_ENCODING);
+            defaultHeaders.Accept.ParseAdd("*/*");
+            defaultHeaders.AcceptLanguage.ParseAdd(InstaApiConstants.ACCEPT_LANGUAGE);
+            defaultHeaders.Add("X-IG-Capabilities", "3brTBw==");
+            defaultHeaders.Add("X-IG-Connection-Type", "WIFI");
+            defaultHeaders.Add("X-IG-App-ID", InstaApiConstants.IG_APP_ID);
+            defaultHeaders.Add("X-FB-HTTP-Engine", "Liger");
+        }
+
         public static HttpRequestMessage GetDefaultRequest(HttpMethod method, Uri uri, AndroidDevice deviceInfo)
         {
             var request = new HttpRequestMessage(method, uri);

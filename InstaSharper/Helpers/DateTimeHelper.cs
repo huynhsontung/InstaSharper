@@ -30,10 +30,10 @@ namespace InstaSharper.Helpers
                 var time = (long)Convert.ToDouble(unixTime);
                 return time.FromUnixTimeSeconds();
             }
-            return UnixTimestampMilisecondsToDateTime(unixTime);
+            return UnixTimestampMicrosecondsToDateTime(unixTime);
         }
 
-        public static DateTime UnixTimestampMilisecondsToDateTime(string unixTime)
+        public static DateTime UnixTimestampMicrosecondsToDateTime(string unixTime)
         {
             try
             {

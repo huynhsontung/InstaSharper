@@ -43,7 +43,7 @@ namespace InstaSharper.Converters.Shopping
                 {
                     try
                     {
-                        product.MainImage.Add(new InstaImage(image.Url, int.Parse(image.Width), int.Parse(image.Height)));
+                        product.MainImage.Add(new InstaImage(image.Url, image.Width, image.Height));
                     }
                     catch { }
                 }
@@ -54,7 +54,7 @@ namespace InstaSharper.Converters.Shopping
                 {
                     try
                     {
-                        product.ThumbnailImage.Add(new InstaImage(image.Url, int.Parse(image.Width), int.Parse(image.Height)));
+                        product.ThumbnailImage.Add(new InstaImage(image.Url, image.Width, image.Height));
                     }
                     catch { }
                 }
@@ -69,7 +69,7 @@ namespace InstaSharper.Converters.Shopping
                         {
                             try
                             {
-                                product.ThumbnailImage.Add(new InstaImage(image.Url, int.Parse(image.Width), int.Parse(image.Height)));
+                                product.ThumbnailImage.Add(new InstaImage(image.Url, image.Width, image.Height));
                             }
                             catch { }
                         }

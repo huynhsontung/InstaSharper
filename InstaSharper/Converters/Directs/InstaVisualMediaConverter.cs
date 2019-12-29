@@ -38,12 +38,11 @@ namespace InstaSharper.Converters.Directs
 
             if (SourceObject.Images?.Candidates != null)
                 foreach (var image in SourceObject.Images.Candidates)
-                    visualMedia.Images.Add(new InstaImage(image.Url, int.Parse(image.Width), int.Parse(image.Height)));
+                    visualMedia.Images.Add(new InstaImage(image.Url, image.Width, image.Height));
 
             if (SourceObject.Videos?.Count > 0)
                 foreach (var video in SourceObject.Videos)
-                    visualMedia.Videos.Add(new InstaVideo(video.Url, int.Parse(video.Width), int.Parse(video.Height),
-                        video.Type));
+                    visualMedia.Videos.Add(new InstaVideo(video.Url, video.Width, video.Height, video.Type));
 
             return visualMedia;
         }

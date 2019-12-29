@@ -1,26 +1,19 @@
-﻿using Newtonsoft.Json;
+﻿using InstaSharper.Classes.ResponseWrappers.Media;
+using Newtonsoft.Json;
 
 namespace InstaSharper.Classes.Models.Media
 {
-    public class InstaVideo
+    public class InstaVideo : InstaVideoResponse
     {
         public InstaVideo() { }
         public InstaVideo(string url, int width, int height) : this(url, width, height, 3) { }
         public InstaVideo(string url, int width, int height, int type)
         {
-            Uri = url;
+            Url = url;
             Width = width;
             Height = height;
             Type = type;
         }
-
-        public string Uri { get; set; }
-
-        public int Width { get; set; }
-
-        public int Height { get; set; }
-
-        public int Type { get; set; }
 
         internal string UploadId { get; set; }
 

@@ -21,4 +21,30 @@ namespace InstaSharper.Classes.Models.Direct
 
         public InstaAnimatedImageUser User { get; set; }
     }
+
+    public class InstaAnimatedImageUser
+    {
+        public bool IsVerified { get; set; }
+
+        public string Username { get; set; }
+    }
+
+    public class InstaAnimatedImageMedia
+    {
+        public string Url { get; set; }
+
+        public int Width { get; set; } = 0;
+
+        public int Height { get; set; } = 0;
+
+        public int Size { get; set; }
+
+        public string Mp4Url { get; set; }
+
+        public int Mp4Size { get; set; }
+
+        public string WebpUrl { get; set; }
+
+        public int WebpSize { get; set; }
+    }
 }

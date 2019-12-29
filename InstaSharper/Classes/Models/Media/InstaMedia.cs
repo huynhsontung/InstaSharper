@@ -29,7 +29,7 @@ namespace InstaSharper.Classes.Models.Media
         public List<InstaVideo> Videos { get; set; } = new List<InstaVideo>();
 
         public int Width { get; set; }
-        public string Height { get; set; }
+        public int Height { get; set; }
 
         public InstaUser User { get; set; }
 

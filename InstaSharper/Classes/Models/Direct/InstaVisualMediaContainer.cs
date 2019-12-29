@@ -27,15 +27,6 @@ namespace InstaSharper.Classes.Models.Direct
 
         public List<long> SeenUserIds { get; set; } = new List<long>();
 
-        public bool IsExpired
-        {
-            get
-            {
-                if (Media != null)
-                    return Media.IsExpired;
-
-                return false;
-            }
-        }
+        public bool IsExpired => Media == null || Media.IsExpired;
     }
 }

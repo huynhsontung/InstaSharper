@@ -24,7 +24,7 @@ namespace InstaSharper.Classes.Models.Direct
 
         public string ThreadId { get; set; }
 
-        public bool HasOlder { get; set; }
+        public bool? HasOlder { get; set; }
 
         public InstaUserShort Inviter { get; set; }
 
@@ -34,7 +34,7 @@ namespace InstaSharper.Classes.Models.Direct
 
         public bool Canonical { get; set; }
 
-        public bool HasNewer { get; set; }
+        public bool? HasNewer { get; set; }
 
         public bool IsSpam { get; set; }
 
@@ -62,7 +62,7 @@ namespace InstaSharper.Classes.Models.Direct
 
         public int ExpiringMediaReceiveCount { get; set; }
 
-        public List<InstaLastSeen> LastSeenAt { get; set; }
+        public Dictionary<long, InstaLastSeen> LastSeenAt { get; set; }
 
         public List<InstaUserShortFriendship> LeftUsers { get; set; } = new List<InstaUserShortFriendship>();
 

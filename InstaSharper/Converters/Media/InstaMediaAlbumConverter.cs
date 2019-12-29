@@ -54,10 +54,10 @@ namespace InstaSharper.Converters.Media
                 media.Location = ConvertersFabric.Instance.GetLocationConverter(SourceObject.Media.Location).Convert();
             if (SourceObject.Media.Images?.Candidates == null) return media;
             foreach (var image in SourceObject.Media.Images.Candidates)
-                media.Images.Add(new InstaImage(image.Url, int.Parse(image.Width), int.Parse(image.Height)));
+                media.Images.Add(new InstaImage(image.Url, image.Width, image.Height));
             if (SourceObject.Media.Videos == null) return media;
             foreach (var video in SourceObject.Media.Videos)
-                media.Videos.Add(new InstaVideo(video.Url, int.Parse(video.Width), int.Parse(video.Height),
+                media.Videos.Add(new InstaVideo(video.Url, video.Width, video.Height,
                     video.Type));
             return media;
         }

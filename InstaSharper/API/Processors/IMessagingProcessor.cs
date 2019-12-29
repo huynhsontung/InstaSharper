@@ -118,14 +118,14 @@ namespace InstaSharper.API.Processors
         /// </summary>
         /// <param name="threadId">Thread id</param>
         /// <param name="itemId">Item id (message id)</param>
-        Task<IResult<bool>> LikeThreadMessageAsync(string threadId, string itemId);
+        Task<IResult<bool>> LikeItemAsync(string threadId, string itemId);
 
         /// <summary>
         ///     Mark direct message as seen
         /// </summary>
         /// <param name="threadId">Thread id</param>
         /// <param name="itemId">Message id (item id)</param>
-        Task<IResult<bool>> MarkDirectThreadAsSeenAsync(string threadId, string itemId);
+        Task<IResult<bool>> MarkItemSeenAsync(string threadId, string itemId);
 
         /// <summary>
         ///     Mute direct thread

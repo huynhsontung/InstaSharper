@@ -74,7 +74,7 @@ namespace InstaSharper.API.Processors
             try
             {
                 var uploadId = ApiRequestMessage.GenerateRandomUploadId();
-                var videoHashCode = Path.GetFileName(video.Video.Uri ?? $"C:\\{13.GenerateRandomString()}.mp4").GetHashCode();
+                var videoHashCode = Path.GetFileName(video.Video.Url ?? $"C:\\{13.GenerateRandomString()}.mp4").GetHashCode();
                 var waterfallId = Guid.NewGuid().ToString();
                 var videoEntityName = $"{uploadId}_0_{videoHashCode}";
                 var videoUri = UriCreator.GetStoryUploadVideoUri(uploadId, videoHashCode);
@@ -186,7 +186,7 @@ namespace InstaSharper.API.Processors
                 // video part
                 byte[] videoBytes;
                 if (video.Video.VideoBytes == null)
-                    videoBytes = File.ReadAllBytes(video.Video.Uri);
+                    videoBytes = File.ReadAllBytes(video.Video.Url);
                 else
                     videoBytes = video.Video.VideoBytes;
 
@@ -199,7 +199,7 @@ namespace InstaSharper.API.Processors
                 request.Content = videoContent;
                 upProgress.UploadState = InstaUploadState.Uploading;
                 progress?.Invoke(upProgress);
-                var vidExt = Path.GetExtension(video.Video.Uri ?? $"C:\\{13.GenerateRandomString()}.mp4").Replace(".", "").ToLower();
+                var vidExt = Path.GetExtension(video.Video.Url ?? $"C:\\{13.GenerateRandomString()}.mp4").Replace(".", "").ToLower();
                 if (vidExt == "mov")
                     request.Headers.Add("X-Entity-Type", "video/quicktime");
                 else
@@ -226,7 +226,7 @@ namespace InstaSharper.API.Processors
                 {
                     upProgress.UploadState = InstaUploadState.UploadingThumbnail;
                     progress?.Invoke(upProgress);
-                    var photoHashCode = Path.GetFileName(video.VideoThumbnail.Uri ?? $"C:\\{13.GenerateRandomString()}.jpg").GetHashCode();
+                    var photoHashCode = Path.GetFileName(video.VideoThumbnail.Url ?? $"C:\\{13.GenerateRandomString()}.jpg").GetHashCode();
                     var photoEntityName = $"{uploadId}_0_{photoHashCode}";
                     var photoUri = UriCreator.GetStoryUploadPhotoUri(uploadId, photoHashCode);
                     var photoUploadParamsObj = new JObject
@@ -240,7 +240,7 @@ namespace InstaSharper.API.Processors
                     var photoUploadParams = JsonConvert.SerializeObject(photoUploadParamsObj);
                     byte[] imageBytes;
                     if (video.VideoThumbnail.ImageBytes == null)
-                        imageBytes = File.ReadAllBytes(video.VideoThumbnail.Uri);
+                        imageBytes = File.ReadAllBytes(video.VideoThumbnail.Url);
                     else
                         imageBytes = video.VideoThumbnail.ImageBytes;
                     var imageContent = new ByteArrayContent(imageBytes);
@@ -527,7 +527,7 @@ namespace InstaSharper.API.Processors
             try
             {
                 var uploadId = ApiRequestMessage.GenerateRandomUploadId();
-                var photoHashCode = Path.GetFileName(image.Uri ?? $"C:\\{13.GenerateRandomString()}.jpg").GetHashCode();
+                var photoHashCode = Path.GetFileName(image.Url ?? $"C:\\{13.GenerateRandomString()}.jpg").GetHashCode();
                 var photoEntityName = $"{uploadId}_0_{photoHashCode}";
                 var photoUri = UriCreator.GetStoryUploadPhotoUri(uploadId, photoHashCode);
                 var waterfallId = Guid.NewGuid().ToString();
@@ -587,7 +587,7 @@ namespace InstaSharper.API.Processors
                 progress?.Invoke(upProgress);
                 var photoUploadParams = JsonConvert.SerializeObject(photoUploadParamsObj);
                 byte[] imageBytes;
-                imageBytes = image.ImageBytes ?? File.ReadAllBytes(image.Uri);
+                imageBytes = image.ImageBytes ?? File.ReadAllBytes(image.Url);
                 var imageContent = new ByteArrayContent(imageBytes);
                 imageContent.Headers.Add("Content-Transfer-Encoding", "binary");
                 imageContent.Headers.Add("Content-Type", "application/octet-stream");
@@ -1075,7 +1075,7 @@ namespace InstaSharper.API.Processors
             try
             {
                 var uploadId = ApiRequestMessage.GenerateRandomUploadId();
-                var videoHashCode = Path.GetFileName(video.Video.Uri ?? $"C:\\{13.GenerateRandomString()}.mp4").GetHashCode();
+                var videoHashCode = Path.GetFileName(video.Video.Url ?? $"C:\\{13.GenerateRandomString()}.mp4").GetHashCode();
                 var waterfallId = Guid.NewGuid().ToString();
                 var videoEntityName = $"{uploadId}_0_{videoHashCode}";
                 var videoUri = UriCreator.GetStoryUploadVideoUri(uploadId, videoHashCode);
@@ -1136,7 +1136,7 @@ namespace InstaSharper.API.Processors
 
 
                 // video part
-                var videoBytes = video.Video.VideoBytes ?? File.ReadAllBytes(video.Video.Uri);
+                var videoBytes = video.Video.VideoBytes ?? File.ReadAllBytes(video.Video.Url);
 
                 var videoContent = new ByteArrayContent(videoBytes);
                 //var progressContent = new ProgressableStreamContent(videoContent, 4096, progress)
@@ -1147,7 +1147,7 @@ namespace InstaSharper.API.Processors
                 request.Content = videoContent;
                 upProgress.UploadState = InstaUploadState.Uploading;
                 progress?.Invoke(upProgress);
-                var vidExt = Path.GetExtension(video.Video.Uri ?? $"C:\\{13.GenerateRandomString()}.mp4").Replace(".", "").ToLower();
+                var vidExt = Path.GetExtension(video.Video.Url ?? $"C:\\{13.GenerateRandomString()}.mp4").Replace(".", "").ToLower();
                 if (vidExt == "mov")
                     request.Headers.Add("X-Entity-Type", "video/quicktime");
                 else
@@ -1170,7 +1170,7 @@ namespace InstaSharper.API.Processors
                 }
                 upProgress.UploadState = InstaUploadState.Uploaded;
                 progress?.Invoke(upProgress);
-                var photoHashCode = Path.GetFileName(video.VideoThumbnail.Uri ?? $"C:\\{13.GenerateRandomString()}.jpg").GetHashCode();
+                var photoHashCode = Path.GetFileName(video.VideoThumbnail.Url ?? $"C:\\{13.GenerateRandomString()}.jpg").GetHashCode();
                 var photoEntityName = $"{uploadId}_0_{photoHashCode}";
                 var photoUri = UriCreator.GetStoryUploadPhotoUri(uploadId, photoHashCode);
                 var photoUploadParamsObj = new JObject
@@ -1183,7 +1183,7 @@ namespace InstaSharper.API.Processors
                 upProgress.UploadState = InstaUploadState.UploadingThumbnail;
                 progress?.Invoke(upProgress);
                 var photoUploadParams = JsonConvert.SerializeObject(photoUploadParamsObj);
-                var imageBytes = video.VideoThumbnail.ImageBytes ?? File.ReadAllBytes(video.VideoThumbnail.Uri);
+                var imageBytes = video.VideoThumbnail.ImageBytes ?? File.ReadAllBytes(video.VideoThumbnail.Url);
                 var imageContent = new ByteArrayContent(imageBytes);
                 imageContent.Headers.Add("Content-Transfer-Encoding", "binary");
                 imageContent.Headers.Add("Content-Type", "application/octet-stream");
