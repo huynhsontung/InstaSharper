@@ -38,8 +38,8 @@ namespace InstaSharper.Helpers
             request.Headers.Add("X-IG-Connection-Type", "WIFI");
             request.Headers.Add("X-IG-App-ID", InstaApiConstants.IG_APP_ID);
             request.Headers.Add("X-FB-HTTP-Engine", "Liger");
-            request.Properties.Add(new KeyValuePair<string, object>("X-Google-AD-ID",
-                deviceInfo.GoogleAdId.ToString()));
+            // request.Properties.Add(new KeyValuePair<string, object>("X-Google-AD-ID",
+            //     deviceInfo.GoogleAdId.ToString()));
             return request;
         }
 

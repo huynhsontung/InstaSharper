@@ -123,9 +123,9 @@ namespace InstaSharper.Classes.ResponseWrappers.User
 
         // Business accounts
 
-        [JsonProperty("hd_profile_pic_versions")] public List<ImageResponse> HdProfilePicVersions { get; set; }
+        [JsonProperty("hd_profile_pic_versions")] public List<BaseMediaResponse> HdProfilePicVersions { get; set; }
 
-        [JsonProperty("hd_profile_pic_url_info")] public ImageResponse HdProfilePicUrlInfo { get; set; }
+        [JsonProperty("hd_profile_pic_url_info")] public BaseMediaResponse HdProfilePicUrlInfo { get; set; }
 
         [JsonProperty("public_phone_number")] public string PublicPhoneNumber { get; set; }
 

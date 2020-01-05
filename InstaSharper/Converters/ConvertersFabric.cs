@@ -229,7 +229,7 @@ namespace InstaSharper.Converters
             return new InstaStoryCTAConverter { SourceObject = storyCta };
         }
 
-        public IObjectConverter<InstaImage, ImageResponse> GetImageConverter(ImageResponse imageResponse)
+        public IObjectConverter<InstaImage, BaseMediaResponse> GetImageConverter(BaseMediaResponse imageResponse)
         {
             return new InstaMediaImageConverter {SourceObject = imageResponse};
         }

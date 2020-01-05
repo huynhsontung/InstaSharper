@@ -71,9 +71,9 @@ namespace InstaSharper.Classes.Models.Account
         [JsonProperty("max_num_linked_entities_in_bio")]
         public int MaxNumLinkedEntitiesInBio { get; set; }
         [JsonProperty("hd_profile_pic_versions")]
-        public ImageResponse[] ProfilePicture { get; set; }
+        public BaseMediaResponse[] ProfilePicture { get; set; }
         [JsonProperty("hd_profile_pic_url_info")]
-        public ImageResponse ProfilePictureUrlInfo { get; set; }
+        public BaseMediaResponse ProfilePictureUrlInfo { get; set; }
         [JsonProperty("has_persistent_profile_school")]
         public bool HasPersistentProfileSchool { get; set; }
         [JsonProperty("can_boost_post")]

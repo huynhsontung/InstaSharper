@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using DotNetty.Buffers;
 using Ionic.Zlib;
+using Thrift;
 using Thrift.Protocol;
 using Thrift.Protocol.Entities;
 using Thrift.Transport.Client;
@@ -49,7 +50,7 @@ namespace InstaSharper.API.Push
         /// <returns>Payload</returns>
         public static async Task<IByteBuffer> BuildPayload(FbnsConnectionData data)
         {
-            _memoryBufferTransport = new TMemoryBufferTransport();
+            _memoryBufferTransport = new TMemoryBufferTransport(new TConfiguration());
             _thrift = new TCompactProtocol(_memoryBufferTransport);
             _payloadData = data;
 

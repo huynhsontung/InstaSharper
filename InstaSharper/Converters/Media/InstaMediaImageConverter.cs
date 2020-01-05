@@ -4,9 +4,9 @@ using InstaSharper.Classes.ResponseWrappers.Media;
 
 namespace InstaSharper.Converters.Media
 {
-    internal class InstaMediaImageConverter : IObjectConverter<InstaImage, ImageResponse>
+    internal class InstaMediaImageConverter : IObjectConverter<InstaImage, BaseMediaResponse>
     {
-        public ImageResponse SourceObject { get; set; }
+        public BaseMediaResponse SourceObject { get; set; }
 
         public InstaImage Convert()
         {

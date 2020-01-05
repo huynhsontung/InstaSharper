@@ -30,9 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Thrift">
-      <HintPath>Thrift.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\Thrift\Thrift\Thrift.csproj" />
   </ItemGroup>
 
   <ItemGroup>

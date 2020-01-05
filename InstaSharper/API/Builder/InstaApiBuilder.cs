@@ -45,14 +45,14 @@ namespace InstaSharper.API.Builder
 
             if (_httpHandler == null) _httpHandler = new HttpClientHandler();
 
+            if (_device == null) _device = AndroidDeviceGenerator.GetRandomAndroidDevice();
+
             if (_httpClient == null)
             {
                 _httpClient = new HttpClient(_httpHandler) { BaseAddress = new Uri(InstaApiConstants.INSTAGRAM_URL) };
                 HttpHelper.SetDefaultRequestHeaders(_httpClient.DefaultRequestHeaders, _device);
             }
-
-            if (_device == null) _device = AndroidDeviceGenerator.GetRandomAndroidDevice();
-
+            
             if (_requestMessage == null)
             {
                 _requestMessage = new ApiRequestMessage

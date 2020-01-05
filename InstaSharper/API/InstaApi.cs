@@ -924,10 +924,10 @@ namespace InstaSharper.API
                 var signature = string.Empty;
                 var devid = string.Empty;
                 var apiVersion = ApiVersion.CurrentApiVersion;
-                if (isNewLogin)
-                    signature = $"{RequestProcessor.RequestMessage.GenerateSignature(apiVersion, apiVersion.SignatureKey, out devid)}.{RequestProcessor.RequestMessage.GetMessageString()}";
-                else
-                    signature = $"{RequestProcessor.RequestMessage.GenerateChallengeSignature(apiVersion, apiVersion.SignatureKey, csrftoken, out devid)}.{RequestProcessor.RequestMessage.GetChallengeMessageString(csrftoken)}";
+                // if (isNewLogin)
+                //     signature = $"{RequestProcessor.RequestMessage.GenerateSignature(apiVersion, apiVersion.SignatureKey, out devid)}.{RequestProcessor.RequestMessage.GetMessageString()}";
+                // else
+                signature = $"{RequestProcessor.RequestMessage.GenerateChallengeSignature(apiVersion, apiVersion.SignatureKey, csrftoken, out devid)}.{RequestProcessor.RequestMessage.GetChallengeMessageString(csrftoken)}";
                 DeviceInfo.DeviceId = devid;
                 var fields = new Dictionary<string, string>
                 {

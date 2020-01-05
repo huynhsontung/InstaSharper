@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace InstaSharper.Classes.Models.Media
 {
-    public class InstaImage : ImageResponse
+    public class InstaImage : BaseMediaResponse
     {
         public InstaImage(string url, int width, int height)
         {

@@ -181,9 +181,10 @@ namespace InstaSharper.API
         public const string DIRECT_BROADCAST_PROFILE = API_SUFFIX + "/direct_v2/threads/broadcast/profile/";
         public const string DIRECT_BROADCAST_REACTION = API_SUFFIX + "/direct_v2/threads/broadcast/reaction/";
         public const string DIRECT_BROADCAST_REEL_SHARE = API_SUFFIX + "/direct_v2/threads/broadcast/reel_share/";
-        public const string DIRECT_BROADCAST_UPLOAD_PHOTO = API_SUFFIX + "/direct_v2/threads/broadcast/upload_photo/";
         public const string DIRECT_BROADCAST_HASHTAG = API_SUFFIX + "/direct_v2/threads/broadcast/hashtag/";
         public const string DIRECT_BROADCAST_LIVE_VIEWER_INVITE = API_SUFFIX + "/direct_v2/threads/broadcast/live_viewer_invite/";
+        public const string DIRECT_BROADCAST_CONFIGURE_PHOTO = API_SUFFIX + "/direct_v2/threads/broadcast/configure_photo/";
+        public const string DIRECT_UPLOAD_PHOTO = INSTAGRAM_URL + "/rupload_igphoto/{0}";
         /// <summary>
         /// post data:
         /// <para>use_unified_inbox=true</para>

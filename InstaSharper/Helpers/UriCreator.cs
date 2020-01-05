@@ -541,9 +541,19 @@ namespace InstaSharper.Helpers
             return instaUri;
         }
 
-        public static Uri GetDirectSendPhotoUri()
+        /// <summary>
+        /// **DEPRECATED**
+        /// </summary>
+        // public static Uri GetDirectSendPhotoUri()
+        // {
+        //     if (!Uri.TryCreate(BaseInstagramUri, InstaApiConstants.DIRECT_BROADCAST_UPLOAD_PHOTO, out var instaUri))
+        //         throw new Exception("Cant create URI for sending photo to direct");
+        //     return instaUri;
+        // }
+
+        public static Uri GetDirectSendPhotoUri(string uploadId)
         {
-            if (!Uri.TryCreate(BaseInstagramUri, InstaApiConstants.DIRECT_BROADCAST_UPLOAD_PHOTO, out var instaUri))
+            if (!Uri.TryCreate(string.Format(InstaApiConstants.DIRECT_UPLOAD_PHOTO, uploadId), UriKind.Absolute, out var instaUri))
                 throw new Exception("Cant create URI for sending photo to direct");
             return instaUri;
         }

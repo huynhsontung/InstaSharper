@@ -48,6 +48,9 @@ namespace InstaSharper.Classes.Models.Direct
 
         public bool ValuedRequest { get; set; }
 
+        /// <summary>
+        /// Media upload id. Example: /rupload_igphoto/direct_{PendingScore}
+        /// </summary>
         public long PendingScore { get; set; }
 
         public bool VCMuted { get; set; }

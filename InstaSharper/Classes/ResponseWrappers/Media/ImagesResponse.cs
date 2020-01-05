@@ -4,10 +4,10 @@ namespace InstaSharper.Classes.ResponseWrappers.Media
 {
     public class ImagesResponse
     {
-        [JsonProperty("low_resolution")] public ImageResponse LowResolution { get; set; }
+        [JsonProperty("low_resolution")] public BaseMediaResponse LowResolution { get; set; }
 
-        [JsonProperty("thumbnail")] public ImageResponse Thumbnail { get; set; }
+        [JsonProperty("thumbnail")] public BaseMediaResponse Thumbnail { get; set; }
 
-        [JsonProperty("standard_resolution")] public ImageResponse StandartResolution { get; set; }
+        [JsonProperty("standard_resolution")] public BaseMediaResponse StandartResolution { get; set; }
     }
 }

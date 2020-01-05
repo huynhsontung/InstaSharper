@@ -2,6 +2,7 @@
 using InstaSharper.API;
 using InstaSharper.Helpers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace InstaSharper.Classes.DeviceInfo
 {
@@ -13,6 +14,7 @@ namespace InstaSharper.Classes.DeviceInfo
 
     public class ApiRequestMessage
     {
+        [JsonProperty("country_codes")] public JRaw CountryCodes = new JRaw("[{\"country_code\":\"1\",\"source\":[\"default\",\"sim\"]}]");
         [JsonProperty("phone_id")] public string PhoneId { get; set; }
         [JsonProperty("username")] public string Username { get; set; }
         [JsonProperty("adid")] public string AdId { get; set; }

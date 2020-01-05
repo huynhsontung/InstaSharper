@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using InstaSharper.Classes;
 using InstaSharper.Classes.DeviceInfo;
@@ -28,6 +29,7 @@ using InstaSharper.Enums;
 using InstaSharper.Helpers;
 using InstaSharper.Logger;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace InstaSharper.API.Processors
 {
@@ -1016,55 +1018,6 @@ namespace InstaSharper.API.Processors
         }
 
         /// <summary>
-        ///     Send photo to direct thread (single)
-        /// </summary>
-        /// <param name="image">Image to upload</param>
-        /// <param name="threadId">Thread id</param>
-        /// <returns>Returns True is sent</returns>
-        public async Task<IResult<bool>> SendDirectPhotoAsync(InstaImage image, string threadId)
-        {
-            UserAuthValidator.Validate(_userAuthValidate);
-            return await SendDirectPhotoAsync(null, image, threadId);
-        }
-
-        /// <summary>
-        ///     Send photo to direct thread (single) with progress
-        /// </summary>
-        /// <param name="progress">Progress action</param>
-        /// <param name="image">Image to upload</param>
-        /// <param name="threadId">Thread id</param>
-        /// <returns>Returns True is sent</returns>
-        public async Task<IResult<bool>> SendDirectPhotoAsync(Action<InstaUploaderProgress> progress, InstaImage image, string threadId)
-        {
-            UserAuthValidator.Validate(_userAuthValidate);
-            return await SendDirectPhoto(progress, null, threadId, image);
-        }
-
-        /// <summary>
-        ///     Send photo to multiple recipients (multiple user)
-        /// </summary>
-        /// <param name="image">Image to upload</param>
-        /// <param name="recipients">Recipients (user ids/pk)</param>
-        /// <returns>Returns True is sent</returns>
-        public async Task<IResult<bool>> SendDirectPhotoToRecipientsAsync(InstaImage image, params string[] recipients)
-        {
-            return await SendDirectPhotoToRecipientsAsync(null, image, recipients);
-        }
-
-        /// <summary>
-        ///     Send photo to multiple recipients (multiple user) with progress
-        /// </summary>
-        /// <param name="progress">Progress action</param>
-        /// <param name="image">Image to upload</param>
-        /// <param name="recipients">Recipients (user ids/pk)</param>
-        /// <returns>Returns True is sent</returns>
-        public async Task<IResult<bool>> SendDirectPhotoToRecipientsAsync(Action<InstaUploaderProgress> progress, InstaImage image, params string[] recipients)
-        {
-            UserAuthValidator.Validate(_userAuthValidate);
-            return await SendDirectPhoto(progress, string.Join(",", recipients), null, image);
-        }
-
-        /// <summary>
         ///     Send profile to direct thrad
         /// </summary>
         /// <param name="userIdToSend">User id to send</param>
@@ -1594,70 +1547,75 @@ namespace InstaSharper.API.Processors
                 return Result.Fail<bool>(exception);
             }
         }
-        private async Task<IResult<bool>> SendDirectPhoto(Action<InstaUploaderProgress> progress, string recipients, string threadId, InstaImage image)
+
+        public async Task<IResult<bool>> SendDirectPhotoAsync(InstaImage image, string threadId, long uploadId,
+            Action<InstaUploaderProgress> progress = null)
         {
             var upProgress = new InstaUploaderProgress
             {
-                Caption = string.Empty,
-                UploadState = InstaUploadState.Preparing
+                Caption = string.Empty, UploadState = InstaUploadState.Preparing
             };
             try
             {
-                var instaUri = UriCreator.GetDirectSendPhotoUri();
-                var uploadId = ApiRequestMessage.GenerateRandomUploadId();
-                var clientContext = Guid.NewGuid();
-                upProgress.UploadId = uploadId;
+                var entityName = "direct_" + uploadId;
+                var uri = UriCreator.GetDirectSendPhotoUri(entityName);
+                upProgress.UploadId = uploadId.ToString();
                 progress?.Invoke(upProgress);
-                var requestContent = new MultipartFormDataContent(uploadId)
-                {
-                    {new StringContent("send_item"), "\"action\""},
-                    {new StringContent(clientContext.ToString()), "\"client_context\""},
-                    {new StringContent(_user.CsrfToken), "\"_csrftoken\""},
-                    {new StringContent(_deviceInfo.Uuid.ToString()), "\"_uuid\""}
-                };
-                if (!string.IsNullOrEmpty(recipients))
-                    requestContent.Add(new StringContent($"[[{recipients}]]"), "recipient_users");
-                else
-                    requestContent.Add(new StringContent($"[{threadId}]"), "thread_ids");
-                byte[] fileBytes;
-                if (image.ImageBytes == null)
-                    fileBytes = File.ReadAllBytes(image.Url);
-                else
-                    fileBytes = image.ImageBytes;
-                var imageContent = new ByteArrayContent(fileBytes);
-                imageContent.Headers.Add("Content-Transfer-Encoding", "binary");
-                imageContent.Headers.Add("Content-Type", "application/octet-stream");
-                requestContent.Add(imageContent, "photo",
-                    $"direct_temp_photo_{ApiRequestMessage.GenerateUploadId()}.jpg");
-                //var progressContent = new ProgressableStreamContent(requestContent, 4096, progress)
-                //{
-                //    UploaderProgress = upProgress
-                //};
-                var request = HttpHelper.GetDefaultRequest(HttpMethod.Post, instaUri, _deviceInfo);
-                request.Content = requestContent;
+                var ruploadParams = new JObject(
+                    new JProperty("media_type", 1),
+                    new JProperty("upload_id", uploadId.ToString()),
+                    new JProperty("upload_media_height", image.Height),
+                    new JProperty("upload_media_width", image.Width));
+                var requestMessage = HttpHelper.GetDefaultRequest(HttpMethod.Post, uri, _deviceInfo);
+                requestMessage.Headers.Add("X-Entity-Name", entityName);
+                requestMessage.Headers.Add("X-Instagram-Rupload-Params", ruploadParams.ToString(Formatting.None));
+                var fileBytes = image.ImageBytes ?? File.ReadAllBytes(image.Url);
+                var content = new ByteArrayContent(fileBytes);
+                content.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
+                content.Headers.Add("Offset", "0");
+                requestMessage.Headers.Add("X-Entity-Length", fileBytes.Length.ToString());
+                requestMessage.Content = content;
                 upProgress.UploadState = InstaUploadState.Uploading;
                 progress?.Invoke(upProgress);
-                var response = await _httpRequestProcessor.SendAsync(request);
+                var response = await _httpRequestProcessor.SendAsync(requestMessage);
                 var json = await response.Content.ReadAsStringAsync();
-                if (response.StatusCode != HttpStatusCode.OK)
+                var obj = JObject.Parse(json);
+                if (response.StatusCode != HttpStatusCode.OK || obj["status"].ToString() != "ok")
                 {
                     upProgress.UploadState = InstaUploadState.Error;
                     progress?.Invoke(upProgress);
-                    return Result.UnExpectedResponse<bool>(response, json);
-                }
-                upProgress.UploadState = InstaUploadState.Uploaded;
-                progress?.Invoke(upProgress);
-                var obj = JsonConvert.DeserializeObject<InstaDefault>(json);
-                if (obj.Status.ToLower() == "ok")
-                {
-                    upProgress.UploadState = InstaUploadState.Completed;
-                    progress?.Invoke(upProgress);
-                    return Result.Success(true);
+                    return Result.Fail<bool>(json);
                 }
 
-                upProgress.UploadState = InstaUploadState.Error;
+                upProgress.UploadState = InstaUploadState.Uploaded;
                 progress?.Invoke(upProgress);
-                return Result.UnExpectedResponse<bool>(response, json);
+                var configUri = new Uri(InstaApiConstants.INSTAGRAM_URL + InstaApiConstants.DIRECT_BROADCAST_CONFIGURE_PHOTO);
+                var config = new Dictionary<string, string>(7)
+                {
+                    ["action"] = "send_item",
+                    ["allow_full_aspect_ratio"] = "1",
+                    ["content_type"] = "photo",
+                    ["mutation_token"] = Guid.NewGuid().ToString(),
+                    ["sampled"] = "1",
+                    ["thread_id"] = threadId,
+                    ["upload_id"] = uploadId.ToString()
+                };
+                var form = new FormUrlEncodedContent(config);
+                var configRequest = HttpHelper.GetDefaultRequest(HttpMethod.Post, configUri, _deviceInfo);
+                configRequest.Content = form;
+                response = await _httpRequestProcessor.SendAsync(configRequest);
+                json = await response.Content.ReadAsStringAsync();
+                obj = JObject.Parse(json);
+                if (response.StatusCode != HttpStatusCode.OK || obj["status"].ToString() != "ok")
+                {
+                    upProgress.UploadState = InstaUploadState.Error;
+                    progress?.Invoke(upProgress);
+                    return Result.Fail<bool>(json);
+                }
+
+                upProgress.UploadState = InstaUploadState.Completed;
+                progress?.Invoke(upProgress);
+                return Result.Success(true);
             }
             catch (HttpRequestException httpException)
             {
@@ -1672,6 +1630,7 @@ namespace InstaSharper.API.Processors
                 return Result.Fail<bool>(exception);
             }
         }
+
         private async Task<IResult<InstaDirectInboxContainerResponse>> GetDirectInbox(string maxId = null)
         {
             try

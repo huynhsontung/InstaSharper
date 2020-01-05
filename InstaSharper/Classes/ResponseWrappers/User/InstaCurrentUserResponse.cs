@@ -26,10 +26,10 @@ namespace InstaSharper.Classes.ResponseWrappers.User
         [JsonProperty("email")] public string Email { get; set; }
 
         [JsonProperty("hd_profile_pic_versions")]
-        public ImageResponse[] HDProfilePicVersions { get; set; }
+        public BaseMediaResponse[] HDProfilePicVersions { get; set; }
 
         [JsonProperty("hd_profile_pic_url_info")]
-        public ImageResponse HDProfilePicture { get; set; }
+        public BaseMediaResponse HDProfilePicture { get; set; }
 
         [JsonProperty("external_url")] public string ExternalURL { get; set; }
     }

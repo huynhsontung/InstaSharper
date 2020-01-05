@@ -238,38 +238,15 @@ namespace InstaSharper.API.Processors
         Task<IResult<bool>> SendDirectLocationAsync(string externalId, params string[] threadIds);
 
         /// <summary>
-        ///     Send photo to direct thread (single) with progress
+        /// Send photo to direct thread with progress
         /// </summary>
         /// <param name="image">Image to upload</param>
         /// <param name="threadId">Thread id</param>
-        /// <returns>Returns True is sent</returns>
-        Task<IResult<bool>> SendDirectPhotoAsync(InstaImage image, string threadId);
-
-        /// <summary>
-        ///     Send photo to direct thread (single)
-        /// </summary>
-        /// <param name="progress">Progress action</param>
-        /// <param name="image">Image to upload</param>
-        /// <param name="threadId">Thread id</param>
-        /// <returns>Returns True is sent</returns>
-        Task<IResult<bool>> SendDirectPhotoAsync(Action<InstaUploaderProgress> progress, InstaImage image, string threadId);
-
-        /// <summary>
-        ///     Send photo to multiple recipients (multiple user)
-        /// </summary>
-        /// <param name="image">Image to upload</param>
-        /// <param name="recipients">Recipients (user ids/pk)</param>
-        /// <returns>Returns True is sent</returns>
-        Task<IResult<bool>> SendDirectPhotoToRecipientsAsync(InstaImage image, params string[] recipients);
-
-        /// <summary>
-        ///     Send photo to multiple recipients (multiple user) with progress
-        /// </summary>
-        /// <param name="progress">Progress action</param>
-        /// <param name="image">Image to upload</param>
-        /// <param name="recipients">Recipients (user ids/pk)</param>
-        /// <returns>Returns True is sent</returns>
-        Task<IResult<bool>> SendDirectPhotoToRecipientsAsync(Action<InstaUploaderProgress> progress, InstaImage image, params string[] recipients);
+        /// <param name="uploadId">Upload id or pending score of a thread</param>
+        /// <param name="progress">Action when progress is updated</param>
+        /// <returns></returns>
+        Task<IResult<bool>> SendDirectPhotoAsync(InstaImage image, string threadId, long uploadId,
+            Action<InstaUploaderProgress> progress = null);
 
         /// <summary>
         ///     Send profile to direct thread
