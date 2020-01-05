@@ -1,13 +1,15 @@
 # InstagramApi [InstaSharper] [Forked]
 Tokenless, butthurtless private API for Instagram. Get account information, media, explore tags and user feed without any applications and other crap.
 
-### This fork is under active development with new features coming soon
+## Notes about this fork
+
+This fork only focuses on features that are related to Direct messaging aspect.
 
 ### Before posting new issues: [Demo samples](https://github.com/a-legotin/InstaSharper/tree/develop/InstaSharper.Examples), [Tests project](https://github.com/a-legotin/InstaSharper/tree/develop/InstaSharper.Tests/Endpoints) and [Wiki page](https://github.com/a-legotin/InstaSharper/wiki/How-to-use-library-features)
 
 Note that: there is a simple [Instagram API](https://github.com/a-legotin/InstagramAPI-Web) based on web-version of Instagram. This repository based on Instagram API for mobile devices.
 
-[![MyGet](https://img.shields.io/myget/instashaper-develop/v/InstaSharper.svg)](https://www.myget.org/feed/instashaper-develop/package/nuget/InstaSharper)
+<!-- [![MyGet](https://img.shields.io/myget/instashaper-develop/v/InstaSharper.svg)](https://www.myget.org/feed/instashaper-develop/package/nuget/InstaSharper) -->
 
 #### Current version: 1.4.0 [Stable], 2.0.0 [Under development]
 
@@ -69,7 +71,7 @@ Currently the library supports following coverage of the following Instagram API
 - [x] Search location
 - [x] Get location feed
 - [x] Collection create/get by id/get all/add items
-- [ ] Push notification (coming soon)
+- [x] Push notification
 
 ## Easy to use
 #### Use builder to get Insta API instance:
