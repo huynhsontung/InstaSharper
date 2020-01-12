@@ -345,19 +345,19 @@ namespace InstaSharper.API.Processors
                 var json = await response.Content.ReadAsStringAsync();
                 Debug.WriteLine(json);
                 if (response.StatusCode != HttpStatusCode.OK)
-                    return Result.UnExpectedResponse<InstaDefaultResponse>(response, json);
-                var obj = JsonConvert.DeserializeObject<InstaDefaultResponse>(json);
+                    return Result.UnExpectedResponse<InstaDefault>(response, json);
+                var obj = JsonConvert.DeserializeObject<InstaDefault>(json);
                 return Result.Success(obj);
             }
             catch (HttpRequestException httpException)
             {
                 _logger?.LogException(httpException);
-                return Result.Fail(httpException, default(InstaDefaultResponse), ResponseType.NetworkProblem);
+                return Result.Fail(httpException, default(InstaDefault), ResponseType.NetworkProblem);
             }
             catch (Exception exception)
             {
                 _logger?.LogException(exception);
-                return Result.Fail<InstaDefaultResponse>(exception);
+                return Result.Fail<InstaDefault>(exception);
             }
         }
     }

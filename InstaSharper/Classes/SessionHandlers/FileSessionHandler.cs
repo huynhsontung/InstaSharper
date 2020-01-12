@@ -9,7 +9,7 @@ namespace InstaSharper.Classes.SessionHandlers
     public class FileSessionHandler : ISessionHandler
     {
 
-        public IInstaApi InstaApi { get; set; }
+        public InstaApi InstaApi { get; set; }
 #if WINDOWS_UWP
         /// <summary>
         ///     File => Optional

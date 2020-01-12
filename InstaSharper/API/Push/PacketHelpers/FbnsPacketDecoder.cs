@@ -22,8 +22,8 @@ namespace InstaSharper.API.Push.PacketHelpers
 //            public const byte PubRec = 80;
 //            public const byte PubRel = 98;
 //            public const byte PubComp = 112;
-//            public const byte Connect = 16;
-//            public const byte Subscribe = 130;
+            public const byte Connect = 16;
+            public const byte Subscribe = 130;
 //            public const byte SubAck = 144;
 //            public const byte PingReq = 192;
             public const byte PingResp = 208;
@@ -134,6 +134,15 @@ namespace InstaSharper.API.Push.PacketHelpers
 
             switch (packetSignature & 240)  // We don't care about flags for these packets
             {
+                case Signatures.Subscribe & 240:
+                    var subscribePacket = new SubscribePacket();
+                    DecodePacketIdVariableHeader(buffer, subscribePacket, ref remainingLength);
+                    DecodeSubscribePayload(buffer, subscribePacket, ref remainingLength);
+                    return subscribePacket;
+                case Signatures.Connect:
+                    var connectPacket = new FbnsConnectPacket();
+                    DecodeConnectPacket(buffer, connectPacket, ref remainingLength);
+                    return connectPacket;
                 case Signatures.PubAck:
                     var pubAckPacket = new PubAckPacket();
                     DecodePacketIdVariableHeader(buffer, pubAckPacket, ref remainingLength);
@@ -146,6 +155,110 @@ namespace InstaSharper.API.Push.PacketHelpers
                     return PingRespPacket.Instance;
                 default:
                     throw new DecoderException($"Packet type {packetSignature} not supported");
+            }
+        }
+
+        static void DecodeSubscribePayload(IByteBuffer buffer, SubscribePacket packet, ref int remainingLength)
+        {
+            var subscribeTopics = new List<SubscriptionRequest>();
+            while (remainingLength > 0)
+            {
+                string topicFilter = DecodeString(buffer, ref remainingLength);
+                ValidateTopicFilter(topicFilter);
+
+                DecreaseRemainingLength(ref remainingLength, 1);
+                int qos = buffer.ReadByte();
+                if (qos >= (int)QualityOfService.Reserved)
+                {
+                    throw new DecoderException($"[MQTT-3.8.3-4]. Invalid QoS value: {qos}.");
+                }
+
+                subscribeTopics.Add(new SubscriptionRequest(topicFilter, (QualityOfService)qos));
+            }
+
+            if (subscribeTopics.Count == 0)
+            {
+                throw new DecoderException("[MQTT-3.8.3-3]");
+            }
+
+            packet.Requests = subscribeTopics;
+        }
+
+        static void DecodeConnectPacket(IByteBuffer buffer, FbnsConnectPacket packet, ref int remainingLength)
+        {
+            string protocolName = DecodeString(buffer, ref remainingLength);
+            // if (!PROTOCOL_NAME.Equals(protocolName, StringComparison.Ordinal))
+            // {
+            //     throw new DecoderException($"Unexpected protocol name. Expected: {PROTOCOL_NAME}. Actual: {protocolName}");
+            // }
+            packet.ProtocolName = protocolName;
+
+            DecreaseRemainingLength(ref remainingLength, 1);
+            packet.ProtocolLevel = buffer.ReadByte();
+
+            // if (packet.ProtocolLevel != Util.ProtocolLevel)
+            // {
+            //     var connAckPacket = new ConnAckPacket();
+            //     connAckPacket.ReturnCode = ConnectReturnCode.RefusedUnacceptableProtocolVersion;
+            //     context.WriteAndFlushAsync(connAckPacket);
+            //     throw new DecoderException($"Unexpected protocol level. Expected: {Util.ProtocolLevel}. Actual: {packet.ProtocolLevel}");
+            // }
+
+            DecreaseRemainingLength(ref remainingLength, 1);
+            int connectFlags = buffer.ReadByte();
+
+            packet.CleanSession = (connectFlags & 0x02) == 0x02;
+
+            bool hasWill = (connectFlags & 0x04) == 0x04;
+            if (hasWill)
+            {
+                packet.HasWill = true;
+                packet.WillRetain = (connectFlags & 0x20) == 0x20;
+                packet.WillQualityOfService = (QualityOfService)((connectFlags & 0x18) >> 3);
+                if (packet.WillQualityOfService == QualityOfService.Reserved)
+                {
+                    throw new DecoderException($"[MQTT-3.1.2-14] Unexpected Will QoS value of {(int)packet.WillQualityOfService}.");
+                }
+                packet.WillTopicName = string.Empty;
+            }
+            else if ((connectFlags & 0x38) != 0) // bits 3,4,5 [MQTT-3.1.2-11]
+            {
+                throw new DecoderException("[MQTT-3.1.2-11]");
+            }
+
+            packet.HasUsername = (connectFlags & 0x80) == 0x80;
+            packet.HasPassword = (connectFlags & 0x40) == 0x40;
+            if (packet.HasPassword && !packet.HasUsername)
+            {
+                throw new DecoderException("[MQTT-3.1.2-22]");
+            }
+            if ((connectFlags & 0x1) != 0) // [MQTT-3.1.2-3]
+            {
+                throw new DecoderException("[MQTT-3.1.2-3]");
+            }
+
+            packet.KeepAliveInSeconds = DecodeUnsignedShort(buffer, ref remainingLength);
+
+            string clientId = DecodeString(buffer, ref remainingLength);
+            if (string.IsNullOrEmpty(clientId)) throw new DecoderException("Client identifier is required.");
+            packet.ClientId = clientId;
+
+            if (hasWill)
+            {
+                packet.WillTopicName = DecodeString(buffer, ref remainingLength);
+                int willMessageLength = DecodeUnsignedShort(buffer, ref remainingLength);
+                DecreaseRemainingLength(ref remainingLength, willMessageLength);
+                packet.WillMessage = buffer.ReadBytes(willMessageLength);
+            }
+
+            if (packet.HasUsername)
+            {
+                packet.Username = DecodeString(buffer, ref remainingLength);
+            }
+
+            if (packet.HasPassword)
+            {
+                packet.Password = DecodeString(buffer, ref remainingLength);
             }
         }
 
@@ -276,5 +389,33 @@ namespace InstaSharper.API.Push.PacketHelpers
             remainingLength -= minExpectedLength;
         }
 
+        static void ValidateTopicFilter(string topicFilter)
+        {
+            int length = topicFilter.Length;
+            if (length == 0)
+            {
+                throw new DecoderException("[MQTT-4.7.3-1]");
+            }
+
+            for (int i = 0; i < length; i++)
+            {
+                char c = topicFilter[i];
+                switch (c)
+                {
+                    case '+':
+                        if ((i > 0 && topicFilter[i - 1] != '/') || (i < length - 1 && topicFilter[i + 1] != '/'))
+                        {
+                            throw new DecoderException($"[MQTT-4.7.1-3]. Invalid topic filter: {topicFilter}");
+                        }
+                        break;
+                    case '#':
+                        if (i < length - 1 || (i > 0 && topicFilter[i - 1] != '/'))
+                        {
+                            throw new DecoderException($"[MQTT-4.7.1-2]. Invalid topic filter: {topicFilter}");
+                        }
+                        break;
+                }
+            }
+        }
     }
 }

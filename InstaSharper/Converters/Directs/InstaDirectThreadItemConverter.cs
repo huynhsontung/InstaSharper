@@ -30,6 +30,8 @@ namespace InstaSharper.Converters.Directs
             var truncatedItemType = SourceObject.ItemType.Trim().Replace("_", "");
             if (Enum.TryParse(truncatedItemType, true, out InstaDirectThreadItemType type))
                 threadItem.ItemType = type;
+            else
+                threadItem.ItemType = InstaDirectThreadItemType.Unknown;
 
             switch (threadItem.ItemType)
             {
@@ -226,6 +228,7 @@ namespace InstaSharper.Converters.Directs
                     try
                     {
                         threadItem.HashtagMedia = ConvertersFabric.Instance.GetDirectHashtagConverter(SourceObject.HashtagMedia).Convert();
+                        threadItem.Text = "#" + threadItem.HashtagMedia.Name;
                     }
                     catch { }
 

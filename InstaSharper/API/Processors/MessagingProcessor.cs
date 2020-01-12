@@ -134,7 +134,7 @@ namespace InstaSharper.API.Processors
 
                 if (response.StatusCode != HttpStatusCode.OK)
                     return Result.UnExpectedResponse<bool>(response, json);
-                var obj = JsonConvert.DeserializeObject<InstaDefaultResponse>(json);
+                var obj = JsonConvert.DeserializeObject<InstaDefault>(json);
                 if (obj.IsSucceed)
                     return Result.Success(true);
                 return Result.UnExpectedResponse<bool>(response, json);
@@ -636,7 +636,7 @@ namespace InstaSharper.API.Processors
         /// </summary>
         /// <param name="threadId">Thread id</param>
         /// <param name="itemId">Item id (message id)</param>
-        public async Task<IResult<bool>> LikeItemAsync(string threadId, string itemId)
+        public async Task<IResult<ItemAckResponse>> LikeItemAsync(string threadId, string itemId)
         {
             UserAuthValidator.Validate(_userAuthValidate);
             try
@@ -661,19 +661,19 @@ namespace InstaSharper.API.Processors
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
-                    return Result.UnExpectedResponse<bool>(response, json);
-                var obj = JsonConvert.DeserializeObject<InstaDefault>(json);
-                return obj.Status.ToLower() == "ok" ? Result.Success(true) : Result.UnExpectedResponse<bool>(response, json);
+                    return Result.UnExpectedResponse<ItemAckResponse>(response, json);
+                var obj = JsonConvert.DeserializeObject<ItemAckResponse>(json);
+                return obj.Status.ToLower() == "ok" ? Result.Success(obj) : Result.UnExpectedResponse<ItemAckResponse>(response, json);
             }
             catch (HttpRequestException httpException)
             {
                 _logger?.LogException(httpException);
-                return Result.Fail(httpException, default(bool), ResponseType.NetworkProblem);
+                return Result.Fail(httpException, new ItemAckResponse(), ResponseType.NetworkProblem);
             }
             catch (Exception exception)
             {
                 _logger?.LogException(exception);
-                return Result.Fail<bool>(exception);
+                return Result.Fail<ItemAckResponse>(exception);
             }
         }
 
@@ -827,7 +827,8 @@ namespace InstaSharper.API.Processors
         /// <param name="hashtag">Hashtag to send</param>
         /// <param name="threadIds">Thread ids</param>
         /// <returns>Returns True if hashtag sent</returns>
-        public async Task<IResult<bool>> SendDirectHashtagAsync(string text, string hashtag, params string[] threadIds)
+        public async Task<IResult<ItemAckPayloadResponse>> SendDirectHashtagAsync(string text, string hashtag,
+            params string[] threadIds)
         {
             return await SendDirectHashtagAsync(text, hashtag, threadIds, null);
         }
@@ -837,10 +838,11 @@ namespace InstaSharper.API.Processors
         /// </summary>
         /// <param name="text">Text to send</param>
         /// <param name="hashtag">Hashtag to send</param>
-        /// <param name="threadIds">Thread ids</param>
         /// <param name="recipients">Recipients ids</param>
+        /// <param name="threadIds">Thread ids</param>
         /// <returns>Returns True if hashtag sent</returns>
-        public async Task<IResult<bool>> SendDirectHashtagToRecipientsAsync(string text, string hashtag, params string[] recipients)
+        public async Task<IResult<ItemAckPayloadResponse>> SendDirectHashtagToRecipientsAsync(string text,
+            string hashtag, params string[] recipients)
         {
             return await SendDirectHashtagAsync(text, hashtag, null, recipients);
         }
@@ -853,7 +855,8 @@ namespace InstaSharper.API.Processors
         /// <param name="threadIds">Thread ids</param>
         /// <param name="recipients">Recipients ids</param>
         /// <returns>Returns True if hashtag sent</returns>
-        public async Task<IResult<bool>> SendDirectHashtagAsync(string text, string hashtag, string[] threadIds, string[] recipients)
+        private async Task<IResult<ItemAckPayloadResponse>> SendDirectHashtagAsync(string text, string hashtag,
+            string[] threadIds, string[] recipients)
         {
             UserAuthValidator.Validate(_userAuthValidate);
             try
@@ -863,7 +866,7 @@ namespace InstaSharper.API.Processors
                 var data = new Dictionary<string, string>
                 {
                     {"text", text ?? string.Empty},
-                    {"hashtag", hashtag},
+                    {"hashtag", hashtag ?? string.Empty},
                     {"action", "send_item"},
                     {"client_context", clientContext},
                     {"_csrftoken", _user.CsrfToken},
@@ -882,19 +885,19 @@ namespace InstaSharper.API.Processors
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
-                    return Result.UnExpectedResponse<bool>(response, json);
-                var obj = JsonConvert.DeserializeObject<InstaDefault>(json);
-                return obj.Status.ToLower() == "ok" ? Result.Success(true) : Result.UnExpectedResponse<bool>(response, json);
+                    return Result.UnExpectedResponse<ItemAckPayloadResponse>(response, json);
+                var obj = JsonConvert.DeserializeObject<ItemAckResponse>(json);
+                return obj.Status.ToLower() == "ok" ? Result.Success(obj.Payload) : Result.UnExpectedResponse<ItemAckPayloadResponse>(response, json);
             }
             catch (HttpRequestException httpException)
             {
                 _logger?.LogException(httpException);
-                return Result.Fail(httpException, default(bool), ResponseType.NetworkProblem);
+                return Result.Fail(httpException, new ItemAckPayloadResponse(), ResponseType.NetworkProblem);
             }
             catch (Exception exception)
             {
                 _logger?.LogException(exception);
-                return Result.Fail<bool>(exception);
+                return Result.Fail<ItemAckPayloadResponse>(exception);
             }
         }
 
@@ -904,7 +907,8 @@ namespace InstaSharper.API.Processors
         /// <param name="text">Text to send</param>
         /// <param name="link">Link to send</param>
         /// <param name="threadIds">Thread ids</param>
-        public async Task<IResult<bool>> SendDirectLinkAsync(string text, string link, params string[] threadIds)
+        public async Task<IResult<ItemAckPayloadResponse>> SendDirectLinkAsync(string text, IEnumerable<string> link,
+            params string[] threadIds)
         {
             return await SendDirectLinkAsync(text, link, threadIds, null);
         }
@@ -915,7 +919,9 @@ namespace InstaSharper.API.Processors
         /// <param name="text">Text to send</param>
         /// <param name="link">Link to send</param>
         /// <param name="recipients">Recipients ids</param>
-        public async Task<IResult<bool>> SendDirectLinkToRecipientsAsync(string text, string link, params string[] recipients)
+        public async Task<IResult<ItemAckPayloadResponse>> SendDirectLinkToRecipientsAsync(string text,
+            IEnumerable<string> link,
+            params string[] recipients)
         {
             return await SendDirectLinkAsync(text, link, null, recipients);
         }
@@ -928,7 +934,9 @@ namespace InstaSharper.API.Processors
         /// <param name="link">Link to send</param>
         /// <param name="threadIds">Thread ids</param>
         /// <param name="recipients">Recipients ids</param>
-        public async Task<IResult<bool>> SendDirectLinkAsync(string text, string link, string[] threadIds, string[] recipients)
+        private async Task<IResult<ItemAckPayloadResponse>> SendDirectLinkAsync(string text, IEnumerable<string> link,
+            string[] threadIds,
+            string[] recipients)
         {
             UserAuthValidator.Validate(_userAuthValidate);
             try
@@ -938,7 +946,7 @@ namespace InstaSharper.API.Processors
                 var data = new Dictionary<string, string>
                 {
                     {"link_text", text ?? string.Empty},
-                    {"link_urls", $"[{ExtensionHelper.EncodeList(new[]{ link })}]"},
+                    {"link_urls", $"[{link.EncodeList()}]"},
                     {"action", "send_item"},
                     {"client_context", clientContext},
                     {"_csrftoken", _user.CsrfToken},
@@ -957,19 +965,21 @@ namespace InstaSharper.API.Processors
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
-                    return Result.UnExpectedResponse<bool>(response, json);
-                var obj = JsonConvert.DeserializeObject<InstaDefault>(json);
-                return obj.Status.ToLower() == "ok" ? Result.Success(true) : Result.UnExpectedResponse<bool>(response, json);
+                    return Result.UnExpectedResponse<ItemAckPayloadResponse>(response, json);
+                var obj = JsonConvert.DeserializeObject<ItemAckResponse>(json);
+                return obj.Status.ToLower() == "ok"
+                    ? Result.Success(obj.Payload)
+                    : Result.UnExpectedResponse<ItemAckPayloadResponse>(response, json);
             }
             catch (HttpRequestException httpException)
             {
                 _logger?.LogException(httpException);
-                return Result.Fail(httpException, default(bool), ResponseType.NetworkProblem);
+                return Result.Fail(httpException, new ItemAckPayloadResponse(), ResponseType.NetworkProblem);
             }
             catch (Exception exception)
             {
                 _logger?.LogException(exception);
-                return Result.Fail<bool>(exception);
+                return Result.Fail<ItemAckPayloadResponse>(exception);
             }
         }
 
@@ -1348,7 +1358,7 @@ namespace InstaSharper.API.Processors
         /// </summary>
         /// <param name="threadId">Thread id</param>
         /// <param name="itemId">Item id (message id)</param>
-        public async Task<IResult<bool>> UnLikeThreadMessageAsync(string threadId, string itemId)
+        public async Task<IResult<ItemAckResponse>> UnlikeItemAsync(string threadId, string itemId)
         {
             UserAuthValidator.Validate(_userAuthValidate);
             try
@@ -1373,19 +1383,19 @@ namespace InstaSharper.API.Processors
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
-                    return Result.UnExpectedResponse<bool>(response, json);
-                var obj = JsonConvert.DeserializeObject<InstaDefault>(json);
-                return obj.Status.ToLower() == "ok" ? Result.Success(true) : Result.UnExpectedResponse<bool>(response, json);
+                    return Result.UnExpectedResponse<ItemAckResponse>(response, json);
+                var obj = JsonConvert.DeserializeObject<ItemAckResponse>(json);
+                return obj.Status.ToLower() == "ok" ? Result.Success(obj) : Result.UnExpectedResponse<ItemAckResponse>(response, json);
             }
             catch (HttpRequestException httpException)
             {
                 _logger?.LogException(httpException);
-                return Result.Fail(httpException, default(bool), ResponseType.NetworkProblem);
+                return Result.Fail(httpException, new ItemAckResponse(), ResponseType.NetworkProblem);
             }
             catch (Exception exception)
             {
                 _logger?.LogException(exception);
-                return Result.Fail<bool>(exception);
+                return Result.Fail<ItemAckResponse>(exception);
             }
         }
         /// <summary>
@@ -1491,7 +1501,7 @@ namespace InstaSharper.API.Processors
 
                 if (response.StatusCode != HttpStatusCode.OK)
                     return Result.UnExpectedResponse<bool>(response, json);
-                var obj = JsonConvert.DeserializeObject<InstaDefaultResponse>(json);
+                var obj = JsonConvert.DeserializeObject<InstaDefault>(json);
                 if (obj.IsSucceed)
                     return Result.Success(true);
                 return Result.Fail("Error: " + obj.Message, false);
@@ -1507,12 +1517,12 @@ namespace InstaSharper.API.Processors
                 return Result.Fail<bool>(exception);
             }
         }
-        
+
         /// <summary>
         ///     Send a like to the conversation
         /// </summary>
         /// <param name="threadId">Thread id</param>
-        public async Task<IResult<bool>> SendDirectLikeAsync(string threadId)
+        public async Task<IResult<ItemAckPayloadResponse>> SendDirectLikeAsync(string threadId)
         {
             UserAuthValidator.Validate(_userAuthValidate);
             try
@@ -1532,23 +1542,24 @@ namespace InstaSharper.API.Processors
                 var response = await _httpRequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
-                    return Result.UnExpectedResponse<bool>(response, json);
-                var obj = JsonConvert.DeserializeObject<InstaDefault>(json);
-                return obj.Status.ToLower() == "ok" ? Result.Success(true) : Result.UnExpectedResponse<bool>(response, json);
+                    return Result.UnExpectedResponse<ItemAckPayloadResponse>(response, json);
+                var obj = JsonConvert.DeserializeObject<ItemAckResponse>(json);
+                return obj.Status.ToLower() == "ok" ? Result.Success(obj.Payload) : Result.UnExpectedResponse<ItemAckPayloadResponse>(response, json);
             }
             catch (HttpRequestException httpException)
             {
                 _logger?.LogException(httpException);
-                return Result.Fail(httpException, default(bool), ResponseType.NetworkProblem);
+                return Result.Fail(httpException, new ItemAckPayloadResponse(), ResponseType.NetworkProblem);
             }
             catch (Exception exception)
             {
                 _logger?.LogException(exception);
-                return Result.Fail<bool>(exception);
+                return Result.Fail<ItemAckPayloadResponse>(exception);
             }
         }
 
-        public async Task<IResult<bool>> SendDirectPhotoAsync(InstaImage image, string threadId, long uploadId,
+        public async Task<IResult<ItemAckPayloadResponse>> SendDirectPhotoAsync(InstaImage image, string threadId,
+            long uploadId,
             Action<InstaUploaderProgress> progress = null)
         {
             var upProgress = new InstaUploaderProgress
@@ -1579,12 +1590,12 @@ namespace InstaSharper.API.Processors
                 progress?.Invoke(upProgress);
                 var response = await _httpRequestProcessor.SendAsync(requestMessage);
                 var json = await response.Content.ReadAsStringAsync();
-                var obj = JObject.Parse(json);
-                if (response.StatusCode != HttpStatusCode.OK || obj["status"].ToString() != "ok")
+                var obj = JsonConvert.DeserializeObject<ItemAckResponse>(json);
+                if (response.StatusCode != HttpStatusCode.OK || obj.Status.ToLower() != "ok")
                 {
                     upProgress.UploadState = InstaUploadState.Error;
                     progress?.Invoke(upProgress);
-                    return Result.Fail<bool>(json);
+                    return Result.Fail<ItemAckPayloadResponse>(json);
                 }
 
                 upProgress.UploadState = InstaUploadState.Uploaded;
@@ -1605,29 +1616,29 @@ namespace InstaSharper.API.Processors
                 configRequest.Content = form;
                 response = await _httpRequestProcessor.SendAsync(configRequest);
                 json = await response.Content.ReadAsStringAsync();
-                obj = JObject.Parse(json);
-                if (response.StatusCode != HttpStatusCode.OK || obj["status"].ToString() != "ok")
+                obj = JsonConvert.DeserializeObject<ItemAckResponse>(json);
+                if (response.StatusCode != HttpStatusCode.OK || obj.Status.ToLower() != "ok")
                 {
                     upProgress.UploadState = InstaUploadState.Error;
                     progress?.Invoke(upProgress);
-                    return Result.Fail<bool>(json);
+                    return Result.Fail<ItemAckPayloadResponse>(json);
                 }
 
                 upProgress.UploadState = InstaUploadState.Completed;
                 progress?.Invoke(upProgress);
-                return Result.Success(true);
+                return Result.Success(obj.Payload);
             }
             catch (HttpRequestException httpException)
             {
                 _logger?.LogException(httpException);
-                return Result.Fail(httpException, default(bool), ResponseType.NetworkProblem);
+                return Result.Fail(httpException, new ItemAckPayloadResponse(), ResponseType.NetworkProblem);
             }
             catch (Exception exception)
             {
                 upProgress.UploadState = InstaUploadState.Error;
                 progress?.Invoke(upProgress);
                 _logger?.LogException(exception);
-                return Result.Fail<bool>(exception);
+                return Result.Fail<ItemAckPayloadResponse>(exception);
             }
         }
 

@@ -12,15 +12,15 @@ namespace InstaSharper.Helpers
             return span.TotalMilliseconds;
         }
 
-        public static DateTime UnixTimestampToDateTime(double unixTime)
+        public static DateTime UnixTimestampToDateTime(long unixTime)
         {
-            try
+            if (unixTime.ToString().Length <= 10)
             {
-                var time = (long)unixTime;
+                var time = unixTime;
                 return time.FromUnixTimeSeconds();
             }
-            catch { }
-            return DateTime.Now;
+
+            return FromUnixTimeMiliSeconds(unixTime);
         }
 
         public static DateTime UnixTimestampToDateTime(string unixTime)

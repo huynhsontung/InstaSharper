@@ -1964,7 +1964,7 @@ namespace InstaSharper.API.Processors
                 if (response.StatusCode != HttpStatusCode.OK)
                     return Result.UnExpectedResponse<bool>(response, json);
 
-                var resp = JsonConvert.DeserializeObject<InstaDefaultResponse>(json);
+                var resp = JsonConvert.DeserializeObject<InstaDefault>(json);
 
                 return resp.IsSucceed ? Result.Success(true) : Result.Fail<bool>("");
             }

@@ -22,7 +22,7 @@ namespace InstaSharper.Converters.Activities
                 ProfileImage = SourceObject.Args.ProfileImage,
                 Text = SourceObject.Args.Text,
                 RichText = SourceObject.Args.RichText,
-                TimeStamp = DateTimeHelper.UnixTimestampToDateTime((long)System.Convert.ToDouble(SourceObject.Args.TimeStamp, new NumberFormatInfo { NumberDecimalSeparator = "." }))
+                TimeStamp = DateTimeHelper.UnixTimestampToDateTime(SourceObject.Args.TimeStamp)
             };
             if (SourceObject.Args.Links != null)
                 foreach (var instaLinkResponse in SourceObject.Args.Links)

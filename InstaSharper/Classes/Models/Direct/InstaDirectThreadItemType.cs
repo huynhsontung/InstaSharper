@@ -21,6 +21,8 @@
         VoiceMedia = 13,
         AnimatedMedia = 14,
         Hashtag = 15,
-        LiveViewerInvite = 16
+        LiveViewerInvite = 16,
+        VideoCallEvent,
+        Unknown
     }
 }

@@ -89,7 +89,15 @@ namespace InstaSharper.Classes
             else
             {
                 var status = ErrorHandlingHelper.GetBadStatusFromJsonString(json);
-                var responseType = GetResponseType(status);
+                ResponseType responseType;
+                try
+                {
+                    responseType = GetResponseType(status);
+                }
+                catch (Exception)
+                {
+                    responseType = ResponseType.Unknown;
+                }
 
                 var resultInfo = new ResultInfo(responseType, status)
                 {

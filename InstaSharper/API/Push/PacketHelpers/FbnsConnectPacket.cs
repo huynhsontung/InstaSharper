@@ -11,23 +11,35 @@ namespace InstaSharper.API.Push.PacketHelpers
         /// <summary>
         ///     Following flags are marked: User Name Flag, Password Flag, Clean Session
         /// </summary>
-        public int ConnectFlags { get; } = 194;
+        public int ConnectFlags { get; set; } = 194;
 
-        public string ProtocolName { get; } = "MQTToT";
+        public string ProtocolName { get; set; } = "MQTToT";
 
-        public int ProtocolLevel { get; } = 3;
+        public int ProtocolLevel { get; set; } = 3;
 
-        private ushort _keepAlive = 900;
+        public int KeepAliveInSeconds { get; set; } = 900;
 
-        public ushort KeepAliveInSeconds
-        {
-            get => _keepAlive;
-            set
-            {
-                if (value < 60) throw new ConstraintException("Keep alive duration too short. Keep alive needs to be longer than 60 seconds");
-                _keepAlive = value;
-            }
-        }
+        public bool CleanSession { get; set; }
+
+        public bool HasWill { get; set; }
+
+        public IByteBuffer WillMessage { get; set; }
+
+        public QualityOfService WillQualityOfService { get; set; }
+
+        public bool WillRetain { get; set; }
+
+        public bool HasPassword { get; set; }
+
+        public bool HasUsername { get; set; }
+
+        public string Username { get; set; }
+
+        public string Password { get; set; }
+
+        public string ClientId { get; set; }
+
+        public string WillTopicName { get; set; }
 
         public IByteBuffer Payload { get; set; }
     }

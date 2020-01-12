@@ -12,10 +12,10 @@ using TimeZoneConverter;
 
 namespace InstaSharper.API.Builder
 {
-    public class InstaApiBuilder : IInstaApiBuilder
+    public class InstaApiBuilder
     {
+        private static AndroidDevice _device = AndroidDeviceGenerator.GetRandomAndroidDevice();
         private IRequestDelay _delay = RequestDelay.Empty();
-        private AndroidDevice _device;
         private HttpClient _httpClient;
         private HttpClientHandler _httpHandler = new HttpClientHandler();
         private IHttpRequestProcessor _httpRequestProcessor;
@@ -38,7 +38,7 @@ namespace InstaSharper.API.Builder
         ///     API instance
         /// </returns>
         /// <exception cref="ArgumentNullException">User auth data must be specified</exception>
-        public IInstaApi Build()
+        public InstaApi Build()
         {
             if (_user == null)
                 _user = UserSessionData.Empty;
@@ -53,28 +53,19 @@ namespace InstaSharper.API.Builder
                 HttpHelper.SetDefaultRequestHeaders(_httpClient.DefaultRequestHeaders, _device);
             }
             
-            if (_requestMessage == null)
+            _requestMessage = new ApiRequestMessage
             {
-                _requestMessage = new ApiRequestMessage
-                {
-                    PhoneId = _device.PhoneId.ToString(),
-                    Guid = _device.Uuid,
-                    Password = _user?.Password,
-                    Username = _user?.UserName,
-                    DeviceId = _device.DeviceId,
-                    AdId = _device.AdId.ToString()
-                };
-            }
-
-            if (string.IsNullOrEmpty(_requestMessage.Password)) _requestMessage.Password = _user?.Password;
-            if (string.IsNullOrEmpty(_requestMessage.Username)) _requestMessage.Username = _user?.UserName;
+                PhoneId = _device.PhoneId.ToString(),
+                Guid = _device.Uuid,
+                Password = _user?.Password,
+                Username = _user?.UserName,
+                DeviceId = _device.DeviceId,
+                AdId = _device.AdId.ToString()
+            };
 
             InstaApiConstants.TIMEZONE = TZConvert.WindowsToIana(TimeZoneInfo.Local.StandardName);
             InstaApiConstants.TIMEZONE_OFFSET = (int)DateTimeOffset.Now.Offset.TotalSeconds;
-            
-            if (_httpRequestProcessor == null)
-                _httpRequestProcessor =
-                    new HttpRequestProcessor(_delay, _httpClient, _httpHandler, _requestMessage, _logger);
+            _httpRequestProcessor = new HttpRequestProcessor(_delay, _httpClient, _httpHandler, _requestMessage, _logger);
 
             if(_apiVersion == null) _apiVersion = ApiVersion.GetApiVersion(ApiVersionNumber.Latest);
 
@@ -101,7 +92,7 @@ namespace InstaSharper.API.Builder
         /// <returns>
         ///     API Builder
         /// </returns>
-        public IInstaApiBuilder UseLogger(IInstaLogger logger)
+        public InstaApiBuilder UseLogger(IInstaLogger logger)
         {
             _logger = logger;
             return this;
@@ -114,7 +105,7 @@ namespace InstaSharper.API.Builder
         /// <returns>
         ///     API Builder
         /// </returns>
-        public IInstaApiBuilder UseHttpClient(HttpClient httpClient)
+        public InstaApiBuilder UseHttpClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
             return this;
@@ -127,7 +118,7 @@ namespace InstaSharper.API.Builder
         /// <returns>
         ///     API Builder
         /// </returns>
-        public IInstaApiBuilder UseHttpClientHandler(HttpClientHandler handler)
+        public InstaApiBuilder UseHttpClientHandler(HttpClientHandler handler)
         {
             _httpHandler = handler;
             return this;
@@ -140,25 +131,9 @@ namespace InstaSharper.API.Builder
         /// <returns>
         ///     API Builder
         /// </returns>
-        public IInstaApiBuilder SetUser(UserSessionData user)
+        public InstaApiBuilder SetUser(UserSessionData user)
         {
             _user = user;
-            return this;
-        }
-
-        /// <summary>
-        ///     Set custom request message. Used to be able to customize device info.
-        /// </summary>
-        /// <param name="requestMessage">Custom request message object</param>
-        /// <returns>
-        ///     API Builder
-        /// </returns>
-        /// <remarks>
-        ///     Please, do not use if you don't know what you are doing
-        /// </remarks>
-        public IInstaApiBuilder SetApiRequestMessage(ApiRequestMessage requestMessage)
-        {
-            _requestMessage = requestMessage;
             return this;
         }
 
@@ -169,7 +144,7 @@ namespace InstaSharper.API.Builder
         /// <returns>
         ///     API Builder
         /// </returns>
-        public IInstaApiBuilder SetRequestDelay(IRequestDelay delay)
+        public InstaApiBuilder SetRequestDelay(IRequestDelay delay)
         {
             if (delay == null)
                 delay = RequestDelay.Empty();
@@ -185,7 +160,7 @@ namespace InstaSharper.API.Builder
         /// <returns>
         ///     API Builder
         /// </returns>
-        public IInstaApiBuilder SetDevice(AndroidDevice androidDevice)
+        public InstaApiBuilder SetDevice(AndroidDevice androidDevice)
         {
             _device = androidDevice;
             return this;
@@ -198,7 +173,7 @@ namespace InstaSharper.API.Builder
         /// <returns>
         ///     API Builder
         /// </returns>
-        public IInstaApiBuilder SetApiVersion(ApiVersionNumber apiVersionNumber)
+        public InstaApiBuilder SetApiVersion(ApiVersionNumber apiVersionNumber)
         {
             _apiVersion = ApiVersion.GetApiVersion(apiVersionNumber);
             return this;
@@ -211,26 +186,13 @@ namespace InstaSharper.API.Builder
         /// <returns>
         ///     API Builder
         /// </returns>
-        public IInstaApiBuilder SetSessionHandler(ISessionHandler sessionHandler)
+        public InstaApiBuilder SetSessionHandler(ISessionHandler sessionHandler)
         {
             _sessionHandler = sessionHandler;
             return this;
         }
 
-        /// <summary>
-        ///     Set Http request processor
-        /// </summary>
-        /// <param name="httpRequestProcessor">HttpRequestProcessor</param>
-        /// <returns>
-        ///     API Builder
-        /// </returns>
-        public IInstaApiBuilder SetHttpRequestProcessor(IHttpRequestProcessor httpRequestProcessor)
-        {
-            _httpRequestProcessor = httpRequestProcessor;
-            return this;
-        }
-
-        public IInstaApiBuilder LoadStateData(StateData data)
+        public InstaApiBuilder LoadStateData(StateData data)
         {
             _device = data.DeviceInfo;
             _user = data.UserSession;
@@ -241,13 +203,13 @@ namespace InstaSharper.API.Builder
             return this;
         }
 
-        public IInstaApiBuilder LoadStateDataFromStream(Stream stream)
+        public InstaApiBuilder LoadStateDataFromStream(Stream stream)
         {
             var data = SerializationHelper.DeserializeFromStream<StateData>(stream);
             return LoadStateData(data);
         }
 
-        public IInstaApiBuilder LoadStateDataFromString(string json)
+        public InstaApiBuilder LoadStateDataFromString(string json)
         {
             var data = SerializationHelper.DeserializeFromString<StateData>(json);
             return LoadStateData(data);
@@ -259,7 +221,7 @@ namespace InstaSharper.API.Builder
         /// <returns>
         ///     API Builder
         /// </returns>
-        public static IInstaApiBuilder CreateBuilder()
+        public static InstaApiBuilder CreateBuilder()
         {
             return new InstaApiBuilder();
         }

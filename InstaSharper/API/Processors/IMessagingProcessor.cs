@@ -5,6 +5,7 @@ using InstaSharper.Classes;
 using InstaSharper.Classes.Models.Direct;
 using InstaSharper.Classes.Models.Media;
 using InstaSharper.Classes.Models.User;
+using InstaSharper.Classes.ResponseWrappers.Direct;
 using InstaSharper.Enums;
 
 namespace InstaSharper.API.Processors
@@ -118,7 +119,7 @@ namespace InstaSharper.API.Processors
         /// </summary>
         /// <param name="threadId">Thread id</param>
         /// <param name="itemId">Item id (message id)</param>
-        Task<IResult<bool>> LikeItemAsync(string threadId, string itemId);
+        Task<IResult<ItemAckResponse>> LikeItemAsync(string threadId, string itemId);
 
         /// <summary>
         ///     Mark direct message as seen
@@ -180,17 +181,8 @@ namespace InstaSharper.API.Processors
         /// <param name="hashtag">Hashtag to send</param>
         /// <param name="threadIds">Thread ids</param>
         /// <returns>Returns True if hashtag sent</returns>
-        Task<IResult<bool>> SendDirectHashtagAsync(string text, string hashtag, params string[] threadIds);
-
-        /// <summary>
-        ///     Send hashtag to direct thread
-        /// </summary>
-        /// <param name="text">Text to send</param>
-        /// <param name="hashtag">Hashtag to send</param>
-        /// <param name="threadIds">Thread ids</param>
-        /// <param name="recipients">Recipients ids</param>
-        /// <returns>Returns True if hashtag sent</returns>
-        Task<IResult<bool>> SendDirectHashtagAsync(string text, string hashtag, string[] threadIds, string[] recipients);
+        Task<IResult<ItemAckPayloadResponse>> SendDirectHashtagAsync(string text, string hashtag,
+            params string[] threadIds);
 
         /// <summary>
         ///     Send hashtag to direct thread
@@ -199,7 +191,8 @@ namespace InstaSharper.API.Processors
         /// <param name="hashtag">Hashtag to send</param>
         /// <param name="recipients">Recipients ids</param>
         /// <returns>Returns True if hashtag sent</returns>
-        Task<IResult<bool>> SendDirectHashtagToRecipientsAsync(string text, string hashtag, params string[] recipients);
+        Task<IResult<ItemAckPayloadResponse>> SendDirectHashtagToRecipientsAsync(string text, string hashtag,
+            params string[] recipients);
 
         /// <summary>
         ///     Send link address to direct thread
@@ -208,17 +201,8 @@ namespace InstaSharper.API.Processors
         /// <param name="link">Link to send (only one link will approved)</param>
         /// <param name="threadIds">Thread ids</param>
         /// <returns>Returns True if link sent</returns>
-        Task<IResult<bool>> SendDirectLinkAsync(string text, string link, params string[] threadIds);
-        
-        /// <summary>
-        ///     Send link address to direct thread
-        /// </summary>
-        /// <param name="text">Text to send</param>
-        /// <param name="link">Link to send (only one link will approved)</param>
-        /// <param name="threadIds">Thread ids</param>
-        /// <param name="recipients">Recipients ids</param>
-        /// <returns>Returns True if link sent</returns>
-        Task<IResult<bool>> SendDirectLinkAsync(string text, string link, string[] threadIds, string[] recipients);
+        Task<IResult<ItemAckPayloadResponse>> SendDirectLinkAsync(string text, IEnumerable<string> link,
+            params string[] threadIds);
 
         /// <summary>
         ///     Send link address to direct thread
@@ -227,7 +211,8 @@ namespace InstaSharper.API.Processors
         /// <param name="link">Link to send (only one link will approved)</param>
         /// <param name="recipients">Recipients ids</param>
         /// <returns>Returns True if link sent</returns>
-        Task<IResult<bool>> SendDirectLinkToRecipientsAsync(string text, string link, params string[] recipients);
+        Task<IResult<ItemAckPayloadResponse>> SendDirectLinkToRecipientsAsync(string text, IEnumerable<string> link,
+            params string[] recipients);
 
         /// <summary>
         ///     Send location to direct thread
@@ -245,7 +230,7 @@ namespace InstaSharper.API.Processors
         /// <param name="uploadId">Upload id or pending score of a thread</param>
         /// <param name="progress">Action when progress is updated</param>
         /// <returns></returns>
-        Task<IResult<bool>> SendDirectPhotoAsync(InstaImage image, string threadId, long uploadId,
+        Task<IResult<ItemAckPayloadResponse>> SendDirectPhotoAsync(InstaImage image, string threadId, long uploadId,
             Action<InstaUploaderProgress> progress = null);
 
         /// <summary>
@@ -335,7 +320,7 @@ namespace InstaSharper.API.Processors
         /// </summary>
         /// <param name="threadId">Thread id</param>
         /// <param name="itemId">Item id (message id)</param>
-        Task<IResult<bool>> UnLikeThreadMessageAsync(string threadId, string itemId);
+        Task<IResult<ItemAckResponse>> UnlikeItemAsync(string threadId, string itemId);
         /// <summary>
         ///     Unmute direct thread
         /// </summary>
@@ -348,11 +333,11 @@ namespace InstaSharper.API.Processors
         /// <param name="threadId">Thread id</param>
         /// <param name="title">New title</param>
         Task<IResult<bool>> UpdateDirectThreadTitleAsync(string threadId, string title);
-        
+
         /// <summary>
         ///     Send a like to the conversation
         /// </summary>
         /// <param name="threadId">Thread id</param>
-        Task<IResult<bool>> SendDirectLikeAsync(string threadId);
+        Task<IResult<ItemAckPayloadResponse>> SendDirectLikeAsync(string threadId);
     }
 }

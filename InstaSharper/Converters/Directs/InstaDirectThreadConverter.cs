@@ -141,7 +141,7 @@ namespace InstaSharper.Converters.Directs
                     break;
 
                 case InstaDirectThreadItemType.Link:
-                    item.Text = item.FromMe ? "You sent them a link" : "Sent you a link";
+                    // item.Text = item.FromMe ? "You sent them a link" : "Sent you a link";
                     break;
 
                 case InstaDirectThreadItemType.Media:
@@ -167,16 +167,15 @@ namespace InstaSharper.Converters.Directs
                     item.Text = item.FromMe ? "You sent a GIF" : "Sent you a GIF";
                     break;
 
-                case InstaDirectThreadItemType.Hashtag:
-                    break;
-
                 case InstaDirectThreadItemType.Profile:
+                    item.Text = item.FromMe ? "You shared a profile with them" : "Shared a profile with you";
                     break;
 
                 case InstaDirectThreadItemType.Placeholder:
                     break;
 
                 case InstaDirectThreadItemType.Location:
+                    item.Text = item.FromMe ? "You shared a location with them" : "Shared a location with you";
                     break;
             }
         }

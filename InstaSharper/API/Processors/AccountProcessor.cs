@@ -378,7 +378,7 @@ namespace InstaSharper.API.Processors
                 var json = await response.Content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
                     return Result.UnExpectedResponse<bool>(response, json);
-                var obj = JsonConvert.DeserializeObject<InstaDefaultResponse>(json);
+                var obj = JsonConvert.DeserializeObject<InstaDefault>(json);
                 if (obj.Status.ToLower() == "ok")
                     return Result.Success(true);
                 return Result.Success(false);

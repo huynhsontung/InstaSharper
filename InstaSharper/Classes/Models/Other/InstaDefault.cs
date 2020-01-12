@@ -13,13 +13,9 @@ namespace InstaSharper.Classes.Models.Other
 {
     public class InstaDefault
     {
-        [JsonProperty("status")]
-        public string Status { get; set; }
-        [JsonProperty("message")]
-        public string Message { get; set; }
-    }
-    internal class InstaDefaultResponse : InstaDefault
-    {
-        public bool IsSucceed { get { return Status.ToLower() == "ok"; } }
+        [JsonProperty("status")] public string Status { get; set; }
+        [JsonProperty("status_code")] public string StatusCode { get; set; }
+        [JsonProperty("message")] public string Message { get; set; }
+        [JsonIgnore] public bool IsSucceed => Status.ToLower() == "ok";
     }
 }

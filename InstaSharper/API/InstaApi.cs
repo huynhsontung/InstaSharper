@@ -31,7 +31,7 @@ namespace InstaSharper.API
     /// <summary>
     ///     Base of everything that you want.
     /// </summary>
-    internal class InstaApi : IInstaApi
+    public class InstaApi
     {
         #region Variables and properties
 

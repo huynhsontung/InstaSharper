@@ -30,7 +30,7 @@ namespace InstaSharper.Classes.Models.Business
         public int AverageEngagementCount { get; set; }
     }
 
-    internal class InstaMediaInsightsContainer : InstaDefaultResponse
+    internal class InstaMediaInsightsContainer : InstaDefault
     {
         [JsonProperty("media_organic_insights")]
         public InstaMediaInsights MediaOrganicInsights { get; set; }

@@ -68,7 +68,7 @@ namespace InstaSharper.Helpers
                 list.Add(item.Encode());
             return string.Join(",", list);
         }
-        public static string EncodeList(this List<string> listOfValues, bool appendQuotation = true)
+        public static string EncodeList(this IEnumerable<string> listOfValues, bool appendQuotation = true)
         {
             if (!appendQuotation)
                 return string.Join(",", listOfValues);

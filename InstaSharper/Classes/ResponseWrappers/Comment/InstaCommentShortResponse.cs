@@ -16,9 +16,9 @@ namespace InstaSharper.Classes.ResponseWrappers.Comment
         [JsonProperty("type")]
         public int Type { get; set; }
         [JsonProperty("created_at")]
-        public float CreatedAt { get; set; }
+        public long CreatedAt { get; set; }
         [JsonProperty("created_at_utc")]
-        public int CreatedAtUtc { get; set; }
+        public long CreatedAtUtc { get; set; }
         [JsonProperty("media_id")]
         public long MediaId { get; set; }
         [JsonProperty("status")]

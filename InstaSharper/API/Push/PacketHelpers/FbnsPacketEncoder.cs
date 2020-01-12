@@ -23,7 +23,15 @@ namespace InstaSharper.API.Push.PacketHelpers
             switch (packet.PacketType)
             {
                 case PacketType.CONNECT:
-                    EncodeConnectPacket(bufferAllocator, (FbnsConnectPacket)packet, output);
+                    var fbnsConnectPacket = (FbnsConnectPacket) packet;
+                    if (fbnsConnectPacket.ProtocolName == "MQTToT")
+                    {
+                        EncodeFbnsConnectPacket(bufferAllocator, fbnsConnectPacket, output);
+                    }
+                    else
+                    {
+                        EncodeConnectMessage(bufferAllocator, fbnsConnectPacket, output);
+                    }
                     break;
                 case PacketType.PUBLISH:
                     EncodePublishPacket(bufferAllocator, (PublishPacket) packet, output);
@@ -45,11 +53,117 @@ namespace InstaSharper.API.Push.PacketHelpers
             }
         }
 
-        private static void EncodeConnectPacket(IByteBufferAllocator bufferAllocator, FbnsConnectPacket packet, List<object> output)
+        static void EncodeConnectMessage(IByteBufferAllocator bufferAllocator, FbnsConnectPacket packet, List<object> output)
+        {
+            int payloadBufferSize = 0;
+
+            // Client id
+            string clientId = packet.ClientId;
+            if (string.IsNullOrEmpty(clientId)) throw new DecoderException("Client identifier is required.");
+            byte[] clientIdBytes = EncodeStringInUtf8(clientId);
+            payloadBufferSize += STRING_SIZE_LENGTH + clientIdBytes.Length;
+
+            byte[] willTopicBytes;
+            IByteBuffer willMessage;
+            if (packet.HasWill)
+            {
+                // Will topic and message
+                string willTopic = packet.WillTopicName;
+                willTopicBytes = EncodeStringInUtf8(willTopic);
+                willMessage = packet.WillMessage;
+                payloadBufferSize += STRING_SIZE_LENGTH + willTopicBytes.Length;
+                payloadBufferSize += 2 + willMessage.ReadableBytes;
+            }
+            else
+            {
+                willTopicBytes = null;
+                willMessage = null;
+            }
+
+            string userName = packet.Username;
+            byte[] userNameBytes;
+            if (packet.HasUsername)
+            {
+                userNameBytes = EncodeStringInUtf8(userName);
+                payloadBufferSize += STRING_SIZE_LENGTH + userNameBytes.Length;
+            }
+            else
+            {
+                userNameBytes = null;
+            }
+
+            byte[] passwordBytes;
+            if (packet.HasPassword)
+            {
+                string password = packet.Password;
+                passwordBytes = EncodeStringInUtf8(password);
+                payloadBufferSize += STRING_SIZE_LENGTH + passwordBytes.Length;
+            }
+            else
+            {
+                passwordBytes = null;
+            }
+
+            // Fixed header
+            byte[] protocolNameBytes = EncodeStringInUtf8(packet.ProtocolName);
+            int variableHeaderBufferSize = STRING_SIZE_LENGTH + protocolNameBytes.Length + 4;
+            int variablePartSize = variableHeaderBufferSize + payloadBufferSize;
+            int fixedHeaderBufferSize = 1 + STRING_SIZE_LENGTH;
+            IByteBuffer buf = null;
+            try
+            {
+                buf = bufferAllocator.Buffer(fixedHeaderBufferSize + variablePartSize);
+                buf.WriteByte(CalculateFirstByteOfFixedHeader(packet));
+                WriteVariableLengthInt(buf, variablePartSize);
+
+                buf.WriteShort(protocolNameBytes.Length);
+                buf.WriteBytes(protocolNameBytes);
+
+                buf.WriteByte(packet.ProtocolLevel);
+                buf.WriteByte(CalculateConnectFlagsByte(packet));
+                buf.WriteShort(packet.KeepAliveInSeconds);
+
+                // Payload
+                buf.WriteShort(clientIdBytes.Length);
+                buf.WriteBytes(clientIdBytes, 0, clientIdBytes.Length);
+                if (packet.HasWill)
+                {
+                    buf.WriteShort(willTopicBytes.Length);
+                    buf.WriteBytes(willTopicBytes, 0, willTopicBytes.Length);
+                    buf.WriteShort(willMessage.ReadableBytes);
+                    if (willMessage.IsReadable())
+                    {
+                        buf.WriteBytes(willMessage);
+                    }
+                    willMessage.Release();
+                    willMessage = null;
+                }
+                if (packet.HasUsername)
+                {
+                    buf.WriteShort(userNameBytes.Length);
+                    buf.WriteBytes(userNameBytes, 0, userNameBytes.Length);
+
+                    if (packet.HasPassword)
+                    {
+                        buf.WriteShort(passwordBytes.Length);
+                        buf.WriteBytes(passwordBytes, 0, passwordBytes.Length);
+                    }
+                }
+
+                output.Add(buf);
+                buf = null;
+            }
+            finally
+            {
+                buf?.SafeRelease();
+                willMessage?.SafeRelease();
+            }
+        }
+
+        private static void EncodeFbnsConnectPacket(IByteBufferAllocator bufferAllocator, FbnsConnectPacket packet, List<object> output)
         {
             var payload = packet.Payload;
-            if (payload == null) throw new EncoderException("Payload required");
-            int payloadSize = payload.ReadableBytes;
+            int payloadSize = payload?.ReadableBytes ?? 0;
             byte[] protocolNameBytes = EncodeStringInUtf8(packet.ProtocolName);
             // variableHeaderBufferSize = 2 bytes length + ProtocolName bytes + 4 bytes
             // 4 bytes are reserved for: 1 byte ProtocolLevel, 1 byte ConnectFlags, 2 byte KeepAlive
@@ -79,7 +193,7 @@ namespace InstaSharper.API.Push.PacketHelpers
                 buf?.SafeRelease();
             }
 
-            if (payload.IsReadable())
+            if (payload?.IsReadable() ?? false)
             {
                 output.Add(payload.Retain());
             }
@@ -200,6 +314,33 @@ namespace InstaSharper.API.Push.PacketHelpers
         static byte[] EncodeStringInUtf8(string s)
         {
             return Encoding.UTF8.GetBytes(s);
+        }
+
+        static int CalculateConnectFlagsByte(FbnsConnectPacket packet)
+        {
+            int flagByte = 0;
+            if (packet.HasUsername)
+            {
+                flagByte |= 0x80;
+            }
+            if (packet.HasPassword)
+            {
+                flagByte |= 0x40;
+            }
+            if (packet.HasWill)
+            {
+                flagByte |= 0x04;
+                flagByte |= ((int)packet.WillQualityOfService & 0x03) << 3;
+                if (packet.WillRetain)
+                {
+                    flagByte |= 0x20;
+                }
+            }
+            if (packet.CleanSession)
+            {
+                flagByte |= 0x02;
+            }
+            return flagByte;
         }
     }
 }
