@@ -23,14 +23,13 @@ namespace InstaSharper.API.Push.PacketHelpers
             switch (packet.PacketType)
             {
                 case PacketType.CONNECT:
-                    var fbnsConnectPacket = (FbnsConnectPacket) packet;
-                    if (fbnsConnectPacket.ProtocolName == "MQTToT")
+                    if (packet is FbnsConnectPacket fbnsConnectPacket)
                     {
                         EncodeFbnsConnectPacket(bufferAllocator, fbnsConnectPacket, output);
                     }
                     else
                     {
-                        EncodeConnectMessage(bufferAllocator, fbnsConnectPacket, output);
+                        EncodeConnectMessage(bufferAllocator, (ConnectPacket) packet, output);
                     }
                     break;
                 case PacketType.PUBLISH:
@@ -53,7 +52,7 @@ namespace InstaSharper.API.Push.PacketHelpers
             }
         }
 
-        static void EncodeConnectMessage(IByteBufferAllocator bufferAllocator, FbnsConnectPacket packet, List<object> output)
+        static void EncodeConnectMessage(IByteBufferAllocator bufferAllocator, ConnectPacket packet, List<object> output)
         {
             int payloadBufferSize = 0;
 
@@ -316,7 +315,7 @@ namespace InstaSharper.API.Push.PacketHelpers
             return Encoding.UTF8.GetBytes(s);
         }
 
-        static int CalculateConnectFlagsByte(FbnsConnectPacket packet)
+        static int CalculateConnectFlagsByte(ConnectPacket packet)
         {
             int flagByte = 0;
             if (packet.HasUsername)

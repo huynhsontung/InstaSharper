@@ -37,11 +37,26 @@ namespace InstaSharper.Helpers
         {
             try
             {
-                var time = (long)Convert.ToDouble(unixTime) / 1000000;
-                return time.FromUnixTimeSeconds();
+                var length = unixTime.Length;
+                if (length >= 13)
+                {
+                    var dateTimeOffset =
+                        DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(unixTime.Substring(0, 13)));
+                    return dateTimeOffset.DateTime;
+                }
+                else if (length >= 10)
+                {
+                    return FromUnixTimeSeconds(Convert.ToInt64(unixTime.Substring(0, 10)));
+                }
+                else
+                {
+                    return default;
+                }
+                // var time = (long)Convert.ToDouble(unixTime) / 1000000;
+                // return time.FromUnixTimeSeconds();
             }
             catch { }
-            return DateTime.Now;
+            return default;
         }
 
         public static DateTime FromUnixTimeSeconds(this long unixTime)

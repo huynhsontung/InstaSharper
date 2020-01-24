@@ -40,10 +40,10 @@ namespace InstaSharper.API
         private InstaTwoFactorLoginInfo _twoFactorInfo;
         private InstaChallengeLoginInfo _challengeInfo;
         private UserSessionData _userSession;
-        private UserSessionData _user
+        public UserSessionData UserSession
         {
             get => _userSession;
-            set { _userSession = value; _userAuthValidate.User = value; }
+            private set { _userSession = value; _userAuthValidate.User = value; }
         }
         private UserAuthValidate _userAuthValidate;
 
@@ -166,16 +166,16 @@ namespace InstaSharper.API
 
         #region Constructor
 
-        public InstaApi(UserSessionData user, IInstaLogger logger, AndroidDevice deviceInfo,
+        public InstaApi(UserSessionData userSession, IInstaLogger logger, AndroidDevice deviceInfo,
             IHttpRequestProcessor httpRequestProcessor, FbnsConnectionData fbnsData, ApiVersion apiVersion)
         {
             _userAuthValidate = new UserAuthValidate();
-            _user = user;
+            UserSession = userSession;
             _logger = logger;
             DeviceInfo = deviceInfo;
             RequestProcessor = httpRequestProcessor;
             if (apiVersion != null) ApiVersion.CurrentApiVersion = apiVersion;
-            PushClient = new FbnsClient(DeviceInfo, _user, RequestProcessor, fbnsData);
+            PushClient = new FbnsClient(DeviceInfo, UserSession, RequestProcessor, fbnsData);
         }
 
         #endregion Constructor
@@ -200,7 +200,7 @@ namespace InstaSharper.API
                 var firstResponse = await RequestProcessor.GetAsync(RequestProcessor.Client.BaseAddress);
 
                 var csrftoken = InstaApiHelper.GetCsrfToken(RequestProcessor);
-                _user.CsrfToken = csrftoken;
+                UserSession.CsrfToken = csrftoken;
 
                 var postData = new Dictionary<string, string>
                 {
@@ -263,7 +263,7 @@ namespace InstaSharper.API
                 var firstResponse = await RequestProcessor.GetAsync(RequestProcessor.Client.BaseAddress);
                 
                 var csrftoken = InstaApiHelper.GetCsrfToken(RequestProcessor);
-                _user.CsrfToken = csrftoken;
+                UserSession.CsrfToken = csrftoken;
 
                 var postData = new Dictionary<string, string>
                 {
@@ -305,7 +305,7 @@ namespace InstaSharper.API
                 var instaUri = UriCreator.GetCheckUsernameUri();
                 var data = new JObject
                 {
-                    {"_csrftoken", _user.CsrfToken},
+                    {"_csrftoken", UserSession.CsrfToken},
                     {"username", username}
                 };
                 var request = HttpHelper.GetSignedRequest(instaUri, DeviceInfo, data);
@@ -339,7 +339,7 @@ namespace InstaSharper.API
                 await CheckPhoneNumberAsync(phoneNumber);
 
                 var csrftoken = InstaApiHelper.GetCsrfToken(RequestProcessor);
-                _user.CsrfToken = csrftoken;
+                UserSession.CsrfToken = csrftoken;
                 var postData = new Dictionary<string, string>
                 {
                     {"phone_id",        DeviceInfo.PhoneId.ToString()},
@@ -389,7 +389,7 @@ namespace InstaSharper.API
                     RequestProcessor.HttpHandler.CookieContainer.GetCookies(RequestProcessor.Client
                     .BaseAddress);
                 var csrftoken = InstaApiHelper.GetCsrfToken(RequestProcessor);
-                _user.CsrfToken = csrftoken;
+                UserSession.CsrfToken = csrftoken;
                 var postData = new Dictionary<string, string>
                 {
                     {"verification_code",         verificationCode},
@@ -453,7 +453,7 @@ namespace InstaSharper.API
                     RequestProcessor.HttpHandler.CookieContainer.GetCookies(RequestProcessor.Client
                     .BaseAddress);
                 var csrftoken = InstaApiHelper.GetCsrfToken(RequestProcessor);
-                _user.CsrfToken = csrftoken;
+                UserSession.CsrfToken = csrftoken;
                 var postData = new Dictionary<string, string>
                 {
                     {"name",            name},
@@ -524,7 +524,7 @@ namespace InstaSharper.API
                     RequestProcessor.HttpHandler.CookieContainer.GetCookies(RequestProcessor.Client
                     .BaseAddress);
                 var csrftoken = InstaApiHelper.GetCsrfToken(RequestProcessor);
-                _user.CsrfToken = csrftoken;
+                UserSession.CsrfToken = csrftoken;
 
                 var postData = new Dictionary<string, string>
                 {
@@ -590,7 +590,7 @@ namespace InstaSharper.API
                     RequestProcessor.HttpHandler.CookieContainer.GetCookies(RequestProcessor.Client
                     .BaseAddress);
                 var csrftoken = InstaApiHelper.GetCsrfToken(RequestProcessor);
-                _user.CsrfToken = csrftoken;
+                UserSession.CsrfToken = csrftoken;
                 var postData = new Dictionary<string, string>
                 {
                     {"fb_connected",            "false"},
@@ -817,7 +817,7 @@ namespace InstaSharper.API
                 var data = new JObject
                 {
                     {"phone_id", DeviceInfo.PhoneId},
-                    {"_csrftoken", _user.CsrfToken}
+                    {"_csrftoken", UserSession.CsrfToken}
                 };
                 var request = HttpHelper.GetSignedRequest(instaUri, DeviceInfo, data);
                 var response = await RequestProcessor.SendAsync(request);
@@ -833,7 +833,7 @@ namespace InstaSharper.API
                 {
                     {"phone_id", DeviceInfo.PhoneId},
                     {"gdpr_s", ""},
-                    {"_csrftoken", _user.CsrfToken},
+                    {"_csrftoken", UserSession.CsrfToken},
                     {"guid", DeviceInfo.Uuid},
                     {"device_id", DeviceInfo.DeviceId}
                 };
@@ -863,7 +863,7 @@ namespace InstaSharper.API
                     {"current_screen_key", "age_consent_two_button"},
                     {"phone_id", DeviceInfo.PhoneId},
                     {"gdpr_s", "[0,0,0,null]"},
-                    {"_csrftoken", _user.CsrfToken},
+                    {"_csrftoken", UserSession.CsrfToken},
                     {"updates", "{\"age_consent_state\":\"2\"}"},
                     {"guid", DeviceInfo.Uuid},
                     {"device_id", DeviceInfo.DeviceId}
@@ -919,7 +919,7 @@ namespace InstaSharper.API
                 }
 
                 var csrftoken = InstaApiHelper.GetCsrfToken(RequestProcessor);
-                _user.CsrfToken = csrftoken;
+                UserSession.CsrfToken = csrftoken;
                 var instaUri = UriCreator.GetLoginUri();
                 var signature = string.Empty;
                 var devid = string.Empty;
@@ -983,16 +983,16 @@ namespace InstaSharper.API
                     return Result.UnExpectedResponse<InstaLoginResult>(response, json);
                 }
                 var loginInfo = JsonConvert.DeserializeObject<InstaLoginResponse>(json);
-                _user.UserName = loginInfo.User?.UserName;
+                UserSession.UserName = loginInfo.User?.UserName;
                 IsUserAuthenticated = loginInfo.User != null;
                 if (loginInfo.User != null)
                     RequestProcessor.RequestMessage.Username = loginInfo.User.UserName;
                 var converter = ConvertersFabric.Instance.GetUserShortConverter(loginInfo.User);
-                _user.LoggedInUser = converter.Convert();
-                _user.RankToken = $"{_user.LoggedInUser.Pk}_{RequestProcessor.RequestMessage.PhoneId}";
-                if (string.IsNullOrEmpty(_user.CsrfToken))
+                UserSession.LoggedInUser = converter.Convert();
+                UserSession.RankToken = $"{UserSession.LoggedInUser.Pk}_{RequestProcessor.RequestMessage.PhoneId}";
+                if (string.IsNullOrEmpty(UserSession.CsrfToken))
                 {
-                    _user.CsrfToken = InstaApiHelper.GetCsrfToken(RequestProcessor);
+                    UserSession.CsrfToken = InstaApiHelper.GetCsrfToken(RequestProcessor);
                 }
                 return Result.Success(InstaLoginResult.Success);
             }
@@ -1041,21 +1041,21 @@ namespace InstaSharper.API
                 var uri = new Uri(InstaApiConstants.INSTAGRAM_URL);
                 cookies = cookies.Replace(';', ',');
                 RequestProcessor.HttpHandler.CookieContainer.SetCookies(uri, cookies);
-                _user = UserSessionData.Empty;
+                UserSession = UserSessionData.Empty;
                 user = user ?? "AlakiMasalan";
-                _user.UserName = RequestProcessor.RequestMessage.Username = user;
-                _user.Password = "AlakiMasalan";
-                _user.LoggedInUser = new InstaUserShort
+                UserSession.UserName = RequestProcessor.RequestMessage.Username = user;
+                UserSession.Password = "AlakiMasalan";
+                UserSession.LoggedInUser = new InstaUserShort
                 {
                     UserName = user
                 };
                 try
                 {
-                    _user.LoggedInUser.Pk = long.Parse(userId);
+                    UserSession.LoggedInUser.Pk = long.Parse(userId);
                 }
                 catch { }
-                _user.CsrfToken = csrfToken;
-                _user.RankToken = $"{DeviceInfo.RankToken}_{userId}";
+                UserSession.CsrfToken = csrfToken;
+                UserSession.RankToken = $"{DeviceInfo.RankToken}_{userId}";
 
                 IsUserAuthenticated = true;
                 InvalidateProcessors();
@@ -1066,11 +1066,11 @@ namespace InstaSharper.API
                     IsUserAuthenticated = false;
                     return Result.Fail(us.Info, false);
                 }
-                _user.UserName = RequestProcessor.RequestMessage.Username = _user.LoggedInUser.UserName = us.Value.Username;
-                _user.LoggedInUser.FullName = us.Value.FullName;
-                _user.LoggedInUser.IsPrivate = us.Value.IsPrivate;
-                _user.LoggedInUser.IsVerified = us.Value.IsVerified;
-                _user.LoggedInUser.ProfilePictureUrl = us.Value.ProfilePicUrl;
+                UserSession.UserName = RequestProcessor.RequestMessage.Username = UserSession.LoggedInUser.UserName = us.Value.Username;
+                UserSession.LoggedInUser.FullName = us.Value.FullName;
+                UserSession.LoggedInUser.IsPrivate = us.Value.IsPrivate;
+                UserSession.LoggedInUser.IsVerified = us.Value.IsVerified;
+                UserSession.LoggedInUser.ProfilePictureUrl = us.Value.ProfilePicUrl;
 
                 return Result.Success(true);
             }
@@ -1120,12 +1120,12 @@ namespace InstaSharper.API
                 {
                     var loginInfo =
                         JsonConvert.DeserializeObject<InstaLoginResponse>(json);
-                    _user.UserName = loginInfo.User?.UserName;
+                    UserSession.UserName = loginInfo.User?.UserName;
                     IsUserAuthenticated = loginInfo.User != null;
                     RequestProcessor.RequestMessage.Username = loginInfo.User?.UserName;
                     var converter = ConvertersFabric.Instance.GetUserShortConverter(loginInfo.User);
-                    _user.LoggedInUser = converter.Convert();
-                    _user.RankToken = $"{_user.LoggedInUser.Pk}_{RequestProcessor.RequestMessage.PhoneId}";
+                    UserSession.LoggedInUser = converter.Convert();
+                    UserSession.RankToken = $"{UserSession.LoggedInUser.Pk}_{RequestProcessor.RequestMessage.PhoneId}";
 
                     return Result.Success(InstaLoginTwoFactorResult.Success);
                 }
@@ -1178,32 +1178,35 @@ namespace InstaSharper.API
         /// <returns>
         ///     True if logged out without errors
         /// </returns>
-        public async Task<IResult<bool>> LogoutAsync()
+        public bool Logout()
         {
             ValidateUser();
             ValidateLoggedIn();
-            try
-            {
-                var instaUri = UriCreator.GetLogoutUri();
-                var request = HttpHelper.GetDefaultRequest(HttpMethod.Get, instaUri, DeviceInfo);
-                var response = await RequestProcessor.SendAsync(request);
-                var json = await response.Content.ReadAsStringAsync();
-                if (response.StatusCode != HttpStatusCode.OK) return Result.UnExpectedResponse<bool>(response, json);
-                var logoutInfo = JsonConvert.DeserializeObject<BaseStatusResponse>(json);
-                if (logoutInfo.Status == "ok")
-                    IsUserAuthenticated = false;
-                return Result.Success(!IsUserAuthenticated);
-            }
-            catch (HttpRequestException httpException)
-            {
-                _logger?.LogException(httpException);
-                return Result.Fail(httpException, default(bool), ResponseType.NetworkProblem);
-            }
-            catch (Exception exception)
-            {
-                LogException(exception);
-                return Result.Fail(exception, false);
-            }
+            IsUserAuthenticated = false;
+            return true;
+            // *** DEPRECATED ***
+            // try
+            // {
+            //     var instaUri = UriCreator.GetLogoutUri();
+            //     var request = HttpHelper.GetDefaultRequest(HttpMethod.Get, instaUri, DeviceInfo);
+            //     var response = await RequestProcessor.SendAsync(request);
+            //     var json = await response.Content.ReadAsStringAsync();
+            //     if (response.StatusCode != HttpStatusCode.OK) return Result.UnExpectedResponse<bool>(response, json);
+            //     var logoutInfo = JsonConvert.DeserializeObject<BaseStatusResponse>(json);
+            //     if (logoutInfo.Status == "ok")
+            //         IsUserAuthenticated = false;
+            //     return Result.Success(!IsUserAuthenticated);
+            // }
+            // catch (HttpRequestException httpException)
+            // {
+            //     _logger?.LogException(httpException);
+            //     return Result.Fail(httpException, default(bool), ResponseType.NetworkProblem);
+            // }
+            // catch (Exception exception)
+            // {
+            //     LogException(exception);
+            //     return Result.Fail(exception, false);
+            // }
         }
 
         /// <summary>
@@ -1215,8 +1218,8 @@ namespace InstaSharper.API
             try
             {
                 var csrfToken = "";
-                if (!string.IsNullOrEmpty(_user.CsrfToken))
-                    csrfToken = _user.CsrfToken;
+                if (!string.IsNullOrEmpty(UserSession.CsrfToken))
+                    csrfToken = UserSession.CsrfToken;
                 else
                 {
                     var firstResponse = await RequestProcessor.GetAsync(RequestProcessor.Client.BaseAddress);
@@ -1275,8 +1278,8 @@ namespace InstaSharper.API
             try
             {
                 var token = "";
-                if (!string.IsNullOrEmpty(_user.CsrfToken))
-                    token = _user.CsrfToken;
+                if (!string.IsNullOrEmpty(UserSession.CsrfToken))
+                    token = UserSession.CsrfToken;
                 else
                 {
                     var firstResponse = await RequestProcessor.GetAsync(RequestProcessor.Client.BaseAddress);
@@ -1330,8 +1333,8 @@ namespace InstaSharper.API
             try
             {
                 var token = "";
-                if (!string.IsNullOrEmpty(_user.CsrfToken))
-                    token = _user.CsrfToken;
+                if (!string.IsNullOrEmpty(UserSession.CsrfToken))
+                    token = UserSession.CsrfToken;
                 else
                 {
                     var firstResponse = await RequestProcessor.GetAsync(RequestProcessor.Client.BaseAddress);
@@ -1345,7 +1348,7 @@ namespace InstaSharper.API
                 var postData = new JObject
                 {
                     {"query",  phone},
-                    {"_csrftoken",  _user.CsrfToken},
+                    {"_csrftoken",  UserSession.CsrfToken},
                 };
 
                 var instaUri = UriCreator.GetAccountRecoverPhoneUri();
@@ -1400,7 +1403,7 @@ namespace InstaSharper.API
                     { "username",    RequestProcessor.RequestMessage.Username},
                     { "device_id",   RequestProcessor.RequestMessage.DeviceId},
                     { "guid",        DeviceInfo.Uuid.ToString()},
-                    { "_csrftoken",    _user.CsrfToken }
+                    { "_csrftoken",    UserSession.CsrfToken }
                 };
 
                 var instaUri = UriCreator.GetAccount2FALoginAgainUri();
@@ -1473,8 +1476,8 @@ namespace InstaSharper.API
                 var data = new JObject
                 {
                     {"choice", "0"},
-                    {"_csrftoken", _user.CsrfToken},
-                    {"_uid", _user.LoggedInUser.Pk},
+                    {"_csrftoken", UserSession.CsrfToken},
+                    {"_uid", UserSession.LoggedInUser.Pk},
                     {"guid", DeviceInfo.Uuid.ToString()},
                     {"device_id", DeviceInfo.DeviceId},
                     {"_uuid", DeviceInfo.Uuid.ToString()}
@@ -1543,7 +1546,7 @@ namespace InstaSharper.API
                 var instaUri = UriCreator.GetResetChallengeRequireUri(_challengeInfo.ApiPath);
                 var data = new JObject
                 {
-                    {"_csrftoken", _user.CsrfToken},
+                    {"_csrftoken", UserSession.CsrfToken},
                     {"guid", DeviceInfo.Uuid.ToString()},
                     {"device_id", DeviceInfo.DeviceId},
                 };
@@ -1615,7 +1618,7 @@ namespace InstaSharper.API
 
                 var data = new JObject
                 {
-                    {"_csrftoken", _user.CsrfToken},
+                    {"_csrftoken", UserSession.CsrfToken},
                     {"guid", DeviceInfo.Uuid.ToString()},
                     {"device_id", DeviceInfo.DeviceId},
                 };
@@ -1678,7 +1681,7 @@ namespace InstaSharper.API
                 var data = new JObject
                 {
                     {"choice", "1"},
-                    {"_csrftoken", _user.CsrfToken},
+                    {"_csrftoken", UserSession.CsrfToken},
                     {"guid", DeviceInfo.Uuid.ToString()},
                     {"device_id", DeviceInfo.DeviceId},
                 };
@@ -1729,13 +1732,13 @@ namespace InstaSharper.API
             RequestProcessor.HttpHandler.CookieContainer.GetCookies(RequestProcessor.Client
                 .BaseAddress);
                 var csrftoken = InstaApiHelper.GetCsrfToken(RequestProcessor);
-                _user.CsrfToken = csrftoken;
+                UserSession.CsrfToken = csrftoken;
                 var instaUri = UriCreator.GetChallengeRequireUri(_challengeInfo.ApiPath);
 
                 var data = new JObject
                 {
                     {"security_code", verifyCode},
-                    {"_csrftoken", _user.CsrfToken},
+                    {"_csrftoken", UserSession.CsrfToken},
                     {"guid", DeviceInfo.Uuid.ToString()},
                     {"device_id", DeviceInfo.DeviceId},
                 };
@@ -1930,20 +1933,20 @@ namespace InstaSharper.API
                 
                 IsUserAuthenticated = true;
                 var converter = ConvertersFabric.Instance.GetUserShortConverter(loginInfoUser);
-                _user.LoggedInUser = converter.Convert();
-                _user.RankToken = $"{_user.LoggedInUser.Pk}_{RequestProcessor.RequestMessage.PhoneId}";
-                _user.CsrfToken = csrftoken;
-                _user.FacebookUserId = fbUserId;
-                _user.UserName = _user.LoggedInUser.UserName;
-                _user.FacebookAccessToken = fbAccessToken;
-                _user.Password = "ALAKIMASALAN";
+                UserSession.LoggedInUser = converter.Convert();
+                UserSession.RankToken = $"{UserSession.LoggedInUser.Pk}_{RequestProcessor.RequestMessage.PhoneId}";
+                UserSession.CsrfToken = csrftoken;
+                UserSession.FacebookUserId = fbUserId;
+                UserSession.UserName = UserSession.LoggedInUser.UserName;
+                UserSession.FacebookAccessToken = fbAccessToken;
+                UserSession.Password = "ALAKIMASALAN";
 
                 InvalidateProcessors();
 
-                _user.RankToken = $"{_user.LoggedInUser.Pk}_{RequestProcessor.RequestMessage.PhoneId}";
-                if (string.IsNullOrEmpty(_user.CsrfToken))
+                UserSession.RankToken = $"{UserSession.LoggedInUser.Pk}_{RequestProcessor.RequestMessage.PhoneId}";
+                if (string.IsNullOrEmpty(UserSession.CsrfToken))
                 {
-                    _user.CsrfToken = InstaApiHelper.GetCsrfToken(RequestProcessor);
+                    UserSession.CsrfToken = InstaApiHelper.GetCsrfToken(RequestProcessor);
                 }
                 return Result.Success(InstaLoginResult.Success);
             }
@@ -1967,7 +1970,7 @@ namespace InstaSharper.API
                     RequestProcessor.HttpHandler.CookieContainer.GetCookies(RequestProcessor.Client
                     .BaseAddress);
                 var csrftoken = InstaApiHelper.GetCsrfToken(RequestProcessor);
-                _user.CsrfToken = csrftoken;
+                UserSession.CsrfToken = csrftoken;
 
                 //{
                 //  "fb_connected": "true",
@@ -2044,7 +2047,7 @@ namespace InstaSharper.API
                 var data = new JObject
                 {
                     {"phone_id", DeviceInfo.PhoneId},
-                    {"_csrftoken", _user.CsrfToken}
+                    {"_csrftoken", UserSession.CsrfToken}
                 };
                 var request = HttpHelper.GetSignedRequest(instaUri, DeviceInfo, data);
                 var response = await RequestProcessor.SendAsync(request);
@@ -2060,7 +2063,7 @@ namespace InstaSharper.API
                 {
                     {"phone_id", DeviceInfo.PhoneId},
                     {"gdpr_s", ""},
-                    {"_csrftoken", _user.CsrfToken},
+                    {"_csrftoken", UserSession.CsrfToken},
                     {"guid", DeviceInfo.Uuid},
                     {"device_id", DeviceInfo.DeviceId}
                 };
@@ -2090,7 +2093,7 @@ namespace InstaSharper.API
                     {"current_screen_key", "age_consent_two_button"},
                     {"phone_id", DeviceInfo.PhoneId},
                     {"gdpr_s", "[0,0,0,null]"},
-                    {"_csrftoken", _user.CsrfToken},
+                    {"_csrftoken", UserSession.CsrfToken},
                     {"updates", "{\"age_consent_state\":\"2\"}"},
                     {"guid", DeviceInfo.Uuid},
                     {"device_id", DeviceInfo.DeviceId}
@@ -2151,8 +2154,8 @@ namespace InstaSharper.API
         /// </summary>
         public void SetUser(string username, string password)
         {
-            _user.UserName = username;
-            _user.Password = password;
+            UserSession.UserName = username;
+            UserSession.Password = password;
 
             RequestProcessor.RequestMessage.Username = username;
             RequestProcessor.RequestMessage.Password = password;
@@ -2173,13 +2176,7 @@ namespace InstaSharper.API
         {
             return DeviceInfo;
         }
-        /// <summary>
-        ///     Gets logged in user
-        /// </summary>
-        public UserSessionData GetLoggedUser()
-        {
-            return _user;
-        }
+
         /// <summary>
         ///     Get currently logged in user info asynchronously
         /// </summary>
@@ -2359,15 +2356,15 @@ namespace InstaSharper.API
                 if (JData != null)
                 {
                     JData.Add("_uuid", DeviceInfo.Uuid.ToString());
-                    JData.Add("_uid", _user.LoggedInUser.Pk.ToString());
-                    JData.Add("_csrftoken", _user.CsrfToken);
+                    JData.Add("_uid", UserSession.LoggedInUser.Pk.ToString());
+                    JData.Add("_csrftoken", UserSession.CsrfToken);
                     request = HttpHelper.GetSignedRequest(uri, DeviceInfo, JData);
                 }
                 else
                 {
                     DicData.Add("_uuid", DeviceInfo.Uuid.ToString());
-                    DicData.Add("_uid", _user.LoggedInUser.Pk.ToString());
-                    DicData.Add("_csrftoken", _user.CsrfToken);
+                    DicData.Add("_uid", UserSession.LoggedInUser.Pk.ToString());
+                    DicData.Add("_csrftoken", UserSession.CsrfToken);
                     request = HttpHelper.GetSignedRequest(uri, DeviceInfo, DicData);
                 }
 
@@ -2403,8 +2400,8 @@ namespace InstaSharper.API
                     return Result.Fail("Uri cannot be null!", default(string));
 
                 data.Add("_uuid", DeviceInfo.Uuid.ToString());
-                data.Add("_uid", _user.LoggedInUser.Pk.ToString());
-                data.Add("_csrftoken", _user.CsrfToken);
+                data.Add("_uid", UserSession.LoggedInUser.Pk.ToString());
+                data.Add("_csrftoken", UserSession.CsrfToken);
                 var request = HttpHelper.GetDefaultPostRequest(uri, DeviceInfo, data);
                 var response = await RequestProcessor.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
@@ -2440,7 +2437,7 @@ namespace InstaSharper.API
             {
                 DeviceInfo = DeviceInfo,
                 IsAuthenticated = IsUserAuthenticated,
-                UserSession = _user,
+                UserSession = UserSession,
                 Cookies = RequestProcessor.HttpHandler.CookieContainer,
                 FbnsConnectionData = PushClient.ConnectionData,
                 CurrentApiVersion = ApiVersion.CurrentApiVersion
@@ -2459,7 +2456,7 @@ namespace InstaSharper.API
             {
                 DeviceInfo = DeviceInfo,
                 IsAuthenticated = IsUserAuthenticated,
-                UserSession = _user,
+                UserSession = UserSession,
                 Cookies = RequestProcessor.HttpHandler.CookieContainer,
                 FbnsConnectionData = PushClient.ConnectionData,
                 CurrentApiVersion = ApiVersion.CurrentApiVersion
@@ -2479,7 +2476,7 @@ namespace InstaSharper.API
             {
                 DeviceInfo = DeviceInfo,
                 IsAuthenticated = IsUserAuthenticated,
-                UserSession = _user,
+                UserSession = UserSession,
                 Cookies = RequestProcessor.HttpHandler.CookieContainer,
                 FbnsConnectionData = PushClient.ConnectionData,
                 CurrentApiVersion = ApiVersion.CurrentApiVersion
@@ -2523,7 +2520,7 @@ namespace InstaSharper.API
         {
             var data = SerializationHelper.DeserializeFromStream<StateData>(stream);
             DeviceInfo = data.DeviceInfo;
-            _user = data.UserSession;
+            UserSession = data.UserSession;
 
             RequestProcessor.RequestMessage.Username = data.UserSession.UserName;
             RequestProcessor.RequestMessage.Password = data.UserSession.Password;
@@ -2537,7 +2534,7 @@ namespace InstaSharper.API
             ApiVersion.CurrentApiVersion = data.CurrentApiVersion;
 
             Task.Run(async () => { await PushClient.Shutdown(); });
-            PushClient = new FbnsClient(DeviceInfo, _user, RequestProcessor, data.FbnsConnectionData);
+            PushClient = new FbnsClient(DeviceInfo, UserSession, RequestProcessor, data.FbnsConnectionData);
 
             IsUserAuthenticated = data.IsAuthenticated;
             InvalidateProcessors();
@@ -2549,7 +2546,7 @@ namespace InstaSharper.API
         {
             var data = SerializationHelper.DeserializeFromString<StateData>(json);
             DeviceInfo = data.DeviceInfo;
-            _user = data.UserSession;
+            UserSession = data.UserSession;
 
             //Load Stream Edit 
             RequestProcessor.RequestMessage.Username = data.UserSession.UserName;
@@ -2564,7 +2561,7 @@ namespace InstaSharper.API
             ApiVersion.CurrentApiVersion = data.CurrentApiVersion;
 
             Task.Run(async () => { await PushClient.Shutdown(); });
-            PushClient = new FbnsClient(DeviceInfo, _user, RequestProcessor, data.FbnsConnectionData);
+            PushClient = new FbnsClient(DeviceInfo, UserSession, RequestProcessor, data.FbnsConnectionData);
 
             IsUserAuthenticated = data.IsAuthenticated;
             InvalidateProcessors();
@@ -2598,24 +2595,24 @@ namespace InstaSharper.API
 
         internal void InvalidateProcessors()
         {
-            _hashtagProcessor = new HashtagProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate);
-            _locationProcessor = new LocationProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate);
-            _collectionProcessor = new CollectionProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate);
-            _mediaProcessor = new MediaProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _userProcessor = new UserProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _storyProcessor = new StoryProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _commentProcessor = new CommentProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _messagingProcessor = new MessagingProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _feedProcessor = new FeedProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
+            _hashtagProcessor = new HashtagProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate);
+            _locationProcessor = new LocationProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate);
+            _collectionProcessor = new CollectionProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate);
+            _mediaProcessor = new MediaProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate, this);
+            _userProcessor = new UserProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate, this);
+            _storyProcessor = new StoryProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate, this);
+            _commentProcessor = new CommentProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate, this);
+            _messagingProcessor = new MessagingProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate, this);
+            _feedProcessor = new FeedProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate, this);
 
-            _liveProcessor = new LiveProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _discoverProcessor = new DiscoverProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _accountProcessor = new AccountProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _helperProcessor = new HelperProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _tvProcessor = new TVProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _businessProcessor = new BusinessProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _shoppingProcessor = new ShoppingProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate, this);
-            _webProcessor = new WebProcessor(DeviceInfo, _user, RequestProcessor, _logger, _userAuthValidate);
+            _liveProcessor = new LiveProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate, this);
+            _discoverProcessor = new DiscoverProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate, this);
+            _accountProcessor = new AccountProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate, this);
+            _helperProcessor = new HelperProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate, this);
+            _tvProcessor = new TVProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate, this);
+            _businessProcessor = new BusinessProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate, this);
+            _shoppingProcessor = new ShoppingProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate, this);
+            _webProcessor = new WebProcessor(DeviceInfo, UserSession, RequestProcessor, _logger, _userAuthValidate);
 
         }
 
@@ -2624,17 +2621,17 @@ namespace InstaSharper.API
             try
             {
                 var converter = ConvertersFabric.Instance.GetUserShortConverter(user);
-                _user.LoggedInUser = converter.Convert();
+                UserSession.LoggedInUser = converter.Convert();
                 if (password != null)
-                    _user.Password = password;
-                _user.UserName = _user.UserName;
+                    UserSession.Password = password;
+                UserSession.UserName = UserSession.UserName;
                 if (validateExtra)
                 {
-                    _user.RankToken = $"{_user.LoggedInUser.Pk}_{RequestProcessor.RequestMessage.PhoneId}";
-                    _user.CsrfToken = csrfToken;
-                    if (string.IsNullOrEmpty(_user.CsrfToken))
+                    UserSession.RankToken = $"{UserSession.LoggedInUser.Pk}_{RequestProcessor.RequestMessage.PhoneId}";
+                    UserSession.CsrfToken = csrfToken;
+                    if (string.IsNullOrEmpty(UserSession.CsrfToken))
                     {
-                        _user.CsrfToken = InstaApiHelper.GetCsrfToken(RequestProcessor);
+                        UserSession.CsrfToken = InstaApiHelper.GetCsrfToken(RequestProcessor);
                     }
                     IsUserAuthenticated = true;
                     InvalidateProcessors();
@@ -2646,7 +2643,7 @@ namespace InstaSharper.API
 
         private void ValidateUser()
         {
-            if (string.IsNullOrEmpty(_user.UserName) || string.IsNullOrEmpty(_user.Password))
+            if (string.IsNullOrEmpty(UserSession.UserName) || string.IsNullOrEmpty(UserSession.Password))
                 throw new ArgumentException("user name and password must be specified");
         }
 

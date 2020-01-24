@@ -11,7 +11,7 @@ using InstaSharper.Helpers;
 
 namespace InstaSharper.Converters.Directs
 {
-    internal class InstaDirectThreadItemConverter : IObjectConverter<InstaDirectInboxItem, InstaDirectInboxItemResponse>
+    public class InstaDirectThreadItemConverter : IObjectConverter<InstaDirectInboxItem, InstaDirectInboxItemResponse>
     {
         public InstaDirectInboxItemResponse SourceObject { get; set; }
 
@@ -27,7 +27,7 @@ namespace InstaSharper.Converters.Directs
             };
 
 
-            var truncatedItemType = SourceObject.ItemType.Trim().Replace("_", "");
+            var truncatedItemType = SourceObject.ItemType?.Trim().Replace("_", "");
             if (Enum.TryParse(truncatedItemType, true, out InstaDirectThreadItemType type))
                 threadItem.ItemType = type;
             else

@@ -93,16 +93,15 @@ namespace InstaSharper.Converters.Directs
                 }
             }
 
-            try
+            if (thread.LastSeenAt != null && thread.LastSeenAt.TryGetValue(thread.ViewerId, out var viewerLastSeen))
             {
-                var viewer = thread.LastSeenAt.Single(x => thread.ViewerId == x.Key);
-                thread.HasUnreadMessage = thread.LastNonSenderItemAt > viewer.Value.SeenTime;
+                thread.HasUnreadMessage = thread.LastNonSenderItemAt > viewerLastSeen.SeenTime &&
+                                          thread.LastActivity == thread.LastNonSenderItemAt;
             }
-            catch 
+            else
             {
                 thread.HasUnreadMessage = false;
             }
-            
 
             return thread;
         }

@@ -24,11 +24,11 @@ namespace InstaSharper.API.Push.PacketHelpers
 //            public const byte PubComp = 112;
             public const byte Connect = 16;
             public const byte Subscribe = 130;
-//            public const byte SubAck = 144;
+            public const byte SubAck = 144;
 //            public const byte PingReq = 192;
             public const byte PingResp = 208;
 //            public const byte Disconnect = 224;
-//            public const byte Unsubscribe = 162;
+            public const byte Unsubscribe = 162;
 //            public const byte UnsubAck = 176;
 
             public static bool IsPublish(int signature)
@@ -151,6 +151,16 @@ namespace InstaSharper.API.Push.PacketHelpers
                     var connAckPacket = new FbnsConnAckPacket();
                     DecodeConnAckPacket(buffer, connAckPacket, ref remainingLength);
                     return connAckPacket;
+                case Signatures.SubAck:
+                    var subAckPacket = new SubAckPacket();
+                    DecodePacketIdVariableHeader(buffer, subAckPacket, ref remainingLength);
+                    DecodeSubAckPayload(buffer, subAckPacket, ref remainingLength);
+                    return subAckPacket;
+                case Signatures.Unsubscribe & 240:
+                    var unsubscribePacket = new UnsubscribePacket();
+                    DecodePacketIdVariableHeader(buffer, unsubscribePacket, ref remainingLength);
+                    DecodeUnsubscribePayload(buffer, unsubscribePacket, ref remainingLength);
+                    return unsubscribePacket;
                 case Signatures.PingResp:
                     return PingRespPacket.Instance;
                 default:
@@ -182,6 +192,43 @@ namespace InstaSharper.API.Push.PacketHelpers
             }
 
             packet.Requests = subscribeTopics;
+        }
+
+        static void DecodeSubAckPayload(IByteBuffer buffer, SubAckPacket packet, ref int remainingLength)
+        {
+            var returnCodes = new QualityOfService[remainingLength];
+            for (int i = 0; i < remainingLength; i++)
+            {
+                var returnCode = (QualityOfService)buffer.ReadByte();
+                if (returnCode > QualityOfService.ExactlyOnce && returnCode != QualityOfService.Failure)
+                {
+                    throw new DecoderException($"[MQTT-3.9.3-2]. Invalid return code: {returnCode}");
+                }
+                returnCodes[i] = returnCode;
+            }
+            packet.ReturnCodes = returnCodes;
+
+            remainingLength = 0;
+        }
+
+        static void DecodeUnsubscribePayload(IByteBuffer buffer, UnsubscribePacket packet, ref int remainingLength)
+        {
+            var unsubscribeTopics = new List<string>();
+            while (remainingLength > 0)
+            {
+                string topicFilter = DecodeString(buffer, ref remainingLength);
+                ValidateTopicFilter(topicFilter);
+                unsubscribeTopics.Add(topicFilter);
+            }
+
+            if (unsubscribeTopics.Count == 0)
+            {
+                throw new DecoderException("[MQTT-3.10.3-2]");
+            }
+
+            packet.TopicFilters = unsubscribeTopics;
+
+            remainingLength = 0;
         }
 
         static void DecodeConnectPacket(IByteBuffer buffer, FbnsConnectPacket packet, ref int remainingLength)

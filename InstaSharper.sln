@@ -1,10 +1,12 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29609.76
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstaSharper", "InstaSharper\InstaSharper.csproj", "{449A948D-CC65-4D1A-8159-6FA232F972D9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstaSharper.Tests", "InstaSharper.Tests\InstaSharper.Tests.csproj", "{DBE6FBB7-CDE7-4CDF-AB08-989A43CC4D46}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Thrift", "..\Thrift\Thrift\Thrift.csproj", "{A4F5C353-7AAE-4DF7-8677-6C5DF414E0CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +22,10 @@ Global
 		{DBE6FBB7-CDE7-4CDF-AB08-989A43CC4D46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBE6FBB7-CDE7-4CDF-AB08-989A43CC4D46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBE6FBB7-CDE7-4CDF-AB08-989A43CC4D46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4F5C353-7AAE-4DF7-8677-6C5DF414E0CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4F5C353-7AAE-4DF7-8677-6C5DF414E0CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4F5C353-7AAE-4DF7-8677-6C5DF414E0CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4F5C353-7AAE-4DF7-8677-6C5DF414E0CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
