@@ -63,7 +63,7 @@ namespace InstaSharper.API.Builder
                 AdId = _device.AdId.ToString()
             };
 
-            InstaApiConstants.TIMEZONE = TZConvert.WindowsToIana(TimeZoneInfo.Local.StandardName);
+            // InstaApiConstants.TIMEZONE = TZConvert.WindowsToIana(TimeZoneInfo.Local.StandardName);
             InstaApiConstants.TIMEZONE_OFFSET = (int)DateTimeOffset.Now.Offset.TotalSeconds;
             _httpRequestProcessor = new HttpRequestProcessor(_delay, _httpClient, _httpHandler, _requestMessage, _logger);
 
